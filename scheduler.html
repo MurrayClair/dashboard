@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nupress Scheduler — Live Gantt</title>
+<style>
+:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--s3:#2a2a2a;--brd:#333;--brd2:#444;--txt:#e8e8e8;--dim:#888;--dim2:#666;--green:#34c759;--green-d:rgba(52,199,89,.15);--yellow:#ffd60a;--yellow-d:rgba(255,214,10,.15);--red:#ff453a;--red-d:rgba(255,69,58,.15);--blue:#5ac8fa;--blue-d:rgba(90,200,250,.15);--accent:#e07a3a;--purple:#bf5af2;--r:10px;--rs:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);font-size:13px;line-height:1.4;overflow-x:hidden}
+.app{display:flex;height:100vh}
+/* Sidebar */
+.sb{width:220px;min-width:220px;background:var(--s1);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow-y:auto}
+.sb-hd{padding:16px;border-bottom:1px solid var(--brd);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.sb-hd span{font-size:18px}
+.sb-sec{padding:8px;flex:1;overflow-y:auto}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim2);padding:8px 8px 4px}
+.mc{padding:6px 10px;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);transition:.15s}
+.mc:hover{background:var(--s2);color:var(--txt)}
+.mc.active{background:var(--blue-d);color:var(--blue)}
+.mc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mc-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-cnt{font-size:10px;background:var(--s3);padding:1px 6px;border-radius:10px;font-weight:700}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* Stats */
+.stats{display:flex;gap:12px;padding:16px;border-bottom:1px solid var(--brd);background:var(--s1);flex-wrap:wrap}
+.st{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px 16px;min-width:120px;flex:1}
+.st-v{font-size:24px;font-weight:700;line-height:1}
+.st-l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:600}
+/* Controls */
+.ctrls{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--brd);background:var(--s1);align-items:center;flex-wrap:wrap}
+.btn{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
+.btn:hover{color:var(--txt);border-color:var(--brd2)}
+.btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.danger{background:var(--red-d);color:var(--red);border-color:rgba(255,69,58,.3)}
+.btn.success{background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3)}
+.ctrl-label{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-right:4px}
+.ctrl-sep{width:1px;height:20px;background:var(--brd);margin:0 4px}
+/* Gantt area */
+.gantt-wrap{flex:1;display:flex;overflow:hidden}
+.gantt-area{flex:1;overflow:auto;position:relative}
+.gantt{position:relative;min-width:100%}
+/* Machine labels */
+.g-labels{position:sticky;left:0;z-index:5;background:var(--s1);border-right:1px solid var(--brd)}
+.g-label{height:44px;padding:0 12px;display:flex;align-items:center;font-size:11px;font-weight:600;border-bottom:1px solid var(--brd);white-space:nowrap;gap:6px;cursor:pointer}
+.g-label:hover{background:var(--s2)}
+.g-label .dot{width:6px;height:6px;border-radius:50%}
+/* Timeline header */
+.g-header{height:32px;border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:4;background:var(--s1);display:flex}
+.g-hcell{border-right:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim);font-weight:600}
+/* Rows */
+.g-row{height:44px;border-bottom:1px solid var(--brd);position:relative}
+.g-row:hover{background:rgba(255,255,255,.02)}
+/* Job blocks */
+.job{position:absolute;height:28px;top:8px;border-radius:5px;font-size:10px;font-weight:600;display:flex;align-items:center;padding:0 6px;cursor:pointer;overflow:hidden;white-space:nowrap;transition:left .3s,width .3s;z-index:2;border:1px solid transparent}
+.job:hover{z-index:3;filter:brightness(1.2)}
+.job.on-time{background:rgba(52,199,89,.25);color:var(--green);border-color:rgba(52,199,89,.3)}
+.job.at-risk{background:rgba(255,214,10,.2);color:var(--yellow);border-color:rgba(255,214,10,.3)}
+.job.late{background:rgba(255,69,58,.2);color:var(--red);border-color:rgba(255,69,58,.3)}
+.job.in-progress{border-left:3px solid var(--accent)}
+.job.cmm{background:rgba(191,90,242,.2);color:var(--purple);border-color:rgba(191,90,242,.3)}
+/* Today line */
+.today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:3;pointer-events:none}
+.today-label{position:absolute;top:-28px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;z-index:6}
+/* Late panel */
+.late-panel{width:340px;min-width:340px;background:var(--s1);border-left:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.late-panel.collapsed{width:0;min-width:0;border:none}
+.lp-hd{padding:12px 16px;border-bottom:1px solid var(--brd);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between}
+.lp-cnt{font-size:11px;background:var(--red-d);color:var(--red);padding:2px 8px;border-radius:10px;font-weight:700}
+.lp-body{flex:1;overflow-y:auto;padding:8px}
+.lj{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.lj-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.lj-id{font-weight:700;font-size:12px}
+.lj-days{font-size:11px;font-weight:700;color:var(--red);background:var(--red-d);padding:2px 8px;border-radius:4px}
+.lj-part{font-size:11px;color:var(--dim);margin-bottom:4px}
+.lj-dates{font-size:10px;color:var(--dim2);display:flex;gap:12px;margin-bottom:8px}
+.lj-recovery{display:flex;flex-direction:column;gap:4px}
+.rc{font-size:10px;padding:4px 8px;border-radius:4px;background:var(--s3);border:1px solid var(--brd);cursor:pointer;color:var(--dim);transition:.15s;display:flex;align-items:center;gap:6px}
+.rc:hover{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
+.rc-icon{font-size:12px}
+/* Toggle */
+.lp-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);background:var(--s2);border:1px solid var(--brd);border-right:none;border-radius:var(--rs) 0 0 var(--rs);padding:8px 4px;cursor:pointer;z-index:10;color:var(--dim);font-size:12px}
+.lp-toggle:hover{color:var(--txt)}
+/* Tooltip */
+.tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:none;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.tip-title{font-weight:700;margin-bottom:6px;font-size:13px}
+.tip-row{display:flex;justify-content:space-between;margin-bottom:3px;color:var(--dim)}
+.tip-row span:last-child{color:var(--txt);font-weight:600}
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s1);border:1px solid var(--brd);padding:10px 20px;border-radius:var(--r);font-size:12px;font-weight:600;z-index:200;opacity:0;transition:.3s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:900px){.sb{display:none}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="sb">
+  <div class="sb-hd"><span>🏭</span> Nupress Scheduler</div>
+  <div class="sb-sec">
+    <div class="sb-label">Machines</div>
+    <div id="machine-list"></div>
+  </div>
+</nav>
+<div class="main">
+  <div class="stats" id="stats-bar"></div>
+  <div class="ctrls">
+    <span class="ctrl-label">View</span>
+    <button class="btn active" onclick="setScale('day')">Day</button>
+    <button class="btn" onclick="setScale('week')">Week</button>
+    <button class="btn" onclick="setScale('month')">Month</button>
+    <div class="ctrl-sep"></div>
+    <span class="ctrl-label">Filter</span>
+    <button class="btn active" onclick="setFilter('all')">All</button>
+    <button class="btn" onclick="setFilter('late')">🔴 Late</button>
+    <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
+    <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
+    <div class="ctrl-sep"></div>
+    <button class="btn danger" onclick="addGlobalDelay()">＋ Add Delay</button>
+    <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
+  </div>
+  <div class="gantt-wrap">
+    <div class="gantt-area" id="gantt-area">
+      <div class="gantt" id="gantt"></div>
+    </div>
+    <div class="late-panel" id="late-panel">
+      <div class="lp-hd">Late Jobs <span class="lp-cnt" id="late-count">0</span></div>
+      <div class="lp-body" id="late-list"></div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="tip" id="tooltip" style="display:none"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const TODAY = new Date();
+TODAY.setHours(6,0,0,0);
+const HOUR_PX = {day:12,week:4,month:1.2};
+let scale = 'day';
+let filter = 'all';
+let selectedMachine = null;
+const SHIFT_HOURS = 10; // hours per shift per day
+
+// ── MACHINES ──
+const MACHINES = [
+  {id:'QTN450M',name:'QTN450M — Mazak Lathe',type:'lathe',color:'#34c759'},
+  {id:'QTN350MY',name:'QTN350MY — Mazak Y-Axis',type:'lathe',color:'#30d158'},
+  {id:'INTE2004S',name:'INTE2004S — Integrex',type:'millturn',color:'#5ac8fa'},
+  {id:'INTE4004S',name:'INTE4004S — Integrex',type:'millturn',color:'#64d2ff'},
+  {id:'INTEJ400',name:'INTEJ400 — Integrex J400',type:'millturn',color:'#0a84ff'},
+  {id:'SQT10M',name:'SQT10M — Mazak Lathe',type:'lathe',color:'#34c759'},
+  {id:'QT20',name:'QT20 — Quick Turn',type:'lathe',color:'#30d158'},
+  {id:'QT20HP',name:'QT20HP — Quick Turn HP',type:'lathe',color:'#32d74b'},
+  {id:'VCS530C',name:'VCS530C — VMC',type:'vmc',color:'#ffd60a'},
+  {id:'VTC530C',name:'VTC530C — VMC',type:'vmc',color:'#ffc800'},
+  {id:'HCN8800',name:'HCN8800 — HMC',type:'hmc',color:'#ff9f0a'},
+  {id:'FH4800',name:'FH4800 — HMC',type:'hmc',color:'#ff9500'},
+  {id:'VRX730',name:'VRX730 — 5-Axis',type:'5axis',color:'#bf5af2'},
+  {id:'NTX2500',name:'NTX2500 — NTX Mill-Turn',type:'millturn',color:'#5e5ce6'},
+  {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff'},
+  {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a'},
+  {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de'},
+  {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482'},
+  {id:'CMM1',name:'CMM1 — Inspection',type:'cmm',color:'#bf5af2'},
+  {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2'},
+  {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93'},
+  {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93'},
+];
+
+// Compatible machine groups for recovery
+const COMPAT = {lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+
+// ── GENERATE REALISTIC JOBS ──
+const PARTS = [
+  {p:'570-10-0402C1-04',d:'Y ROTATION POWER SCREW',h:18},{p:'2012691',d:'RING GEAR HOUSING',h:12},
+  {p:'505327',d:'SPROCKET 16 TOOTH',h:6},{p:'AU07595',d:'SPLIT SPROCKET 14T DUAL',h:8},
+  {p:'T45H36FLKIN',d:'KINLOC SPANNER T45',h:10},{p:'SR29015',d:'LOOPER TABLE FEED ROLLER',h:14},
+  {p:'NP-TJR-HFX280',d:'HFX 280 ROD TIMBERJACK',h:16},{p:'414E5047-2',d:'BUSHING',h:4},
+  {p:'1471-248',d:'MANIFOLD SS316',h:9},{p:'SHAFT-XH150',d:'TRB 100DIA SHAFT',h:20},
+  {p:'10-020-30-4274',d:'HINGE CAM',h:5},{p:'NP-100471134',d:'SOCKET HEAD CAP SCREW',h:3},
+  {p:'FST-316-BN-M24',d:'BACK NUT 316SS M24',h:7},{p:'KP-NP06',d:'VCII KNIFE PLATE',h:11},
+  {p:'HB120-24',d:'MAIN CARRIAGE AXLE',h:15},{p:'SPNADAPR25',d:'SPIN ADAPTOR R25',h:8},
+  {p:'PKM011',d:'OPERATING SHAFT CAM',h:6},{p:'ZP201006-202',d:'SPIGOT CARRIAGE ROD',h:5},
+  {p:'TEN178PNPE02',d:'TENSIONER UNIT 17.8MM',h:7},{p:'FP220024',d:'LOCKNUT 55DIA',h:4},
+  {p:'261858277-01',d:'PLATE 1',h:22},{p:'ME5331-31',d:'ITEM 4',h:13},
+  {p:'NP-12-2-90-R',d:'MODIFIED SPIDER R',h:10},{p:'TYPE-2-FERRULE',d:'FERRULE',h:6},
+  {p:'6162-2DN51',d:'HYDRAULIC SPACER',h:4},{p:'1471-215',d:'PRINTHEAD LID ALU',h:5},
+  {p:'DE-6-S',d:'SANDVIK #6 DRIVE END',h:8},{p:'SCK-17-S',d:'SCK-17-S',h:7},
+  {p:'410-A40-345',d:'FTG EXCLUDER NUT MLG',h:3},{p:'3442-005',d:'PIN 155MM REV G',h:9},
+];
+
+let jobs = [];
+let jobIdCounter = 26900;
+
+function genJobs(){
+  jobs = [];
+  const machineQueues = {};
+  MACHINES.forEach(m => machineQueues[m.id] = 0);
+
+  for(let i = 0; i < 38; i++){
+    const part = PARTS[i % PARTS.length];
+    const mIdx = i % MACHINES.length;
+    const machine = MACHINES[mIdx];
+    const baseHours = part.h * (0.8 + Math.random()*0.4);
+    const qty = Math.floor(1 + Math.random()*30);
+    const totalHours = Math.max(2, Math.round(baseHours * (1 + qty/50)));
+
+    // Spread jobs: some started days ago, some start in future
+    const offsetHours = machineQueues[machine.id];
+    const startDate = new Date(TODAY.getTime() + (offsetHours - 24 - Math.random()*48) * 3600000);
+    const endDate = new Date(startDate.getTime() + totalHours * 3600000);
+    const dueDate = new Date(startDate.getTime() + (totalHours + (Math.random()*72 - 24)) * 3600000);
+
+    const isInProgress = startDate < TODAY && endDate > TODAY;
+    const delayHours = isInProgress ? Math.max(0, Math.round((Math.random()-0.3)*16)) : 0;
+
+    const actualEnd = new Date(endDate.getTime() + delayHours * 3600000);
+    const isLate = actualEnd > dueDate;
+    const isAtRisk = !isLate && (dueDate - actualEnd) < 24*3600000;
+    const needsCMM = Math.random() > 0.3;
+
+    jobs.push({
+      id: `${jobIdCounter + i}-0001-001`,
+      partId: part.p,
+      partDesc: part.d,
+      machine: machine.id,
+      qty,
+      totalHours,
+      start: startDate,
+      end: actualEnd,
+      originalEnd: endDate,
+      due: dueDate,
+      delay: delayHours,
+      status: endDate < TODAY ? 'complete' : isInProgress ? 'in-progress' : 'queued',
+      needsCMM,
+      cmmDone: endDate < TODAY,
+    });
+
+    machineQueues[machine.id] = offsetHours + totalHours + 2;
+  }
+
+  // Add CMM queue jobs
+  const cmmJobs = jobs.filter(j => j.needsCMM && j.status === 'in-progress');
+  cmmJobs.forEach((j, i) => {
+    const cmmMachine = i % 2 === 0 ? 'CMM1' : 'CMM2';
+    const cmmStart = new Date(j.end.getTime() + i * 4 * 3600000);
+    jobs.push({
+      id: j.id + '-CMM',
+      partId: j.partId,
+      partDesc: j.partDesc + ' (CMM)',
+      machine: cmmMachine,
+      qty: j.qty,
+      totalHours: 2 + Math.random()*3,
+      start: cmmStart,
+      end: new Date(cmmStart.getTime() + (2+Math.random()*3)*3600000),
+      originalEnd: new Date(cmmStart.getTime() + 2*3600000),
+      due: j.due,
+      delay: 0,
+      status: 'queued',
+      needsCMM: false,
+      cmmDone: false,
+      parentJob: j.id,
+    });
+  });
+
+  recalcCascade();
+}
+
+// ── FORWARD-PUSH CASCADE ──
+function recalcCascade(){
+  const byMachine = {};
+  MACHINES.forEach(m => byMachine[m.id] = []);
+  jobs.forEach(j => { if(byMachine[j.machine]) byMachine[j.machine].push(j); });
+
+  Object.keys(byMachine).forEach(mId => {
+    const mJobs = byMachine[mId].sort((a,b) => a.start - b.start);
+    let cursor = null;
+    mJobs.forEach(j => {
+      if(j.status === 'complete') {
+        cursor = j.end;
+        return;
+      }
+      if(cursor && j.start < cursor){
+        const shift = cursor - j.start;
+        j.start = new Date(j.start.getTime() + shift);
+        j.end = new Date(j.end.getTime() + shift);
+      }
+      // Apply delay
+      if(j.delay > 0 && j.status === 'in-progress'){
+        j.end = new Date(j.originalEnd.getTime() + j.delay * 3600000);
+      }
+      cursor = j.end;
+    });
+  });
+}
+
+// ── RENDER ──
+function render(){
+  renderStats();
+  renderMachineList();
+  renderGantt();
+  renderLatePanel();
+}
+
+function renderStats(){
+  const active = jobs.filter(j => j.status !== 'complete');
+  const late = active.filter(j => j.end > j.due);
+  const atRisk = active.filter(j => !late.includes(j) && (j.due - j.end) < 24*3600000);
+  const onTime = active.length - late.length - atRisk.length;
+  const cmmQ = jobs.filter(j => j.machine.startsWith('CMM') && j.status !== 'complete').length;
+
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
+    <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
+    <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
+    <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
+    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
+  `;
+}
+
+function renderMachineList(){
+  const el = document.getElementById('machine-list');
+  el.innerHTML = MACHINES.map(m => {
+    const cnt = jobs.filter(j => j.machine === m.id && j.status !== 'complete').length;
+    const isActive = selectedMachine === m.id;
+    return `<div class="mc ${isActive?'active':''}" onclick="selectMachine('${m.id}')">
+      <div class="mc-dot" style="background:${m.color}"></div>
+      <span class="mc-name">${m.id}</span>
+      <span class="mc-cnt">${cnt}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderGantt(){
+  const area = document.getElementById('gantt-area');
+  const gantt = document.getElementById('gantt');
+  const hpx = HOUR_PX[scale];
+  const totalDays = scale === 'day' ? 14 : scale === 'week' ? 42 : 90;
+  const totalHours = totalDays * 24;
+  const startTime = new Date(TODAY.getTime() - 5 * 24 * 3600000);
+  const labelW = 140;
+  const totalW = labelW + totalHours * hpx;
+
+  let filteredMachines = MACHINES;
+  if(filter === 'cmm') filteredMachines = MACHINES.filter(m => m.type === 'cmm');
+
+  // Filter jobs
+  let filteredJobs = jobs;
+  if(filter === 'late') filteredJobs = jobs.filter(j => j.end > j.due && j.status !== 'complete');
+  else if(filter === 'at-risk') filteredJobs = jobs.filter(j => j.status !== 'complete' && !(j.end > j.due) && (j.due - j.end) < 24*3600000);
+  else if(filter === 'cmm') filteredJobs = jobs.filter(j => j.machine.startsWith('CMM'));
+
+  if(selectedMachine) filteredMachines = MACHINES.filter(m => m.id === selectedMachine);
+
+  const rowH = 44;
+  const headerH = 32;
+
+  let html = '';
+  // Header
+  html += `<div class="g-header" style="margin-left:${labelW}px;width:${totalHours*hpx}px">`;
+  for(let d = 0; d < totalDays; d++){
+    const date = new Date(startTime.getTime() + d * 24*3600000);
+    const dayW = 24 * hpx;
+    const isToday = date.toDateString() === TODAY.toDateString();
+    const bg = isToday ? 'rgba(255,69,58,.1)' : 'transparent';
+    const label = date.toLocaleDateString('en-AU',{day:'numeric',month:'short',weekday:'short'});
+    html += `<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${scale==='month' && d%7!==0 ? '' : label}</div>`;
+  }
+  html += '</div>';
+
+  // Rows
+  filteredMachines.forEach((m, mi) => {
+    const y = headerH + mi * rowH;
+    const mJobs = filteredJobs.filter(j => j.machine === m.id && j.status !== 'complete');
+
+    // Label
+    html += `<div class="g-label" style="position:absolute;top:${y}px;left:0;width:${labelW}px;height:${rowH}px" onclick="selectMachine('${m.id}')">
+      <div class="dot" style="background:${m.color}"></div>${m.id}
+    </div>`;
+
+    // Row bg
+    html += `<div class="g-row" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalHours*hpx}px;height:${rowH}px"></div>`;
+
+    // Jobs
+    mJobs.forEach(j => {
+      const jStart = (j.start - startTime) / 3600000;
+      const jDur = (j.end - j.start) / 3600000;
+      const x = jStart * hpx;
+      const w = Math.max(jDur * hpx, 20);
+      const isLate = j.end > j.due;
+      const isAtRisk = !isLate && (j.due - j.end) < 24*3600000;
+      const cls = j.machine.startsWith('CMM') ? 'cmm' : isLate ? 'late' : isAtRisk ? 'at-risk' : 'on-time';
+      const prog = j.status === 'in-progress' ? ' in-progress' : '';
+      html += `<div class="job ${cls}${prog}" style="position:absolute;top:${y+8}px;left:${labelW + x}px;width:${w}px"
+        onmouseenter="showTip(event,'${j.id}')" onmouseleave="hideTip()" onclick="selectJob('${j.id}')">
+        ${j.partId.substring(0,15)}${j.delay > 0 ? ' +'+j.delay+'h':''}
+      </div>`;
+    });
+  });
+
+  // Today line
+  const todayX = ((TODAY - startTime) / 3600000) * hpx;
+  html += `<div class="today-line" style="left:${labelW + todayX}px;top:0;height:${headerH + filteredMachines.length * rowH}px">
+    <div class="today-label">TODAY</div>
+  </div>`;
+
+  gantt.style.width = totalW + 'px';
+  gantt.style.height = (headerH + filteredMachines.length * rowH) + 'px';
+  gantt.innerHTML = html;
+
+  // Scroll to today
+  area.scrollLeft = Math.max(0, labelW + todayX - area.clientWidth / 3);
+}
+
+function renderLatePanel(){
+  const lateJobs = jobs.filter(j => j.end > j.due && j.status !== 'complete')
+    .sort((a,b) => {
+      const aLate = (a.end - a.due)/3600000;
+      const bLate = (b.end - b.due)/3600000;
+      return bLate - aLate;
+    });
+
+  document.getElementById('late-count').textContent = lateJobs.length;
+  const el = document.getElementById('late-list');
+
+  if(!lateJobs.length){
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--dim2)">🎉 No late jobs!</div>';
+    return;
+  }
+
+  el.innerHTML = lateJobs.map(j => {
+    const daysLate = Math.round((j.end - j.due) / (24*3600000) * 10) / 10;
+    const machine = MACHINES.find(m => m.id === j.machine);
+    const mType = machine ? machine.type : '';
+    const altMachines = (COMPAT[mType]||[]).filter(m => m !== j.machine);
+
+    return `<div class="lj">
+      <div class="lj-head">
+        <div class="lj-id">${j.id}</div>
+        <div class="lj-days">${daysLate}d late</div>
+      </div>
+      <div class="lj-part">${j.partDesc} — Qty: ${j.qty}</div>
+      <div class="lj-dates">
+        <span>Due: ${fmtDate(j.due)}</span>
+        <span>Est: ${fmtDate(j.end)}</span>
+      </div>
+      <div class="lj-recovery">
+        ${altMachines.length ? `<div class="rc" onclick="recoveryMove('${j.id}','${altMachines[0]}')"><span class="rc-icon">🔄</span> Move to ${altMachines[0]}</div>` : ''}
+        <div class="rc" onclick="recoveryOvertime('${j.id}')"><span class="rc-icon">⏰</span> Add overtime (+${SHIFT_HOURS}h shift)</div>
+        <div class="rc" onclick="recoverySplit('${j.id}')"><span class="rc-icon">✂️</span> Split batch (50/50)</div>
+        <div class="rc" onclick="recoverySubco('${j.id}')"><span class="rc-icon">📤</span> Subcontract this op</div>
+        <div class="rc" onclick="recoveryPrioritize('${j.id}')"><span class="rc-icon">⬆️</span> Re-prioritize (move to front)</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+function selectMachine(id){
+  selectedMachine = selectedMachine === id ? null : id;
+  render();
+}
+
+function selectJob(id){
+  const j = jobs.find(j => j.id === id);
+  if(!j) return;
+  toast(`Selected: ${j.id} — ${j.partDesc}`);
+}
+
+function setScale(s){
+  scale = s;
+  document.querySelectorAll('.ctrls .btn').forEach(b => {
+    if(['Day','Week','Month'].includes(b.textContent)) b.classList.toggle('active', b.textContent.toLowerCase() === s);
+  });
+  render();
+}
+
+function setFilter(f){
+  filter = f;
+  document.querySelectorAll('.ctrls .btn').forEach(b => {
+    const map = {'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};
+    if(map[b.textContent] !== undefined) b.classList.toggle('active', map[b.textContent] === f);
+  });
+  render();
+}
+
+function completeCurrentJob(){
+  const target = selectedMachine || MACHINES[0].id;
+  const current = jobs.find(j => j.machine === target && j.status === 'in-progress');
+  if(!current){toast('No in-progress job on ' + target);return;}
+  current.status = 'complete';
+  current.end = new Date(TODAY);
+  current.delay = 0;
+  recalcCascade();
+  render();
+  toast(`✅ Completed ${current.id} on ${target} — queue collapsed forward`);
+}
+
+function addGlobalDelay(){
+  const target = selectedMachine || MACHINES[0].id;
+  const current = jobs.find(j => j.machine === target && j.status === 'in-progress');
+  if(!current){toast('No in-progress job on ' + target);return;}
+  current.delay += 4;
+  current.end = new Date(current.originalEnd.getTime() + current.delay * 3600000);
+  recalcCascade();
+  render();
+  toast(`⚠️ Added 4h delay to ${current.id} — cascade updated`);
+}
+
+// ── RECOVERY ACTIONS ──
+function recoveryMove(jobId, targetMachine){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  j.machine = targetMachine;
+  j.start = new Date(TODAY);
+  j.end = new Date(TODAY.getTime() + j.totalHours * 3600000);
+  j.delay = 0;
+  j.status = 'queued';
+  recalcCascade();
+  render();
+  toast(`🔄 Moved ${jobId} to ${targetMachine}`);
+}
+
+function recoveryOvertime(jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  j.totalHours = Math.max(2, j.totalHours - SHIFT_HOURS);
+  j.end = new Date(j.start.getTime() + j.totalHours * 3600000);
+  j.delay = Math.max(0, j.delay - SHIFT_HOURS);
+  recalcCascade();
+  render();
+  toast(`⏰ Added overtime to ${jobId} — ${SHIFT_HOURS}h saved`);
+}
+
+function recoverySplit(jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  const machine = MACHINES.find(m => m.id === j.machine);
+  const alts = (COMPAT[machine?.type]||[]).filter(m => m !== j.machine);
+  j.qty = Math.ceil(j.qty / 2);
+  j.totalHours = Math.ceil(j.totalHours / 2);
+  j.end = new Date(j.start.getTime() + j.totalHours * 3600000);
+
+  if(alts.length){
+    jobs.push({...j, id: j.id + '-SPLIT', machine: alts[0], start: new Date(TODAY), end: new Date(TODAY.getTime() + j.totalHours*3600000), status:'queued', delay:0});
+  }
+  recalcCascade();
+  render();
+  toast(`✂️ Split ${jobId} — half moved to ${alts[0]||'same machine'}`);
+}
+
+function recoverySubco(jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  j.machine = 'SUBCO';
+  j.delay = 0;
+  j.start = new Date(TODAY);
+  j.end = new Date(TODAY.getTime() + j.totalHours * 1.5 * 3600000);
+  recalcCascade();
+  render();
+  toast(`📤 Subcontracted ${jobId}`);
+}
+
+function recoveryPrioritize(jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  const mJobs = jobs.filter(jj => jj.machine === j.machine && jj.status === 'queued').sort((a,b) => a.start - b.start);
+  if(mJobs.length > 1){
+    const earliest = mJobs[0].start;
+    j.start = new Date(earliest);
+    j.end = new Date(earliest.getTime() + j.totalHours * 3600000);
+    j.status = 'queued';
+  }
+  recalcCascade();
+  render();
+  toast(`⬆️ Re-prioritized ${jobId} to front of queue`);
+}
+
+// ── TOOLTIP ──
+function showTip(e, jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  const tip = document.getElementById('tooltip');
+  const isLate = j.end > j.due;
+  const daysLate = isLate ? Math.round((j.end - j.due)/(24*3600000)*10)/10 : 0;
+  tip.innerHTML = `
+    <div class="tip-title">${j.id}</div>
+    <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div>
+    <div class="tip-row"><span>Machine</span><span>${j.machine}</span></div>
+    <div class="tip-row"><span>Qty</span><span>${j.qty}</span></div>
+    <div class="tip-row"><span>Hours</span><span>${j.totalHours}h${j.delay?` (+${j.delay}h delay)`:''}</span></div>
+    <div class="tip-row"><span>Start</span><span>${fmtDateTime(j.start)}</span></div>
+    <div class="tip-row"><span>Est End</span><span>${fmtDateTime(j.end)}</span></div>
+    <div class="tip-row"><span>Due</span><span style="color:${isLate?'var(--red)':'var(--green)'}">${fmtDateTime(j.due)}</span></div>
+    ${isLate ? `<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>` : ''}
+    <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
+    ${j.needsCMM ? '<div class="tip-row"><span>CMM</span><span>Required</span></div>' : ''}
+  `;
+  tip.style.display = 'block';
+  tip.style.left = Math.min(e.clientX + 12, window.innerWidth - 300) + 'px';
+  tip.style.top = Math.min(e.clientY + 12, window.innerHeight - 200) + 'px';
+}
+
+function hideTip(){document.getElementById('tooltip').style.display = 'none';}
+
+// ── UTILS ──
+function fmtDate(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
+function fmtDateTime(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+genJobs();
+render();
+</script>
+</body>
+</html>
