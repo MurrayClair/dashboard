@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Murray Clair — Project Dashboard</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface-2: #222222;
+    --surface-3: #2a2a2a;
+    --border: #333333;
+    --border-light: #444444;
+    --text: #e8e8e8;
+    --text-muted: #888888;
+    --text-dim: #666666;
+    --accent: #e07a3a;
+    --accent-dim: rgba(224,122,58,0.15);
+    --green: #34c759;
+    --green-dim: rgba(52,199,89,0.15);
+    --yellow: #ffd60a;
+    --yellow-dim: rgba(255,214,10,0.15);
+    --red: #ff453a;
+    --red-dim: rgba(255,69,58,0.15);
+    --blue: #5ac8fa;
+    --blue-dim: rgba(90,200,250,0.15);
+    --purple: #bf5af2;
+    --purple-dim: rgba(191,90,242,0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.2s ease;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LAYOUT ── */
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+  }
+
+  .main {
+    flex: 1;
+    margin-left: 240px;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand-row { display: flex; align-items: center; gap: 10px; }
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .brand-text h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .brand-text span {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .nav { padding: 12px 8px; flex: 1; }
+  .nav-group { margin-bottom: 16px; }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface-2); }
+  .nav-item.active {
+    color: var(--text);
+    background: var(--accent-dim);
+  }
+  .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+  .nav-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface-3);
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .status-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green);
+  }
+  .status-label { color: var(--text-muted); }
+  .status-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #c86a2f; }
+  .btn-ghost {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface-3); color: var(--text); }
+
+  /* ── CONTENT ── */
+  .content { padding: 28px 32px; }
+
+  /* ── STATS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    transition: border-color var(--transition);
+  }
+  .stat:hover { border-color: var(--border-light); }
+  .stat-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 32px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  /* ── PILLS ── */
+  .pills { display: flex; gap: 6px; }
+  .pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .pill:hover { color: var(--text); border-color: var(--border-light); }
+  .pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ── PROJECT CARDS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all var(--transition);
+    cursor: default;
+  }
+  .project-card:hover { border-color: var(--border-light); }
+  .project-top {
+    height: 3px;
+  }
+  .project-body { padding: 20px; }
+  .project-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .project-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+  .badge-active { background: var(--green-dim); color: var(--green); }
+  .badge-planning { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-done { background: var(--green-dim); color: var(--green); }
+  .badge-blocked { background: var(--red-dim); color: var(--red); }
+  .badge-paused { background: var(--purple-dim); color: var(--purple); }
+
+  .project-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .project-meta {
+    display: flex; gap: 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .project-meta-item { display: flex; align-items: center; gap: 4px; }
+
+  .project-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--blue-dim);
+    color: var(--blue);
+    letter-spacing: 0.3px;
+  }
+
+  /* ── PHASE TIMELINE ── */
+  .timeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+  .timeline-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .timeline-phases { display: flex; gap: 0; position: relative; }
+  .phase {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .phase-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin: 0 4px 12px;
+  }
+  .phase-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .phase-dates {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .phase-status {
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── TASK LIST ── */
+  .task-list { display: flex; flex-direction: column; gap: 6px; }
+  .task-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all var(--transition);
+  }
+  .task-row:hover { border-color: var(--border-light); }
+  .task-row.done { opacity: 0.4; }
+
+  .check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border-light);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: transparent;
+    font-size: 11px;
+    transition: all var(--transition);
+  }
+  .check:hover { border-color: var(--accent); }
+  .check.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .task-info { flex: 1; min-width: 0; }
+  .task-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .task-row.done .task-name { text-decoration: line-through; color: var(--text-dim); }
+  .task-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .task-end { display: flex; align-items: center; gap: 8px; }
+  .priority-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .p-high { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .p-medium { background: var(--yellow); }
+  .p-low { background: var(--green); }
+  .due-chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--surface-3);
+    color: var(--text-dim);
+  }
+  .due-chip.overdue { background: var(--red-dim); color: var(--red); }
+  .due-chip.soon { background: var(--yellow-dim); color: var(--yellow); }
+  .assignee-chip {
+    font-size: 11px;
+  }
+
+  /* ── TOOLS ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex; align-items: center; gap: 12px;
+    transition: border-color var(--transition);
+  }
+  .tool-card:hover { border-color: var(--border-light); }
+  .tool-icon-wrap {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--surface-3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .tool-name { font-size: 13px; font-weight: 600; }
+  .tool-status { font-size: 11px; margin-top: 1px; }
+  .tool-ok { color: var(--green); }
+  .tool-warn { color: var(--yellow); }
+  .tool-error { color: var(--red); }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── EMPTY ── */
+  .empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-dim);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 16px; }
+    .header { padding: 16px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .projects-grid { grid-template-columns: 1fr; }
+    .timeline-phases { flex-direction: column; gap: 8px; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+  /* ── LAST UPDATED ── */
+  .last-updated {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-icon">🦞</div>
+        <div class="brand-text">
+          <h1>Murray Clair</h1>
+          <span>Project Dashboard</span>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-group">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="showView('overview')">
+          <span class="icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showView('tasks')">
+          <span class="icon">✅</span> Tasks
+          <span class="nav-count" id="nav-open">0</span>
+        </div>
+        <div class="nav-item" onclick="showView('tools')">
+          <span class="icon">🔧</span> Tools
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">Projects</div>
+        <div id="nav-projects"></div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span class="status-label">OpenClaw Online</span>
+      </div>
+      <div class="status-sub">Claude Opus 4 · Webchat + Telegram</div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="header">
+      <div>
+        <h2 id="page-title">Dashboard</h2>
+        <div class="header-sub" id="page-sub">Project overview</div>
+      </div>
+      <div style="display:flex;gap:8px" id="header-actions"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="view active" id="view-overview">
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-icon" style="background:var(--accent-dim)">📁</div>
+            <div class="stat-value" id="s-projects">0</div>
+            <div class="stat-label">Active Projects</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon" style="background:var(--blue-dim)">📋</div>
+            <div class="stat-value" id="s-tasks">0</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon" style="background:var(--yellow-dim)">⏳</div>
+            <div class="stat-value" id="s-open">0</div>
+            <div class="stat-label">Open</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon" style="background:var(--green-dim)">✅</div>
+            <div class="stat-value" id="s-done">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <!-- Nupress Phase Timeline -->
+        <div class="timeline" id="nupress-timeline">
+          <div class="timeline-title">🏭 Nupress AI Scheduling — Phase Timeline</div>
+          <div class="timeline-phases">
+            <div class="phase">
+              <div class="phase-bar" style="background:var(--green)"></div>
+              <div class="phase-label">Phase 0</div>
+              <div class="phase-dates">Mar 3 – Mar 14</div>
+              <div class="phase-status" style="color:var(--green)">✅ COMPLETE</div>
+            </div>
+            <div class="phase">
+              <div class="phase-bar" style="background:var(--accent)"></div>
+              <div class="phase-label">Phase 1</div>
+              <div class="phase-dates">Mar 19 – Apr 9</div>
+              <div class="phase-status" style="color:var(--accent)">⏳ NEXT</div>
+            </div>
+            <div class="phase">
+              <div class="phase-bar" style="background:var(--border)"></div>
+              <div class="phase-label">Phase 2</div>
+              <div class="phase-dates">Apr 9 – Apr 30</div>
+              <div class="phase-status" style="color:var(--text-dim)">PLANNED</div>
+            </div>
+            <div class="phase">
+              <div class="phase-bar" style="background:var(--border)"></div>
+              <div class="phase-label">Phase 3</div>
+              <div class="phase-dates">May – Jun</div>
+              <div class="phase-status" style="color:var(--text-dim)">PLANNED</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Projects</div>
+            <div class="pills">
+              <div class="pill active" onclick="filterProjects('all',this)">All</div>
+              <div class="pill" onclick="filterProjects('active',this)">Active</div>
+              <div class="pill" onclick="filterProjects('planning',this)">Planning</div>
+              <div class="pill" onclick="filterProjects('done',this)">Done</div>
+            </div>
+          </div>
+          <div class="projects-grid" id="project-grid"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Priority Tasks</div>
+          </div>
+          <div class="task-list" id="priority-tasks"></div>
+        </div>
+      </div>
+
+      <!-- ── TASKS VIEW ── -->
+      <div class="view" id="view-tasks">
+        <div class="pills" style="margin-bottom:20px" id="task-pills">
+          <div class="pill active" onclick="filterTasks('all',this)">All</div>
+          <div class="pill" onclick="filterTasks('open',this)">Open</div>
+          <div class="pill" onclick="filterTasks('done',this)">Done</div>
+          <div class="pill" onclick="filterTasks('high',this)">🔴 High</div>
+          <div class="pill" onclick="filterTasks('mine',this)">👤 Mine</div>
+          <div class="pill" onclick="filterTasks('agent',this)">🤖 Agent</div>
+        </div>
+        <div class="task-list" id="all-tasks"></div>
+      </div>
+
+      <!-- ── TOOLS VIEW ── -->
+      <div class="view" id="view-tools">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Tools & APIs</div>
+          </div>
+          <div class="tools-grid" id="tools-grid"></div>
+        </div>
+      </div>
+
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── PROJECT DATA ──
+// Sourced from workspace memory + JSON files. Edit here or via the JSON files.
+const DATA = {
+  projects: [
+    {
+      id: "nupress",
+      name: "Nupress AI Scheduling",
+      desc: "AI-driven production scheduling system for Nupress. M1 ERP integration, Python ETL, CMM control point tracking. Target: OTD 77% → 90%+.",
+      status: "active",
+      phase: "Phase 0 complete, Phase 1 starting Mar 19",
+      due: "2026-06-30",
+      color: "#e07a3a",
+      tools: ["Python", "SQL Server", "M1 ERP", "Windows Task Scheduler"],
+      tasks: [
+        { id: "n1", name: "Phase 0 Gate Review (Mar 19)", notes: "Management sign-off meeting", priority: "high", due: "2026-03-19", assignee: "self", done: false },
+        { id: "n2", name: "Management sign-off", notes: "Approved Saturday 13:34", priority: "high", due: "2026-03-14", assignee: "self", done: true },
+        { id: "n3", name: "SQL query inventory (25+)", notes: "Extracted from XLSM VBA", priority: "high", due: "2026-03-12", assignee: "agent", done: true },
+        { id: "n4", name: "Baseline KPI: OTD 77.78%", notes: "Calculated from schedule data", priority: "high", due: "2026-03-12", assignee: "agent", done: true },
+        { id: "n5", name: "Dev environment validated", notes: "Mac + Windows paths confirmed", priority: "medium", due: "2026-03-12", assignee: "self", done: true },
+        { id: "n6", name: "Control point: CMMs identified", notes: "2 CMM units — inspection bottleneck", priority: "high", due: "2026-03-14", assignee: "agent", done: true },
+        { id: "n7", name: "Project report to Google Drive", notes: "Word doc in communications folder", priority: "medium", due: "2026-03-14", assignee: "agent", done: true },
+        { id: "n8", name: "UI Reports Specification", notes: "8 Excel sheets documented", priority: "medium", due: "2026-03-14", assignee: "agent", done: true },
+        { id: "n9", name: "Build Phase 1 report generators", notes: "8 sheets → CSV exports", priority: "high", due: "2026-03-25", assignee: "agent", done: false },
+        { id: "n10", name: "Parallel validation framework", notes: "Python vs Excel side-by-side 5-day run", priority: "high", due: "2026-04-01", assignee: "both", done: false },
+        { id: "n11", name: "Confirm M1 username", notes: "Chris.Bradley or different?", priority: "high", due: "2026-03-17", assignee: "self", done: false },
+        { id: "n12", name: "Murray's Phase 1 report priorities", notes: "Which sheets most critical?", priority: "medium", due: "2026-03-17", assignee: "self", done: false },
+      ]
+    },
+    {
+      id: "collatz",
+      name: "Collatz Conjecture Research",
+      desc: "Multi-layered mathematical attack on 3n+1 problem. L51–L61 research programme. Dirichlet characters, spectral gap, Perron formula approach.",
+      status: "paused",
+      phase: "L59 — Spectral gap theorem (revised target)",
+      due: "2026-03-23",
+      color: "#bf5af2",
+      tools: ["Python", "NumPy", "SciPy", "Mathematica"],
+      tasks: [
+        { id: "c1", name: "L58 Synthesis experiment", notes: "4-phase character tower test complete", priority: "high", due: "2026-03-03", assignee: "agent", done: true },
+        { id: "c2", name: "L59 Blueprint & literature review", notes: "8 files created, all gaps identified", priority: "high", due: "2026-03-04", assignee: "agent", done: true },
+        { id: "c3", name: "L59 Spectral gap theorem", notes: "Revised target: twisted transfer operator", priority: "high", due: "2026-03-10", assignee: "agent", done: false },
+        { id: "c4", name: "L60 Perron formula derivation", notes: "Week 2 target", priority: "medium", due: "2026-03-16", assignee: "agent", done: false },
+        { id: "c5", name: "L61 Final proof assembly", notes: "Sum error bounds, complete proof", priority: "medium", due: "2026-03-23", assignee: "agent", done: false },
+      ]
+    },
+    {
+      id: "hyperlink",
+      name: "Hyperlink Repair System",
+      desc: "Automated pipeline to repair J: drive hyperlinks across hundreds of documents after server migration.",
+      status: "planning",
+      phase: "Awaiting prompt/specs from Murray",
+      due: "2026-04-01",
+      color: "#5ac8fa",
+      tools: ["Python", "python-docx", "openpyxl", "Gemini API"],
+      tasks: [
+        { id: "h1", name: "Set SOURCE_ROOT and WORK_ROOT paths", notes: "Needed before scripts can run", priority: "high", due: "2026-03-12", assignee: "self", done: false },
+        { id: "h2", name: "Create task_checklist.xlsx", notes: "Session 1 first task", priority: "high", due: "2026-03-12", assignee: "agent", done: false },
+        { id: "h3", name: "Write scanner.py", notes: "File discovery and MD5 hashing", priority: "medium", due: "2026-03-20", assignee: "agent", done: false },
+      ]
+    },
+    {
+      id: "openclaw",
+      name: "OpenClaw Setup & Config",
+      desc: "Get OpenClaw fully operational with Telegram, Anthropic, memory, and cross-channel continuity.",
+      status: "active",
+      phase: "Telegram connected, cross-channel working",
+      due: "2026-03-15",
+      color: "#34c759",
+      tools: ["OpenClaw", "Anthropic API", "Gemini API", "Telegram Bot API"],
+      tasks: [
+        { id: "o1", name: "Fix Ollama provider registration", notes: "OLLAMA_API_KEY loading issue", priority: "medium", due: "2026-03-11", assignee: "self", done: true },
+        { id: "o2", name: "Update AGENTS.md with hard rules", notes: "Stop self-repair on greeting", priority: "high", due: "2026-03-10", assignee: "self", done: true },
+        { id: "o3", name: "Google Drive sync setup", notes: "Communications folder working", priority: "medium", due: "2026-03-13", assignee: "self", done: true },
+        { id: "o4", name: "Telegram cross-channel verified", notes: "Same brain, both channels", priority: "high", due: "2026-03-16", assignee: "self", done: true },
+      ]
+    }
+  ],
+  tools: [
+    { name: "Anthropic API", icon: "🤖", status: "ok", notes: "Claude Opus 4 — primary model" },
+    { name: "Gemini API", icon: "✨", status: "ok", notes: "Embeddings + search grounding" },
+    { name: "Telegram", icon: "📱", status: "ok", notes: "Bot connected, DM pairing approved" },
+    { name: "Google Drive", icon: "📁", status: "ok", notes: "Desktop sync active, communications folder" },
+    { name: "Python 3", icon: "🐍", status: "ok", notes: "Available on Mac mini" },
+    { name: "SQL Server (M1)", icon: "🗄️", status: "warn", notes: "Awaiting username confirmation" },
+    { name: "Ollama", icon: "🦙", status: "warn", notes: "Local, provider registration issue" },
+    { name: "Windows (Nupress)", icon: "🖥️", status: "warn", notes: "C:\\Schedule setup pending" },
+  ]
+};
+
+// ── STATE ──
+let projectFilter = 'all';
+let taskFilter = 'all';
+let currentView = 'overview';
+
+// ── RENDER ──
+function render() {
+  renderStats();
+  renderNavProjects();
+  renderProjects();
+  renderPriorityTasks();
+  renderAllTasks();
+  renderTools();
+  document.getElementById('last-updated').textContent =
+    `Last updated: ${new Date().toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' })}`;
+}
+
+function renderStats() {
+  const allTasks = DATA.projects.flatMap(p => p.tasks);
+  const activeProjects = DATA.projects.filter(p => p.status !== 'done');
+  document.getElementById('s-projects').textContent = activeProjects.length;
+  document.getElementById('s-tasks').textContent = allTasks.length;
+  document.getElementById('s-open').textContent = allTasks.filter(t => !t.done).length;
+  document.getElementById('s-done').textContent = allTasks.filter(t => t.done).length;
+  document.getElementById('nav-open').textContent = allTasks.filter(t => !t.done).length;
+}
+
+function renderNavProjects() {
+  const el = document.getElementById('nav-projects');
+  el.innerHTML = DATA.projects.map(p => `
+    <div class="nav-item" onclick="showProjectView('${p.id}')" style="gap:8px">
+      <span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <span class="nav-count">${p.tasks.filter(t=>!t.done).length}</span>
+    </div>
+  `).join('');
+}
+
+function renderProjects() {
+  const grid = document.getElementById('project-grid');
+  let projs = DATA.projects;
+  if (projectFilter !== 'all') projs = projs.filter(p => p.status === projectFilter);
+
+  if (!projs.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">📁</div><div>No projects match this filter.</div></div>';
+    return;
+  }
+
+  grid.innerHTML = projs.map(p => {
+    const done = p.tasks.filter(t => t.done).length;
+    const total = p.tasks.length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+    return `
+      <div class="project-card">
+        <div class="project-top" style="background:${p.color}"></div>
+        <div class="project-body">
+          <div class="project-head">
+            <div class="project-name">${p.name}</div>
+            <span class="badge badge-${p.status}">${p.status}</span>
+          </div>
+          <div class="project-desc">${p.desc}</div>
+          <div class="progress-wrap">
+            <div class="progress-info">
+              <span>${p.phase || ''}</span>
+              <span>${done}/${total} · ${pct}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%;background:${p.color}"></div>
+            </div>
+          </div>
+          <div class="project-meta">
+            ${p.due ? `<div class="project-meta-item">📅 ${fmtDate(p.due)}</div>` : ''}
+            <div class="project-meta-item">📋 ${p.tasks.filter(t=>!t.done).length} open</div>
+          </div>
+        </div>
+        <div class="project-footer">
+          <div class="tag-row">
+            ${p.tools.slice(0,4).map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderPriorityTasks() {
+  const el = document.getElementById('priority-tasks');
+  const tasks = DATA.projects.flatMap(p =>
+    p.tasks.filter(t => !t.done && t.priority === 'high').map(t => ({...t, projectName: p.name, projectColor: p.color}))
+  ).sort((a,b) => (a.due||'z').localeCompare(b.due||'z'));
+
+  if (!tasks.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🎉</div><div>No high-priority tasks! Nice.</div></div>';
+    return;
+  }
+  el.innerHTML = tasks.map(t => taskRow(t)).join('');
+}
+
+function renderAllTasks() {
+  const el = document.getElementById('all-tasks');
+  let tasks = DATA.projects.flatMap(p =>
+    p.tasks.map(t => ({...t, projectName: p.name, projectColor: p.color}))
+  );
+
+  if (taskFilter === 'open') tasks = tasks.filter(t => !t.done);
+  else if (taskFilter === 'done') tasks = tasks.filter(t => t.done);
+  else if (taskFilter === 'high') tasks = tasks.filter(t => t.priority === 'high' && !t.done);
+  else if (taskFilter === 'mine') tasks = tasks.filter(t => t.assignee === 'self' || t.assignee === 'both');
+  else if (taskFilter === 'agent') tasks = tasks.filter(t => t.assignee === 'agent' || t.assignee === 'both');
+
+  if (!tasks.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div>No tasks match this filter.</div></div>';
+    return;
+  }
+  el.innerHTML = tasks.map(t => taskRow(t)).join('');
+}
+
+function taskRow(t) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = t.due ? new Date(t.due) : null;
+  const overdue = due && due < today && !t.done;
+  const soon = due && !overdue && (due - today) < 3*86400000 && !t.done;
+  const assigneeIcon = t.assignee === 'agent' ? '🤖' : t.assignee === 'both' ? '👤🤖' : '👤';
+  return `
+    <div class="task-row ${t.done?'done':''}">
+      <div class="check ${t.done?'checked':''}" onclick="toggleTask('${t.id}')">
+        ${t.done ? '✓' : ''}
+      </div>
+      <div class="task-info">
+        <div class="task-name">${t.name}</div>
+        <div class="task-sub">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${t.projectColor||'var(--text-dim)'};margin-right:4px;vertical-align:middle"></span>
+          ${t.projectName || ''}${t.notes ? ' · ' + t.notes : ''}
+        </div>
+      </div>
+      <div class="task-end">
+        <div class="priority-dot p-${t.priority}"></div>
+        ${t.due ? `<span class="due-chip ${overdue?'overdue':soon?'soon':''}">${fmtDate(t.due)}</span>` : ''}
+        <span class="assignee-chip">${assigneeIcon}</span>
+      </div>
+    </div>`;
+}
+
+function renderTools() {
+  const el = document.getElementById('tools-grid');
+  el.innerHTML = DATA.tools.map(t => `
+    <div class="tool-card">
+      <div class="tool-icon-wrap">${t.icon}</div>
+      <div>
+        <div class="tool-name">${t.name}</div>
+        <div class="tool-status tool-${t.status}">
+          ${t.status === 'ok' ? '✅ Ready' : t.status === 'warn' ? '⚠️ ' + t.notes : '❌ ' + t.notes}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── ACTIONS ──
+function toggleTask(id) {
+  for (const p of DATA.projects) {
+    const t = p.tasks.find(t => t.id === id);
+    if (t) { t.done = !t.done; break; }
+  }
+  render();
+}
+
+function filterProjects(f, el) {
+  projectFilter = f;
+  document.querySelectorAll('#view-overview .pills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderProjects();
+}
+
+function filterTasks(f, el) {
+  taskFilter = f;
+  document.querySelectorAll('#task-pills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderAllTasks();
+}
+
+function showView(name) {
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes("'" + name + "'")) n.classList.add('active');
+  });
+  const titles = {
+    overview: ['Dashboard', 'Project overview'],
+    tasks: ['All Tasks', 'Track and manage'],
+    tools: ['Tools & APIs', 'Infrastructure status']
+  };
+  document.getElementById('page-title').textContent = titles[name]?.[0] || 'Dashboard';
+  document.getElementById('page-sub').textContent = titles[name]?.[1] || '';
+}
+
+function showProjectView(id) {
+  taskFilter = 'all';
+  showView('tasks');
+  const p = DATA.projects.find(p => p.id === id);
+  if (!p) return;
+  document.getElementById('page-title').textContent = p.name;
+  document.getElementById('page-sub').textContent = p.phase || p.desc;
+  const el = document.getElementById('all-tasks');
+  const tasks = p.tasks.map(t => ({...t, projectName: p.name, projectColor: p.color}));
+  el.innerHTML = tasks.length
+    ? tasks.map(t => taskRow(t)).join('')
+    : '<div class="empty"><div class="empty-icon">✅</div><div>No tasks yet.</div></div>';
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
