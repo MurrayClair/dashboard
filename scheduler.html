@@ -494,14 +494,14 @@ const MACHINES=[
   {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff',protocol:'MTConnect',ip:'192.168.1.116',port:5000},
   {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.117',port:19000},
   {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de',protocol:'Heidenhain',ip:'192.168.1.118',port:19000},
-  {id:'MV3000',name:'MV3000 — Mazak VMC',type:'vmc',color:'#ffd60a',protocol:'Mazak SmartM',ip:'192.168.1.119',port:19001},
+  {id:'NMV3000',name:'NMV3000 — Mazak VMC',type:'vmc',color:'#ffd60a',protocol:'Mazak SmartM',ip:'192.168.1.119',port:19001},
   {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482',protocol:'FANUC FOCAS',ip:'192.168.1.119',port:8193},
   {id:'CMM1',name:'CMM1 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
   {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
   {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
   {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
 ];
-const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','MV3000'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
 const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.type));
 
 // ══════════════════════════════════════════════════════════════
@@ -1315,19 +1315,19 @@ let floorAssign = {};
 // Floor layout: grid positions for each machine
 const FLOOR_LAYOUT = [
   // Row 1 — VTC530C left, then ROBOCUT1-FH4800 shifted right to align with row 2
-  {id:'VTC530C', col:1,row:1, rotated:true},
+  {id:'VTC530C', col:1,row:1},
   {id:'ROBOCUT1',col:3,row:1},
   {id:'VCS530C', col:4,row:1},
   {id:'VRX730',  col:5,row:1},
   {id:'FH4800',  col:6,row:1},
   // Row 2 — rotated integrex bank + INTE2004S (large, where INTEi200 was)
-  {id:'MV3000',  col:1,row:2},
+  {id:'NMV3000',  col:1,row:2},
   {id:'HCN8800', col:2,row:2, rotated:true},
   {id:'QTN350MY',col:3,row:2, rotated:true},
   {id:'INTEJ400',col:4,row:2, rotated:true},
-  {id:'INTE4004S',col:5,row:2,rotated:true},
+  {id:'INTE4004S',col:5,row:2},
   {id:'INTE2004S',col:6,row:2, rotated:true},
-  // Row 2.5 — DMU75 below MV3000, INTEi200 below INTE4004S
+  // Row 2.5 — DMU75 below NMV3000, INTEi200 below INTE4004S
   {id:'DMU75',   col:1,row:3},
   {id:'INTEi200',col:5,row:3},
   // Row 3 — main lathe / millturn row
