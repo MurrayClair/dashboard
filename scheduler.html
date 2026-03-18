@@ -75,15 +75,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rc{font-size:10px;padding:4px 8px;border-radius:4px;background:var(--s3);border:1px solid var(--brd);cursor:pointer;color:var(--dim);transition:.15s;display:flex;align-items:center;gap:6px}
 .rc:hover{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .rc-icon{font-size:12px}
-/* Tooltip */
-.tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:none;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+/* Tooltip — interactive: user can hover into it to double-click drawing */
+.tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:auto;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .tip-title{font-weight:700;margin-bottom:6px;font-size:13px}
 .tip-row{display:flex;justify-content:space-between;margin-bottom:3px;color:var(--dim)}
 .tip-row span:last-child{color:var(--txt);font-weight:600}
-.tip-drawing{margin-top:10px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;position:relative}
+.tip-drawing{margin-top:10px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;position:relative;cursor:pointer;transition:border-color .15s}
+.tip-drawing:hover{border-color:var(--blue)}
 .tip-drawing svg{display:block;width:100%;height:auto}
 .tip-drawing-label{position:absolute;bottom:4px;right:6px;font-size:8px;color:var(--dim2);background:rgba(26,26,26,.8);padding:1px 6px;border-radius:3px}
 .tip-dblclick{margin-top:6px;text-align:center;font-size:9px;color:var(--dim2);font-style:italic}
+/* Late panel drawing thumbnail */
+.lj-drawing{margin-top:8px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;cursor:pointer;transition:border-color .15s;position:relative}
+.lj-drawing:hover{border-color:var(--blue)}
+.lj-drawing svg{display:block;width:100%;height:auto}
+.lj-drawing-hint{text-align:center;font-size:9px;color:var(--dim2);margin-top:4px;font-style:italic}
 /* Lightbox */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;cursor:zoom-out;opacity:0;transition:opacity .2s;pointer-events:none}
 .lightbox.open{opacity:1;pointer-events:all}
@@ -433,6 +439,7 @@ function renderLatePanel(){
     const mType = machine ? machine.type : '';
     const altMachines = (COMPAT[mType]||[]).filter(m => m !== j.machine);
 
+    const thumbSVG = genDrawingSVG(j.partId, j.partDesc, 300, 200);
     return `<div class="lj">
       <div class="lj-head">
         <div class="lj-id">${j.id}</div>
@@ -443,6 +450,8 @@ function renderLatePanel(){
         <span>Due: ${fmtDate(j.due)}</span>
         <span>Est: ${fmtDate(j.end)}</span>
       </div>
+      <div class="lj-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}</div>
+      <div class="lj-drawing-hint">Double-click drawing to enlarge</div>
       <div class="lj-recovery">
         ${altMachines.length ? `<div class="rc" onclick="recoveryMove('${j.id}','${altMachines[0]}')"><span class="rc-icon">🔄</span> Move to ${altMachines[0]}</div>` : ''}
         <div class="rc" onclick="recoveryOvertime('${j.id}')"><span class="rc-icon">⏰</span> Add overtime (+${SHIFT_HOURS}h shift)</div>
@@ -739,8 +748,13 @@ function genDrawingSVG(partId, partDesc, w, h){
   return svg;
 }
 
-// ── TOOLTIP ──
+// ── TOOLTIP (interactive — user can hover into it to click the drawing) ──
+let tipTimer = null;
+let tipJobId = null;
+
 function showTip(e, jobId){
+  clearTimeout(tipTimer);
+  tipJobId = jobId;
   const j = jobs.find(j => j.id === jobId);
   if(!j) return;
   const tip = document.getElementById('tooltip');
@@ -759,17 +773,35 @@ function showTip(e, jobId){
     ${isLate ? `<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>` : ''}
     <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
     ${j.needsCMM ? '<div class="tip-row"><span>CMM</span><span>Required</span></div>' : ''}
-    <div class="tip-drawing">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
-    <div class="tip-dblclick">Double-click to view full drawing</div>
+    <div class="tip-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
+    <div class="tip-dblclick">Double-click drawing to view full size</div>
   `;
   tip.style.display = 'block';
-  // Position — wider tooltip now, account for drawing
-  const tipW = 370, tipH = 500;
-  tip.style.left = Math.min(e.clientX + 12, window.innerWidth - tipW) + 'px';
-  tip.style.top = Math.min(e.clientY + 12, window.innerHeight - tipH) + 'px';
+  // Position — keep tooltip close to cursor so user can reach it
+  const tipW = 370, tipH = 520;
+  tip.style.left = Math.min(e.clientX + 10, window.innerWidth - tipW) + 'px';
+  tip.style.top = Math.min(e.clientY + 10, window.innerHeight - tipH) + 'px';
 }
 
-function hideTip(){document.getElementById('tooltip').style.display = 'none';}
+function hideTip(){
+  // Delay hide so user can move cursor from job block into tooltip
+  tipTimer = setTimeout(() => {
+    document.getElementById('tooltip').style.display = 'none';
+    tipJobId = null;
+  }, 300);
+}
+
+// Keep tooltip open when user hovers into it
+(function(){
+  const tip = document.getElementById('tooltip');
+  tip.addEventListener('mouseenter', () => clearTimeout(tipTimer));
+  tip.addEventListener('mouseleave', () => {
+    tipTimer = setTimeout(() => {
+      tip.style.display = 'none';
+      tipJobId = null;
+    }, 200);
+  });
+})();
 
 // ── LIGHTBOX (double-click to open full drawing) ──
 function openLightbox(jobId){
