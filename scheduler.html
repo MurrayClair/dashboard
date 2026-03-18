@@ -28,6 +28,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn:hover{color:var(--txt);border-color:var(--brd2)}
 .btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn.danger{background:var(--red-d);color:var(--red);border-color:rgba(255,69,58,.3)}
+.btn.warn{background:var(--orange-d);color:var(--orange);border-color:rgba(255,159,10,.3)}
+/* Search results */
+.sr-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.sr-card:hover{border-color:var(--blue);background:var(--blue-d)}
+.sr-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.sr-jobid{font-weight:700;font-size:13px}.sr-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.sr-status.on-time{background:var(--green-d);color:var(--green)}.sr-status.late{background:var(--red-d);color:var(--red)}
+.sr-status.at-risk{background:var(--yellow-d);color:var(--yellow)}.sr-status.queued{background:var(--s3);color:var(--dim)}
+.sr-status.in-progress{background:var(--orange-d);color:var(--orange)}
+.sr-meta{font-size:11px;color:var(--dim);margin-bottom:2px}
+.sr-actions{display:flex;gap:6px;margin-top:8px}
+/* Job enquiry panel */
+.enquiry{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:16px;margin-top:8px}
+.enquiry h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.enquiry-ops{width:100%}
+.enquiry-ops th{background:var(--s2);padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);text-align:left}
+.enquiry-ops td{padding:8px;border:1px solid var(--brd);font-size:12px}
+.enquiry-timeline{height:8px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:4px}
+.enquiry-timeline-fill{height:100%;border-radius:4px}
 .btn.success{background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3)}
 .btn.primary{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .ctrl-label{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-right:4px}
@@ -243,6 +262,22 @@ table.dtbl select{width:auto;min-width:100px}
   <div class="ctrl-sep"></div>
   <button class="btn danger" onclick="addGlobalDelay()">＋ Add Delay</button>
   <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
+  <div class="ctrl-sep"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:4px">
+    <input type="text" id="search-input" placeholder="Search job, customer, PO…" 
+      style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:5px 10px;border-radius:var(--rs);font-size:11px;font-family:inherit;width:200px"
+      oninput="onSearchInput()" onkeydown="if(event.key==='Escape'){clearSearch();}">
+    <button class="btn" onclick="doSearch()" style="padding:5px 10px">🔍 Search</button>
+    <button class="btn" onclick="clearSearch()" style="padding:5px 8px;font-size:13px" title="Clear">✕</button>
+  </div>
+</div>
+<!-- Search Results Panel -->
+<div id="search-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:12px 16px;max-height:60vh;overflow-y:auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-weight:700;font-size:14px" id="search-title">Search Results</div>
+    <button class="btn" onclick="clearSearch()" style="font-size:10px">✕ Close</button>
+  </div>
+  <div id="search-results"></div>
 </div>
 <div class="gantt-wrap">
   <div class="gantt-labels" id="gantt-labels">
@@ -407,23 +442,42 @@ function getMachineSetup(){return lsGet('machine_setup',MACHINES.map(m=>({id:m.i
 // ══════════════════════════════════════════════════════════════
 //  PARTS & JOBS (same as original)
 // ══════════════════════════════════════════════════════════════
+const CUSTOMERS=['Bradken','Timberjack','John Deere','BAE Systems','Thales','Caterpillar','Rio Tinto','BHP','Sandvik','Weir Minerals','Metso','FLSmidth','GE Aviation','Rolls-Royce','Boeing','Komatsu'];
+const PO_PREFIX=['PO-','SC-','WO-','CO-'];
 const PARTS=[
-  {p:'570-10-0402C1-04',d:'Y ROTATION POWER SCREW',h:18},{p:'2012691',d:'RING GEAR HOUSING',h:12},
-  {p:'505327',d:'SPROCKET 16 TOOTH',h:6},{p:'AU07595',d:'SPLIT SPROCKET 14T DUAL',h:8},
-  {p:'T45H36FLKIN',d:'KINLOC SPANNER T45',h:10},{p:'SR29015',d:'LOOPER TABLE FEED ROLLER',h:14},
-  {p:'NP-TJR-HFX280',d:'HFX 280 ROD TIMBERJACK',h:16},{p:'414E5047-2',d:'BUSHING',h:4},
-  {p:'1471-248',d:'MANIFOLD SS316',h:9},{p:'SHAFT-XH150',d:'TRB 100DIA SHAFT',h:20},
-  {p:'10-020-30-4274',d:'HINGE CAM',h:5},{p:'NP-100471134',d:'SOCKET HEAD CAP SCREW',h:3},
-  {p:'FST-316-BN-M24',d:'BACK NUT 316SS M24',h:7},{p:'KP-NP06',d:'VCII KNIFE PLATE',h:11},
-  {p:'HB120-24',d:'MAIN CARRIAGE AXLE',h:15},{p:'SPNADAPR25',d:'SPIN ADAPTOR R25',h:8},
-  {p:'PKM011',d:'OPERATING SHAFT CAM',h:6},{p:'ZP201006-202',d:'SPIGOT CARRIAGE ROD',h:5},
-  {p:'TEN178PNPE02',d:'TENSIONER UNIT 17.8MM',h:7},{p:'FP220024',d:'LOCKNUT 55DIA',h:4},
-  {p:'261858277-01',d:'PLATE 1',h:22},{p:'ME5331-31',d:'ITEM 4',h:13},
-  {p:'NP-12-2-90-R',d:'MODIFIED SPIDER R',h:10},{p:'TYPE-2-FERRULE',d:'FERRULE',h:6},
-  {p:'6162-2DN51',d:'HYDRAULIC SPACER',h:4},{p:'1471-215',d:'PRINTHEAD LID ALU',h:5},
-  {p:'DE-6-S',d:'SANDVIK #6 DRIVE END',h:8},{p:'SCK-17-S',d:'SCK-17-S',h:7},
-  {p:'410-A40-345',d:'FTG EXCLUDER NUT MLG',h:3},{p:'3442-005',d:'PIN 155MM REV G',h:9},
+  {p:'570-10-0402C1-04',d:'Y ROTATION POWER SCREW',h:18,ops:['lathe','millturn','cmm']},
+  {p:'2012691',d:'RING GEAR HOUSING',h:12,ops:['millturn','hmc','cmm']},
+  {p:'505327',d:'SPROCKET 16 TOOTH',h:6,ops:['lathe','vmc']},
+  {p:'AU07595',d:'SPLIT SPROCKET 14T DUAL',h:8,ops:['lathe','vmc','cmm']},
+  {p:'T45H36FLKIN',d:'KINLOC SPANNER T45',h:10,ops:['millturn']},
+  {p:'SR29015',d:'LOOPER TABLE FEED ROLLER',h:14,ops:['lathe','millturn','cmm']},
+  {p:'NP-TJR-HFX280',d:'HFX 280 ROD TIMBERJACK',h:16,ops:['lathe','hmc','cmm']},
+  {p:'414E5047-2',d:'BUSHING',h:4,ops:['lathe']},
+  {p:'1471-248',d:'MANIFOLD SS316',h:9,ops:['millturn','vmc','cmm']},
+  {p:'SHAFT-XH150',d:'TRB 100DIA SHAFT',h:20,ops:['lathe','millturn','cmm']},
+  {p:'10-020-30-4274',d:'HINGE CAM',h:5,ops:['vmc']},
+  {p:'NP-100471134',d:'SOCKET HEAD CAP SCREW',h:3,ops:['lathe']},
+  {p:'FST-316-BN-M24',d:'BACK NUT 316SS M24',h:7,ops:['lathe','cmm']},
+  {p:'KP-NP06',d:'VCII KNIFE PLATE',h:11,ops:['5axis','cmm']},
+  {p:'HB120-24',d:'MAIN CARRIAGE AXLE',h:15,ops:['lathe','millturn','cmm']},
+  {p:'SPNADAPR25',d:'SPIN ADAPTOR R25',h:8,ops:['millturn','vmc']},
+  {p:'PKM011',d:'OPERATING SHAFT CAM',h:6,ops:['vmc']},
+  {p:'ZP201006-202',d:'SPIGOT CARRIAGE ROD',h:5,ops:['lathe']},
+  {p:'TEN178PNPE02',d:'TENSIONER UNIT 17.8MM',h:7,ops:['millturn','cmm']},
+  {p:'FP220024',d:'LOCKNUT 55DIA',h:4,ops:['lathe']},
+  {p:'261858277-01',d:'PLATE 1',h:22,ops:['5axis','hmc','cmm']},
+  {p:'ME5331-31',d:'ITEM 4',h:13,ops:['millturn','vmc']},
+  {p:'NP-12-2-90-R',d:'MODIFIED SPIDER R',h:10,ops:['millturn','cmm']},
+  {p:'TYPE-2-FERRULE',d:'FERRULE',h:6,ops:['lathe','vmc']},
+  {p:'6162-2DN51',d:'HYDRAULIC SPACER',h:4,ops:['lathe']},
+  {p:'1471-215',d:'PRINTHEAD LID ALU',h:5,ops:['vmc']},
+  {p:'DE-6-S',d:'SANDVIK #6 DRIVE END',h:8,ops:['millturn','cmm']},
+  {p:'SCK-17-S',d:'SCK-17-S',h:7,ops:['lathe','vmc']},
+  {p:'410-A40-345',d:'FTG EXCLUDER NUT MLG',h:3,ops:['lathe']},
+  {p:'3442-005',d:'PIN 155MM REV G',h:9,ops:['millturn','cmm']},
 ];
+// Machine type → compatible machine IDs for operation routing
+const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
 let jobs=[], jobIdCounter=26900;
 
 function genJobs(){
@@ -440,7 +494,20 @@ function genJobs(){
     const isInProgress=startDate<TODAY&&endDate>TODAY;
     const delayHours=isInProgress?Math.max(0,Math.round((Math.random()-0.3)*16)):0;
     const actualEnd=new Date(endDate.getTime()+delayHours*3600000);
-    jobs.push({id:`${jobIdCounter+i}-0001-001`,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY});
+    // Customer & PO
+    const customer=CUSTOMERS[i%CUSTOMERS.length];
+    const po=PO_PREFIX[i%PO_PREFIX.length]+(40000+i*7);
+    // Generate operations for this job (multi-op routing)
+    const opTypes=part.ops||['lathe'];
+    const operations=opTypes.map((opType,opIdx)=>{
+      const opMachines=TYPE_MACHINES[opType]||[machine.id];
+      const opMachine=opMachines[Math.floor(Math.random()*opMachines.length)];
+      const opHours=Math.max(1,Math.round(totalHours/opTypes.length*(0.7+Math.random()*0.6)));
+      const opStart=new Date(startDate.getTime()+opIdx*(totalHours/opTypes.length)*3600000);
+      const opEnd=new Date(opStart.getTime()+opHours*3600000);
+      return {opNum:opIdx+1,opType,process:opType==='cmm'?'INSPECT':opType==='lathe'?'TURN':opType==='millturn'?'MILL/TURN':opType==='vmc'?'MILL':opType==='hmc'?'HMC MILL':opType==='5axis'?'5AXIS MILL':'PROCESS',machine:opMachine,hours:opHours,start:opStart,end:opEnd,status:opEnd<TODAY?'complete':opStart<TODAY&&opEnd>TODAY?'in-progress':'queued'};
+    });
+    jobs.push({id:`${jobIdCounter+i}-0001-001`,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY,customer,po,operations});
     mq[machine.id]=offsetHours+totalHours+2;
   }
   const cmmJobs=jobs.filter(j=>j.needsCMM&&j.status==='in-progress');
@@ -587,6 +654,7 @@ function renderLatePanel(){
     const thumbSVG=genDrawingSVG(j.partId,j.partDesc,300,200);
     return `<div class="lj"><div class="lj-head"><div class="lj-id">${j.id}</div><div class="lj-days">${daysLate}d late</div></div>
       <div class="lj-part">${j.partDesc} — Qty: ${j.qty}</div>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:4px">👤 ${j.customer||'—'} &nbsp;|&nbsp; 📄 ${j.po||'—'}</div>
       <div class="lj-dates"><span>Due: ${fmtDate(j.due)}</span><span>Est: ${fmtDate(j.end)}</span></div>
       <div class="lj-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}</div>
       <div class="lj-drawing-hint">Double-click drawing to enlarge</div>
@@ -673,13 +741,19 @@ function _openInfoCard(e,jobId){
   const isLate=j.end>j.due,daysLate=isLate?Math.round((j.end-j.due)/(24*3600000)*10)/10:0;
   const thumbSVG=genDrawingSVG(j.partId,j.partDesc,320,220);
   tip.innerHTML=`<div class="tip-header"><div class="tip-title">${j.id}</div><button class="tip-close" onclick="closeInfoCard()">&times;</button></div>
+    <div class="tip-row"><span>Customer</span><span style="font-weight:700">${j.customer||'—'}</span></div>
+    <div class="tip-row"><span>PO</span><span>${j.po||'—'}</span></div>
     <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div><div class="tip-row"><span>Machine</span><span>${j.machine}</span></div>
     <div class="tip-row"><span>Qty</span><span>${j.qty}</span></div><div class="tip-row"><span>Hours</span><span>${j.totalHours}h${j.delay?' (+'+j.delay+'h delay)':''}</span></div>
     <div class="tip-row"><span>Start</span><span>${fmtDateTime(j.start)}</span></div><div class="tip-row"><span>Est End</span><span>${fmtDateTime(j.end)}</span></div>
     <div class="tip-row"><span>Due</span><span style="color:${isLate?'var(--red)':'var(--green)'}">${fmtDateTime(j.due)}</span></div>
     ${isLate?`<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>`:''}
-    <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
+    <div class="tip-row"><span>Ops</span><span>${(j.operations||[]).length} operations</span></div>
     ${j.needsCMM?'<div class="tip-row"><span>CMM</span><span>Required</span></div>':''}
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn" onclick="closeInfoCard();document.getElementById('search-input').value='${j.id}';doSearch();" style="font-size:10px">📊 Full Enquiry</button>
+      <button class="btn danger" onclick="closeInfoCard();cancelOrder('${j.id}')" style="font-size:10px">🚫 Cancel</button>
+    </div>
     <div class="tip-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
     <div class="tip-dblclick">Double-click drawing to view full size</div>`;
   tip.style.display='block';
@@ -691,6 +765,171 @@ document.addEventListener('click',(e)=>{const tip=document.getElementById('toolt
 function openLightbox(jobId){if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}const j=jobs.find(j=>j.id===jobId);if(!j)return;closeInfoCard();document.getElementById('lb-title').textContent=`${j.partId} — ${j.partDesc}`;document.getElementById('lb-drawing').innerHTML=genDrawingSVG(j.partId,j.partDesc,800,560);document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(e){if(e&&e.type==='click'&&e.target!==document.getElementById('lightbox'))return;document.getElementById('lightbox').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open');});
+
+// ══════════════════════════════════════════════════════════════
+//  SEARCH, CANCEL ORDER & JOB ENQUIRY
+// ══════════════════════════════════════════════════════════════
+function onSearchInput(){
+  const val=document.getElementById('search-input').value.trim();
+  if(val.length>=2) doSearch();
+  else if(val.length===0) clearSearch();
+}
+function doSearch(){
+  const q=document.getElementById('search-input').value.trim().toUpperCase();
+  if(!q){clearSearch();return;}
+  const results=jobs.filter(j=>{
+    if(j.status==='complete') return false;
+    return j.id.toUpperCase().includes(q)
+      || j.partId.toUpperCase().includes(q)
+      || j.partDesc.toUpperCase().includes(q)
+      || (j.customer&&j.customer.toUpperCase().includes(q))
+      || (j.po&&j.po.toUpperCase().includes(q));
+  });
+  const panel=document.getElementById('search-panel');
+  const titleEl=document.getElementById('search-title');
+  const resultsEl=document.getElementById('search-results');
+  panel.style.display='block';
+  titleEl.textContent=`${results.length} result${results.length!==1?'s':''} for "${q}"`;
+  if(!results.length){
+    resultsEl.innerHTML='<div style="color:var(--dim);padding:12px;text-align:center">No matching jobs found</div>';
+    return;
+  }
+  resultsEl.innerHTML=results.map(j=>{
+    const isLate=j.end>j.due,isAtRisk=!isLate&&(j.due-j.end)<24*3600000;
+    const statusCls=isLate?'late':isAtRisk?'at-risk':j.status==='in-progress'?'in-progress':'queued';
+    const statusLabel=isLate?'LATE':isAtRisk?'AT RISK':j.status==='in-progress'?'IN PROGRESS':'QUEUED';
+    return `<div class="sr-card" onclick="toggleEnquiry('${j.id}',this)">
+      <div class="sr-head">
+        <div class="sr-jobid">📋 ${j.id}</div>
+        <span class="sr-status ${statusCls}">${statusLabel}</span>
+      </div>
+      <div class="sr-meta"><strong>${j.partDesc}</strong> — ${j.partId}</div>
+      <div class="sr-meta">👤 Customer: <strong>${j.customer||'—'}</strong> &nbsp;|&nbsp; 📄 PO: <strong>${j.po||'—'}</strong></div>
+      <div class="sr-meta">🔧 Machine: ${j.machine} &nbsp;|&nbsp; Qty: ${j.qty} &nbsp;|&nbsp; Due: ${fmtDate(j.due)} &nbsp;|&nbsp; Est End: ${fmtDate(j.end)}</div>
+      <div class="sr-actions">
+        <button class="btn" onclick="event.stopPropagation();showJobEnquiry('${j.id}')">📊 Full Enquiry</button>
+        <button class="btn danger" onclick="event.stopPropagation();cancelOrder('${j.id}')">🚫 Cancel Order</button>
+        <button class="btn warn" onclick="event.stopPropagation();highlightOnGantt('${j.id}')">📍 Show on Gantt</button>
+      </div>
+      <div id="enquiry-${j.id}" style="display:none"></div>
+    </div>`;
+  }).join('');
+}
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  document.getElementById('search-panel').style.display='none';
+  document.getElementById('search-results').innerHTML='';
+}
+function cancelOrder(jobId){
+  const j=jobs.find(j=>j.id===jobId);
+  if(!j) return;
+  if(!confirm(`Cancel order ${jobId}?\n\n${j.partDesc}\nCustomer: ${j.customer}\nPO: ${j.po}\n\nThis will remove all operations from the schedule.`)) return;
+  // Remove the job and any related CMM jobs
+  const baseId=jobId.replace('-CMM','');
+  jobs=jobs.filter(jj=>jj.id!==jobId&&jj.id!==baseId+'-CMM'&&jj.parentJob!==baseId);
+  // Also remove the main job if we cancelled a CMM job
+  if(jobId.includes('-CMM')) jobs=jobs.filter(jj=>jj.id!==baseId);
+  recalcCascade();
+  renderSchedule();
+  doSearch(); // refresh search results
+  toast(`🚫 Cancelled: ${jobId} — ${j.partDesc} (${j.customer})`);
+}
+function highlightOnGantt(jobId){
+  clearSearch();
+  const j=jobs.find(j=>j.id===jobId);
+  if(!j) return;
+  // Select the machine to filter to it, then scroll
+  selectedMachine=j.machine;
+  renderSchedule();
+  toast(`📍 Showing ${jobId} on ${j.machine}`);
+  // Flash the job block
+  setTimeout(()=>{
+    const el=document.querySelector(`.job[data-job="${jobId}"]`);
+    if(el){el.style.outline='3px solid var(--blue)';el.style.outlineOffset='2px';
+      setTimeout(()=>{el.style.outline='';el.style.outlineOffset='';},3000);
+    }
+  },100);
+}
+function toggleEnquiry(jobId,cardEl){
+  const el=document.getElementById('enquiry-'+jobId);
+  if(!el) return;
+  if(el.style.display==='none'){showJobEnquiry(jobId);el.style.display='block';}
+  else el.style.display='none';
+}
+function showJobEnquiry(jobId){
+  const j=jobs.find(j=>j.id===jobId);if(!j)return;
+  const el=document.getElementById('enquiry-'+jobId);
+  // If opened from button (not inline), open in search panel
+  if(!el){
+    document.getElementById('search-input').value=jobId;
+    doSearch();
+    setTimeout(()=>{
+      const e2=document.getElementById('enquiry-'+jobId);
+      if(e2){e2.style.display='block';_renderEnquiry(j,e2);}
+    },50);
+    return;
+  }
+  _renderEnquiry(j,el);
+}
+function _renderEnquiry(j,el){
+  const ops=j.operations||[];
+  const isLate=j.end>j.due;
+  const daysLate=isLate?Math.round((j.end-j.due)/(24*3600000)*10)/10:0;
+  // Customer delivery estimate
+  const deliveryEst=new Date(j.end.getTime()+2*24*3600000); // +2 days for QC+shipping
+  let html=`<div class="enquiry">
+    <h3>📊 Job Enquiry — ${j.id}</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:12px">
+      <div><span style="color:var(--dim)">Customer:</span> <strong>${j.customer||'—'}</strong></div>
+      <div><span style="color:var(--dim)">PO Number:</span> <strong>${j.po||'—'}</strong></div>
+      <div><span style="color:var(--dim)">Part:</span> <strong>${j.partDesc}</strong></div>
+      <div><span style="color:var(--dim)">Part ID:</span> ${j.partId}</div>
+      <div><span style="color:var(--dim)">Quantity:</span> ${j.qty}</div>
+      <div><span style="color:var(--dim)">Total Hours:</span> ${j.totalHours}h</div>
+      <div><span style="color:var(--dim)">Due Date:</span> <span style="color:${isLate?'var(--red)':'var(--green)'};font-weight:700">${fmtDateTime(j.due)}</span></div>
+      <div><span style="color:var(--dim)">Est Completion:</span> ${fmtDateTime(j.end)}${isLate?' <span style="color:var(--red);font-weight:700">('+daysLate+'d late)</span>':''}</div>
+      <div style="grid-column:1/-1;padding:8px;background:${isLate?'var(--red-d)':'var(--green-d)'};border-radius:var(--rs);margin-top:4px">
+        <strong>📦 Customer Delivery Estimate:</strong> ${fmtDateTime(deliveryEst)} 
+        <span style="color:var(--dim);font-size:10px">(+2 days for QC & shipping)</span>
+      </div>
+    </div>
+    <div style="font-weight:700;font-size:12px;margin-bottom:6px">Operations Routing (${ops.length} operations)</div>
+    <table class="enquiry-ops"><thead>
+      <tr><th>#</th><th>Process</th><th>Machine</th><th>Hours</th><th>Start</th><th>End</th><th>Status</th><th>Progress</th></tr>
+    </thead><tbody>`;
+  ops.forEach(op=>{
+    const pct=op.status==='complete'?100:op.status==='in-progress'?Math.round((TODAY-op.start)/(op.end-op.start)*100):0;
+    const statusColor=op.status==='complete'?'var(--green)':op.status==='in-progress'?'var(--orange)':'var(--dim)';
+    const barColor=op.status==='complete'?'var(--green)':op.status==='in-progress'?'var(--orange)':'var(--s3)';
+    html+=`<tr>
+      <td style="font-weight:700">${op.opNum}</td>
+      <td>${op.process}</td>
+      <td style="font-weight:600">${op.machine}</td>
+      <td>${op.hours}h</td>
+      <td style="font-size:11px">${fmtDateTime(op.start)}</td>
+      <td style="font-size:11px">${fmtDateTime(op.end)}</td>
+      <td style="color:${statusColor};font-weight:600">${op.status.toUpperCase()}</td>
+      <td style="min-width:80px">
+        <div class="enquiry-timeline"><div class="enquiry-timeline-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        <div style="font-size:9px;color:var(--dim);text-align:center;margin-top:2px">${pct}%</div>
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  // Drawing thumbnail
+  const thumbSVG=genDrawingSVG(j.partId,j.partDesc,280,180);
+  html+=`<div style="margin-top:10px;display:flex;gap:12px;align-items:flex-start">
+    <div style="border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;cursor:pointer;flex-shrink:0" ondblclick="openLightbox('${j.id}')">${thumbSVG}</div>
+    <div style="font-size:11px;color:var(--dim)">
+      <div style="margin-bottom:6px"><strong>Need to tell a customer when they'll get parts?</strong></div>
+      <div>• All ${ops.length} operations are shown above with start/end times</div>
+      <div>• Customer delivery estimate includes +2 days for QC & shipping</div>
+      <div>• Double-click the drawing to view full size</div>
+      ${isLate?`<div style="color:var(--red);margin-top:6px;font-weight:600">⚠️ This job is currently ${daysLate} days behind schedule</div>`:''}
+    </div>
+  </div></div>`;
+  el.innerHTML=html;
+}
 
 // ══════════════════════════════════════════════════════════════
 //  MONITOR MODE RENDERING
