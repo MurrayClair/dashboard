@@ -1784,8 +1784,21 @@ let staffingPanelOpen = false;
 function toggleStaffingAnalysis(){
   staffingPanelOpen = !staffingPanelOpen;
   const panel = document.getElementById('staffing-panel');
-  if(staffingPanelOpen){ renderStaffingAnalysis(); panel.style.display='block'; }
-  else panel.style.display='none';
+  const btn = document.getElementById('staffing-btn');
+  if(staffingPanelOpen){
+    try {
+      renderStaffingAnalysis();
+      panel.style.display='block';
+      if(btn) btn.textContent='✕ Close Impact';
+      setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),100);
+    } catch(e) {
+      panel.innerHTML='<div style="padding:20px;color:var(--red)">Error: '+e.message+'</div>';
+      panel.style.display='block';
+    }
+  } else {
+    panel.style.display='none';
+    if(btn) btn.textContent='📉 Staffing Impact';
+  }
 }
 
 function renderStaffingAnalysis(){
