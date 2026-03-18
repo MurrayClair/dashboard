@@ -413,7 +413,7 @@ table.dtbl select{width:auto;min-width:100px}
       <div style="display:flex;gap:6px;align-items:center">
         <button class="btn success" onclick="floorAutoAssign()">🤖 Auto-Assign</button>
         <button class="btn" onclick="floorClearAll()">🧹 Clear All</button>
-        <button class="btn" onclick="toggleStaffingAnalysis()" id="staffing-btn" style="background:var(--purple);background:rgba(191,90,242,.15);color:var(--purple);border-color:rgba(191,90,242,.3)">📉 Staffing Impact</button>
+        <button class="btn" onclick="try{toggleStaffingAnalysis();}catch(e){alert('Error: '+e.message);}" id="staffing-btn" style="background:rgba(191,90,242,.15);color:var(--purple);border-color:rgba(191,90,242,.3)">📉 Staffing Impact</button>
         <button class="btn" onclick="floorToggleLegacy()" id="floor-legacy-btn">📊 Card View</button>
       </div>
     </div>
@@ -2435,7 +2435,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 let monitorInterval=null;
 function startMonitorAnimation(){
   if(monitorInterval)return;
-  monitorInterval=setInterval(()=>{if(currentMode==='monitor')renderMonitor();},5000);
+  monitorInterval=setInterval(()=>{try{if(currentMode==='monitor')renderMonitor();}catch(e){}},5000);
 }
 
 // ══════════════════════════════════════════════════════════════
