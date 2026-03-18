@@ -1453,8 +1453,8 @@ function renderFloorPool(){
     const assignedMachines = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(e.id)).map(([m])=>m);
 
     return `<div class="pool-worker ${isAssigned?'assigned-elsewhere':''}"
-      ${!isAssigned?`draggable="true" ondragstart="floorPoolDragStart(event,'${e.id}')" ${isMobile?`onclick="floorMobilePickWorker('${e.id}')"`:''}`:''}>
-      <div class="worker-avatar ${isAssigned?'assigned':'unassigned'}" style="background:${isAssigned?col:'var(--dim2)'};width:22px;height:22px;font-size:8px">${init}</div>
+      draggable="true" ondragstart="floorPoolDragStart(event,'${e.id}')" ${isMobile?`onclick="floorMobilePickWorker('${e.id}')"`:''}>
+      <div class="worker-avatar ${isAssigned?'assigned':'unassigned'}" style="background:${col};width:22px;height:22px;font-size:8px">${init}</div>
       <div class="pw-name">${e.name}</div>
       <div class="pw-shift">${e.shift}</div>
       ${isAssigned?`<div style="font-size:8px;color:var(--blue);margin-left:auto">→ ${assignedMachines.join(', ')}</div>`:''}
@@ -1568,18 +1568,19 @@ function floorDrop(e, machineId){
       floorShowToast(`🔗 ${emp?.name||empId} now serves ${floorDragFrom} + ${machineId}`);
     }
   } else {
-    // From pool — assign to this machine
-    // Remove from any previous assignment
-    Object.keys(floorAssign).forEach(mId=>{
-      floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
-      if(!floorAssign[mId].length) delete floorAssign[mId];
-    });
+    // From pool or first assignment — ADD to this machine (don't remove existing)
+    const existingMachines = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(empId)).map(([m])=>m);
     if(!floorAssign[machineId]) floorAssign[machineId]=[];
     if(!floorAssign[machineId].includes(empId)){
       floorAssign[machineId].push(empId);
     }
     const emp = getEmployees().find(e=>e.id===empId);
-    floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
+    if(existingMachines.length > 0 && !existingMachines.includes(machineId)){
+      // They already had a machine — this creates a tie
+      floorShowToast(`🔗 ${emp?.name||empId} now serves ${existingMachines.join(' + ')} + ${machineId}`);
+    } else {
+      floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
+    }
   }
 
   floorDragEmpId = null;
