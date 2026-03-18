@@ -3950,7 +3950,7 @@ function renderSetupIntegrations(){
 
     <div style="margin-bottom:24px;padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
       <div class="section-title" style="font-size:14px;margin-bottom:6px">🤖 Anthropic (Claude) — AI Chat Engine</div>
-      <div class="section-desc">Powers the NuPhoenix AI chat assistant. Sends full schedule context (jobs, machines, priorities, breakdowns) with every message so the LLM can respond accurately.</div>
+      <div class="section-desc">Powers the NuPhoenix AI chat assistant.</div>
       <div class="conn-status ${antStatus==='connected'?'connected':'disconnected'}" id="int-ant-status" style="margin:10px 0">${antStatusLabel[antStatus]||'🔴 Not configured'}</div>
       <div class="form-row">
         <div class="form-group" style="flex:2"><label>API Key</label>
@@ -3970,9 +3970,7 @@ function renderSetupIntegrations(){
         <button class="btn primary" onclick="testAnthropicIntegration()">🔌 Test Connection</button>
         <button class="btn success" onclick="saveAnthropicIntegration()">💾 Save</button>
       </div>
-      <div style="margin-top:12px;background:var(--s3);border-radius:var(--rs);padding:10px;font-size:10px;color:var(--dim)">
-        <strong style="color:var(--txt)">Context sent to LLM:</strong> Active jobs (up to 30), machine states, priority overrides, breakdowns, monthly targets, M1 warnings, scrap log. Updated on every chat message.
-      </div>
+
     </div>
 
     <div style="margin-bottom:24px;padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
