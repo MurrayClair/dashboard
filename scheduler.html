@@ -748,9 +748,19 @@ function genDrawingSVG(partId, partDesc, w, h){
 
 // ── INFO CARD (click to open, X to close) ──
 let openCardJobId = null;
+let clickTimer = null;
 
 function showInfoCard(e, jobId){
   e.stopPropagation();
+  // Delay single click so double click can cancel it
+  if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
+  clickTimer = setTimeout(() => {
+    clickTimer = null;
+    _openInfoCard(e, jobId);
+  }, 250);
+}
+
+function _openInfoCard(e, jobId){
   // Toggle off if same job clicked again
   if(openCardJobId === jobId){
     closeInfoCard();
@@ -805,9 +815,11 @@ document.addEventListener('click', (e) => {
 
 // ── LIGHTBOX (double-click to open full drawing) ──
 function openLightbox(jobId){
+  // Cancel any pending single-click info card
+  if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
   const j = jobs.find(j => j.id === jobId);
   if(!j) return;
-  hideTip();
+  closeInfoCard();
   const lb = document.getElementById('lightbox');
   document.getElementById('lb-title').textContent = `${j.partId} — ${j.partDesc}`;
   document.getElementById('lb-drawing').innerHTML = genDrawingSVG(j.partId, j.partDesc, 800, 560);
