@@ -203,10 +203,10 @@ table.dtbl select{width:auto;min-width:100px}
 .mcard-status.breakdown{background:var(--red-d);color:var(--red);border:2px dashed var(--red)}
 .mcard.breakdown{border:3px solid var(--red)!important;background:rgba(255,69,58,.05)}
 .floor-card.breakdown{border:3px solid var(--red)!important;background:rgba(255,69,58,.05)}
-.breakdown-btn{padding:4px 8px;font-size:10px;border:1px solid var(--red);background:var(--red-d);color:var(--red);border-radius:4px;cursor:pointer;margin:4px 0}
-.breakdown-btn:hover{background:var(--red);color:#fff}
+.breakdown-btn{display:block;width:100%;padding:8px 12px;font-size:12px;font-weight:700;border:2px solid var(--red);background:var(--red-d);color:var(--red);border-radius:6px;cursor:pointer;margin:4px 0;min-height:36px;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;letter-spacing:.3px}
+.breakdown-btn:hover,.breakdown-btn:active{background:var(--red);color:#fff}
 .breakdown-restore{background:var(--green-d);color:var(--green);border-color:var(--green)}
-.breakdown-restore:hover{background:var(--green);color:#fff}
+.breakdown-restore:hover,.breakdown-restore:active{background:var(--green);color:#fff}
 .breakdown-date{margin:6px 0;font-size:10px}
 .breakdown-date input[type="date"]{padding:3px 6px;border:1px solid var(--brd);border-radius:4px;font-size:10px;background:var(--s3);color:var(--txt);width:100%;font-family:inherit}
 .fc-status.breakdown{background:var(--red);border:2px solid #fff;box-shadow:0 0 0 2px var(--red)}
@@ -1385,7 +1385,7 @@ function renderMonitorLegacy(){
       <div class="mcard-benchmark"><div class="mcard-benchmark-title">Last 6 runs (setup+cycle)</div><div class="sparkline-row">${sparkBars}</div></div>
       <div style="margin-top:8px;border-top:1px solid var(--brd);padding-top:8px">
         <button class="breakdown-btn ${d.status==='breakdown'?'breakdown-restore':''}" onclick="toggleBreakdown('${m.id}')">
-          ${d.status==='breakdown'?'✓ Restore':'🔧 Breakdown'}
+          ${d.status==='breakdown'?'✅ Restore to Service':'🔧 Breakdown'}
         </button>
       </div>
     </div>`;
@@ -1509,7 +1509,7 @@ function renderFloorGrid(){
     html += `<div class="${cls.join(' ')}" id="fc-${pos.id}" style="${style};border-color:${borderColor}"
       data-machine="${pos.id}"
       ${pos.arriving?'':`ondragover="floorDragOver(event)" ondrop="floorDrop(event,'${pos.id}')" ondragleave="floorDragLeave(event)"`}
-      ${!pos.arriving && isMobile ? `onclick="floorMobileAssign('${pos.id}')"`:''}>
+      ${!pos.arriving && isMobile ? `onclick="if(!event.target.closest('.breakdown-btn')&&event.target.tagName!=='INPUT')floorMobileAssign('${pos.id}')"`:''}>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
         <span class="fc-status ${status}"></span>
         <span class="fc-id">${pos.label||pos.id}</span>
@@ -1523,8 +1523,8 @@ function renderFloorGrid(){
         </div>`:''}
       ${pos.arriving?'':
         `<div style="margin-top:auto;padding-top:4px">
-          <button class="breakdown-btn ${status==='breakdown'?'breakdown-restore':''}" onclick="event.stopPropagation();toggleBreakdown('${pos.id}')">
-            ${status==='breakdown'?'✓ Restore':'🔧 Breakdown'}
+          <button class="breakdown-btn ${status==='breakdown'?'breakdown-restore':''}" onclick="event.stopPropagation();event.preventDefault();toggleBreakdown('${pos.id}')">
+            ${status==='breakdown'?'✅ Restore to Service':'🔧 Breakdown'}
           </button>
         </div>`}
       ${pos.arriving?'':
