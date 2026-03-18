@@ -1877,60 +1877,115 @@ function renderStaffingAnalysis(){
     html += `</tbody></table>`;
   }
   
-  // +1 Employee Scenarios
-  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">💡 What If We Hire +1 Employee?</div>`;
+  // Multi-hire stacking analysis: +1, +2, +3 across 3 skill types
+  const SKILL_TYPES = [
+    {key:'setupRun', label:'Setup & Run', emoji:'🟢', efficiency:1.0, desc:'Can set up and run independently'},
+    {key:'runOnly',  label:'Run Only',    emoji:'🟡', efficiency:0.7, desc:'Can run parts, needs setup from others (~70% output)'},
+    {key:'apprentice',label:'Apprentice', emoji:'🔵', efficiency:0.45, desc:'Learning, needs supervision (~45% output)'},
+  ];
+  const MAX_HIRES = Math.min(3, losses.length);
   
-  if(bestSetupRun){
-    html += `<div class="sa-scenario">
-      <h4>🟢 Scenario A: +1 High-Skill (Setup & Run)</h4>
-      <div style="font-size:12px;color:var(--dim);margin-bottom:8px">
-        Best deployed on: <strong>${bestSetupRun.machine}</strong> 
-        (${bestSetupRun.jobCount} jobs waiting, ${bestSetupRun.isLate?'<span style="color:var(--red)">LATE</span>':'queued'})
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-        <div><div class="sa-gain" style="font-size:18px">+${gain1Shift.toFixed(1)}h</div><div style="font-size:10px;color:var(--dim)">Per Shift</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Day).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Day</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Week).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Week</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Month).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Month</div></div>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--dim)">
-        Can set up and run independently. Covers the highest-impact unstaffed machine.
-        ${bestSetupRun.topJob?`Top job: ${bestSetupRun.topJob.partDesc} (due ${fmtDate(bestSetupRun.topJob.due)})`:''} 
-      </div>
-    </div>`;
+  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">💡 Throughput Gain by Hiring — Stacking Analysis</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Each additional hire covers the next highest-impact unstaffed machine. Shows diminishing returns.</div>`;
+  
+  // Build comparison table
+  html += `<table class="sa-table"><thead><tr>
+    <th>Hire #</th><th>Machine</th><th>Top Job</th>`;
+  SKILL_TYPES.forEach(st=>{
+    html += `<th style="text-align:center">${st.emoji} ${st.label}<br><span style="font-size:8px;font-weight:400">${Math.round(st.efficiency*100)}% eff</span></th>`;
+  });
+  html += `<th>Cumulative (Setup&Run)</th></tr></thead><tbody>`;
+  
+  let cumulativeByType = {};
+  SKILL_TYPES.forEach(st=>cumulativeByType[st.key]={shift:0,month:0,year:0});
+  
+  for(let h=0; h<MAX_HIRES; h++){
+    const l = losses[h];
+    if(!l) break;
+    html += `<tr><td style="font-weight:700;font-size:16px;text-align:center">+${h+1}</td>
+      <td style="font-weight:600">${l.machine}</td>
+      <td style="font-size:10px">${l.topJob?l.topJob.partDesc.substring(0,20):'—'} ${l.isLate?'<span style="color:var(--red)">(LATE)</span>':''}</td>`;
+    
+    SKILL_TYPES.forEach(st=>{
+      const gainHrs = l.lostPerShift * st.efficiency;
+      const gainMonth = gainHrs * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH;
+      cumulativeByType[st.key].shift += gainHrs;
+      cumulativeByType[st.key].month += gainMonth;
+      cumulativeByType[st.key].year += gainMonth * 12;
+      html += `<td style="text-align:center">
+        <div class="sa-gain" style="font-size:14px">+$${Math.round(gainMonth).toLocaleString()}/mo</div>
+        <div style="font-size:9px;color:var(--dim)">+${gainHrs.toFixed(1)}h/shift</div>
+      </td>`;
+    });
+    
+    // Cumulative for setup&run
+    html += `<td style="text-align:center;background:rgba(52,199,89,.05)">
+      <div class="sa-gain" style="font-size:14px">+$${Math.round(cumulativeByType.setupRun.month).toLocaleString()}/mo</div>
+      <div style="font-size:9px;color:var(--dim)">+${cumulativeByType.setupRun.shift.toFixed(1)}h/shift total</div>
+    </td></tr>`;
   }
+  html += `</tbody></table>`;
   
-  // Run-only scenario (cheaper hire)
-  const runOnlyGain = bestRunOnly ? bestRunOnly.lostPerShift * 0.7 : 0; // 70% efficiency (needs someone to set up)
-  const runOnlyRev = runOnlyGain * MACHINE_HOURLY_RATE;
-  if(bestRunOnly){
-    html += `<div class="sa-scenario">
-      <h4>🟡 Scenario B: +1 Run-Only Operator</h4>
-      <div style="font-size:12px;color:var(--dim);margin-bottom:8px">
-        Best deployed on: <strong>${bestRunOnly.machine}</strong> 
-        (requires someone else to set up first — 70% efficiency estimate)
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-        <div><div class="sa-gain" style="font-size:18px">+${runOnlyGain.toFixed(1)}h</div><div style="font-size:10px;color:var(--dim)">Per Shift</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Day</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev*DAYS_PER_WEEK).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Week</div></div>
-        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev*DAYS_PER_WEEK*WEEKS_PER_MONTH).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Month</div></div>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--dim)">
-        Can run parts but needs setup assistance. Lower cost hire, ~70% of full-skill output.
-      </div>
-    </div>`;
-  }
-  
-  // Summary recommendation
+  // Visual comparison: annual recovery by scenario
   const annualLoss = totalLostRevPerMonth * 12;
+  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">📊 Annual Recovery Comparison</div>`;
+  html += `<table class="sa-table"><thead><tr><th>Scenario</th><th>Per Month</th><th>Per Year</th><th>% of Lost Production Recovered</th></tr></thead><tbody>`;
+  
+  for(let h=1; h<=MAX_HIRES; h++){
+    SKILL_TYPES.forEach(st=>{
+      // Calculate cumulative for this many hires of this type
+      let cumMonth = 0;
+      for(let i=0; i<h && i<losses.length; i++){
+        cumMonth += losses[i].lostPerShift * st.efficiency * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH;
+      }
+      const cumYear = cumMonth * 12;
+      const pctRecovered = annualLoss > 0 ? Math.round(cumYear / annualLoss * 100) : 0;
+      const barW = Math.min(pctRecovered, 100);
+      html += `<tr>
+        <td>${st.emoji} <strong>+${h} ${st.label}</strong></td>
+        <td class="sa-gain">$${Math.round(cumMonth).toLocaleString()}</td>
+        <td class="sa-gain">$${Math.round(cumYear).toLocaleString()}</td>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:16px;background:var(--s3);border-radius:8px;overflow:hidden">
+            <div style="width:${barW}%;height:100%;background:${pctRecovered>=80?'var(--green)':pctRecovered>=50?'var(--yellow)':'var(--orange)'};border-radius:8px;transition:width .3s"></div>
+          </div>
+          <span style="font-weight:700;min-width:40px">${pctRecovered}%</span>
+        </div></td>
+      </tr>`;
+    });
+  }
+  html += `</tbody></table>`;
+  
+  // HR Decision Summary
   html += `<div style="background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.3);border-radius:var(--r);padding:14px;margin-top:12px">
     <div style="font-weight:700;font-size:13px;color:var(--purple);margin-bottom:6px">📊 HR Decision Summary</div>
     <div style="font-size:12px">
-      <div>Current annual lost production estimate: <strong class="sa-loss">$${Math.round(annualLoss).toLocaleString()}</strong></div>
-      <div style="margin-top:4px">+1 high-skill employee would recover: <strong class="sa-gain">~$${Math.round(gain1Month*12).toLocaleString()}/year</strong></div>
-      <div style="margin-top:4px">+1 run-only operator would recover: <strong class="sa-gain">~$${Math.round(runOnlyRev*DAYS_PER_WEEK*WEEKS_PER_MONTH*12).toLocaleString()}/year</strong></div>
-      <div style="margin-top:8px;color:var(--dim);font-size:11px">Based on $${MACHINE_HOURLY_RATE}/hr machine rate × ${SHIFT_HOURS}hr shifts × current unstaffed machine count (${totalUnstaffed}). Adjust machine rate in config for accurate figures.</div>
+      <div>Current annual lost production: <strong class="sa-loss">$${Math.round(annualLoss).toLocaleString()}</strong> (${totalUnstaffed} unstaffed machines)</div>`;
+  
+  // Find the sweet spot — best ROI
+  if(losses.length >= 1){
+    const first = losses[0];
+    const firstYearSetup = first.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+    const firstYearRun = first.lostPerShift * 0.7 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+    html += `<div style="margin-top:8px;padding:8px;background:rgba(52,199,89,.1);border-radius:var(--rs)">
+      <strong>🎯 Highest ROI:</strong> +1 Setup & Run on <strong>${first.machine}</strong> → recovers <strong class="sa-gain">$${Math.round(firstYearSetup).toLocaleString()}/year</strong>
+    </div>`;
+    if(losses.length >= 2){
+      const second = losses[1];
+      const marginalGain = second.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+      html += `<div style="margin-top:4px;padding:8px;background:rgba(255,214,10,.1);border-radius:var(--rs)">
+        <strong>📈 2nd hire:</strong> +1 on <strong>${second.machine}</strong> → additional <strong class="sa-gain">$${Math.round(marginalGain).toLocaleString()}/year</strong> (diminishing return: ${Math.round(marginalGain/firstYearSetup*100)}% of first hire)
+      </div>`;
+    }
+    if(losses.length >= 3){
+      const third = losses[2];
+      const marginalGain3 = third.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+      html += `<div style="margin-top:4px;padding:8px;background:rgba(255,159,10,.1);border-radius:var(--rs)">
+        <strong>📉 3rd hire:</strong> +1 on <strong>${third.machine}</strong> → additional <strong class="sa-gain">$${Math.round(marginalGain3).toLocaleString()}/year</strong>
+      </div>`;
+    }
+  }
+  html += `<div style="margin-top:8px;color:var(--dim);font-size:11px">Based on $${MACHINE_HOURLY_RATE}/hr machine rate × ${SHIFT_HOURS}hr shifts. Run-Only at 70% efficiency, Apprentice at 45%. Adjust machine rate in Setup → M1 Connection for accurate figures.</div>
     </div>
   </div>`;
   
