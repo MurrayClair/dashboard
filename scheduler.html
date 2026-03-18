@@ -323,6 +323,10 @@ table.dtbl select{width:auto;min-width:100px}
 .m1-table-row:hover{background:var(--s3)!important}
 .m1-table-row.selected{background:var(--blue-d)!important;outline:1px solid var(--blue)}
 .m1-table-row.selected td{border-color:var(--blue)!important}
+.machine-setup-row:hover{background:var(--s3)!important}
+.machine-setup-row.selected{background:var(--blue-d)!important}
+.machine-setup-row.selected td{border-color:var(--blue)!important}
+.ip-display:hover{background:var(--s3);border-color:var(--brd)!important}
 
 /* Correction report */
 .correction-row{background:var(--yellow-d);border-left:3px solid var(--yellow)}
@@ -2523,35 +2527,145 @@ function renderSetupTab(){
 }
 
 // ── Machine Tools ──
+let machineSelectedRow=-1;
+let machineIpStatuses={}; // {ip: 'online'|'offline'|'testing'}
+let machinePiStatuses={}; // {piIp: 'online'|'offline'|'testing'}
+
 function renderSetupMachines(){
   const ms=getMachineSetup();
-  const protocols=['MTConnect','Mazak SmartM','FANUC FOCAS','Heidenhain','Manual'];
+  const protocols=['MTConnect','Mazak SmartM','FANUC FOCAS','Heidenhain','Saeki','Manual'];
+  machineIpStatuses=lsGet('machine_ip_statuses',{});
+  machinePiStatuses=lsGet('machine_pi_statuses',{});
   document.getElementById('sp-machines').innerHTML=`
     <div class="section-title">🔧 Machine Tool Configuration</div>
-    <div class="section-desc">Define CNC machines, protocols, and network addresses. Data persists in localStorage.</div>
-    <div class="action-bar"><button class="btn primary" onclick="addMachineRow()">＋ Add Machine</button><button class="btn success" onclick="saveMachines()">💾 Save Changes</button></div>
+    <div class="section-desc">Define CNC machines, protocols, and network addresses. Single-click a row to select. Double-click an IP address to edit. Data persists in localStorage.</div>
+    <div class="action-bar">
+      <button class="btn primary" onclick="addMachineRow()">＋ Add Machine</button>
+      <button class="btn danger" onclick="deleteSelectedMachine()">✕ Delete Selected</button>
+      <button class="btn success" onclick="saveMachines()">💾 Save Changes</button>
+      <div class="ctrl-sep"></div>
+      <button class="btn primary" onclick="testAllMachineIPs()">🔌 Test All Connections</button>
+      <button class="btn" onclick="testSelectedMachineIP()">🔌 Test Selected</button>
+    </div>
     <div class="tbl-wrap"><table class="dtbl" id="machine-table">
-      <tr><th>ID</th><th>Name</th><th>Type</th><th>Protocol</th><th>IP Address</th><th>Port</th><th>Status</th><th></th></tr>
-      ${ms.map((m,i)=>`<tr data-idx="${i}">
-        <td><input value="${m.id}" data-f="id"/></td>
+      <tr><th>ID</th><th>Name</th><th>Type</th><th>Protocol</th><th style="min-width:100px">Machine IP</th><th></th><th>Port</th><th style="min-width:100px">Raspberry Pi IP</th><th></th><th>Status</th><th></th></tr>
+      ${ms.map((m,i)=>{
+        const isSel=machineSelectedRow===i;
+        const ipSt=machineIpStatuses[m.ip]||'unknown';
+        const ipDot=ipSt==='online'?'🟢':ipSt==='offline'?'🔴':ipSt==='testing'?'🟡':'⚪';
+        const piIp=m.piIp||'';
+        const piSt=piIp?machinePiStatuses[piIp]||'unknown':'none';
+        const piDot=piSt==='online'?'🟢':piSt==='offline'?'🔴':piSt==='testing'?'🟡':piIp?'⚪':'';
+        return `<tr data-idx="${i}" class="machine-setup-row${isSel?' selected':''}" onclick="selectMachineRow(${i})" style="cursor:pointer${isSel?';background:var(--blue-d)':''}">
+        <td><input value="${m.id}" data-f="id" style="width:80px"/></td>
         <td><input value="${m.name}" data-f="name"/></td>
-        <td><input value="${m.type}" data-f="type"/></td>
+        <td><input value="${m.type}" data-f="type" style="width:70px"/></td>
         <td><select data-f="protocol">${protocols.map(p=>`<option${p===m.protocol?' selected':''}>${p}</option>`).join('')}</select></td>
-        <td><input value="${m.ip}" data-f="ip" style="width:120px"/></td>
-        <td><input value="${m.port}" data-f="port" type="number" style="width:60px"/></td>
-        <td><span class="status-dot ${m.status==='Online'?'status-online':'status-offline'}"></span> ${m.status}</td>
-        <td><button class="btn danger" onclick="deleteMachineRow(${i})" style="padding:2px 8px;font-size:10px">✕</button></td>
-      </tr>`).join('')}
-    </table></div>`;
+        <td>
+          <span class="ip-display" id="ip-display-${i}" ondblclick="enableIpEdit(${i},'ip')" style="cursor:pointer;padding:4px 6px;border-radius:4px;display:inline-block;min-width:100px;border:1px solid transparent;${isSel?'border-color:var(--blue)':''}" title="Double-click to edit">${m.ip||'—'}</span>
+          <input class="ip-edit" id="ip-edit-${i}" data-f="ip" value="${m.ip||''}" style="width:120px;display:none" onblur="finishIpEdit(${i},'ip')" onkeydown="if(event.key==='Enter')this.blur()"/>
+        </td>
+        <td style="text-align:center;font-size:14px;width:30px">${ipDot}</td>
+        <td><input value="${m.port||''}" data-f="port" type="number" style="width:55px"/></td>
+        <td>
+          <span class="ip-display" id="pi-display-${i}" ondblclick="enableIpEdit(${i},'pi')" style="cursor:pointer;padding:4px 6px;border-radius:4px;display:inline-block;min-width:100px;border:1px solid transparent;${isSel?'border-color:var(--blue)':''}" title="Double-click to edit">${piIp||'—'}</span>
+          <input class="ip-edit" id="pi-edit-${i}" data-f="piIp" value="${piIp}" style="width:120px;display:none" onblur="finishIpEdit(${i},'pi')" onkeydown="if(event.key==='Enter')this.blur()"/>
+        </td>
+        <td style="text-align:center;font-size:14px;width:30px">${piDot}</td>
+        <td><span class="status-dot ${m.status==='Online'?'status-online':'status-offline'}"></span> ${m.status||'Online'}</td>
+        <td><button class="btn danger" onclick="event.stopPropagation();deleteMachineRow(${i})" style="padding:2px 8px;font-size:10px">✕</button></td>
+      </tr>`;}).join('')}
+    </table></div>
+    ${machineSelectedRow>=0&&machineSelectedRow<ms.length?`
+    <div style="margin-top:8px;padding:10px;background:var(--s2);border:1px solid var(--blue);border-radius:var(--rs);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--dim)">Selected: <strong style="color:var(--txt)">${ms[machineSelectedRow].id}</strong></span>
+      <button class="btn primary" onclick="testSingleMachineIP(${machineSelectedRow},'ip')" style="font-size:10px">🔌 Test Machine IP</button>
+      ${ms[machineSelectedRow].piIp?`<button class="btn primary" onclick="testSingleMachineIP(${machineSelectedRow},'pi')" style="font-size:10px">🔌 Test Pi IP</button>`:''}
+    </div>`:''}`;
 }
+
+function selectMachineRow(i){machineSelectedRow=(machineSelectedRow===i)?-1:i;renderSetupMachines();}
+
+function enableIpEdit(i,type){
+  const prefix=type==='pi'?'pi':'ip';
+  document.getElementById(prefix+'-display-'+i).style.display='none';
+  const inp=document.getElementById(prefix+'-edit-'+i);
+  inp.style.display='inline-block';
+  inp.focus();inp.select();
+}
+function finishIpEdit(i,type){
+  const prefix=type==='pi'?'pi':'ip';
+  const inp=document.getElementById(prefix+'-edit-'+i);
+  const display=document.getElementById(prefix+'-display-'+i);
+  display.textContent=inp.value||'—';
+  display.style.display='inline-block';
+  inp.style.display='none';
+}
+
+function testSingleMachineIP(i,type){
+  const ms=getMachineSetup();
+  const m=ms[i];if(!m)return;
+  const ip=type==='pi'?(m.piIp||''):(m.ip||'');
+  if(!ip){toast('❌ No IP address configured');return;}
+  const statuses=type==='pi'?machinePiStatuses:machineIpStatuses;
+  const key=type==='pi'?'machine_pi_statuses':'machine_ip_statuses';
+  statuses[ip]='testing';
+  lsSet(key,statuses);renderSetupMachines();
+  toast(`🔌 Testing ${ip}…`);
+  // Simulated — in production would ping/fetch
+  setTimeout(()=>{
+    const ok=Math.random()>0.25;
+    statuses[ip]=ok?'online':'offline';
+    lsSet(key,statuses);
+    toast(ok?`✅ ${ip} — reachable`:`❌ ${ip} — no response`);
+    renderSetupMachines();
+  },800+Math.random()*700);
+}
+
+function testSelectedMachineIP(){
+  if(machineSelectedRow<0){toast('Select a machine row first');return;}
+  testSingleMachineIP(machineSelectedRow,'ip');
+}
+
+function testAllMachineIPs(){
+  const ms=getMachineSetup();
+  toast(`🔌 Testing all ${ms.length} machine IPs…`);
+  ms.forEach((m,i)=>{
+    setTimeout(()=>{
+      if(m.ip)testSingleMachineIP(i,'ip');
+      if(m.piIp)setTimeout(()=>testSingleMachineIP(i,'pi'),400);
+    },i*300);
+  });
+}
+
 function addMachineRow(){
-  const ms=getMachineSetup();ms.push({id:'NEW'+ms.length,name:'New Machine',type:'vmc',protocol:'MTConnect',ip:'192.168.1.200',port:5000,status:'Offline'});
+  const ms=getMachineSetup();ms.push({id:'NEW'+ms.length,name:'New Machine',type:'vmc',protocol:'MTConnect',ip:'192.168.1.200',port:5000,piIp:'',status:'Offline'});
   lsSet('machine_setup',ms);renderSetupMachines();toast('Added new machine row');
 }
-function deleteMachineRow(i){if(!confirm('Delete this machine?'))return;const ms=getMachineSetup();ms.splice(i,1);lsSet('machine_setup',ms);renderSetupMachines();toast('Machine deleted');}
+function deleteSelectedMachine(){
+  if(machineSelectedRow<0){toast('Select a machine row first');return;}
+  const ms=getMachineSetup();
+  if(!confirm(`Delete machine "${ms[machineSelectedRow].id}"?`))return;
+  ms.splice(machineSelectedRow,1);machineSelectedRow=-1;
+  lsSet('machine_setup',ms);renderSetupMachines();toast('Machine deleted');
+}
+function deleteMachineRow(i){if(!confirm('Delete this machine?'))return;const ms=getMachineSetup();ms.splice(i,1);if(machineSelectedRow===i)machineSelectedRow=-1;lsSet('machine_setup',ms);renderSetupMachines();toast('Machine deleted');}
 function saveMachines(){
   const rows=document.querySelectorAll('#machine-table tr[data-idx]');const ms=[];
-  rows.forEach(r=>{const o={};r.querySelectorAll('[data-f]').forEach(el=>o[el.dataset.f]=el.value);o.port=parseInt(o.port)||0;o.status='Online';ms.push(o);});
+  rows.forEach(r=>{
+    const o={};
+    r.querySelectorAll('[data-f]').forEach(el=>{
+      // For IP fields, check both the visible display and hidden input
+      if(el.classList.contains('ip-edit')){
+        const display=el.previousElementSibling;
+        if(display&&display.classList.contains('ip-display')){
+          const val=el.style.display==='none'?(display.textContent==='—'?'':display.textContent):el.value;
+          o[el.dataset.f]=val;
+        }else{o[el.dataset.f]=el.value;}
+      }else{o[el.dataset.f]=el.value;}
+    });
+    o.port=parseInt(o.port)||0;o.status='Online';ms.push(o);
+  });
   lsSet('machine_setup',ms);toast('✅ Machines saved');
 }
 
