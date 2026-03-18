@@ -1388,8 +1388,11 @@ function renderFloorGrid(){
     // Grid placement
     let style = `grid-column:${pos.col}`;
     if(pos.wide) style += `/span 3`;
-    style += `;grid-row:${pos.row}`;
-    if(pos.rotated) style += `/span 2`;
+    if(pos.rotated){
+      style += `;grid-row:${pos.row}/span 2`;
+    } else {
+      style += `;grid-row:${pos.row}/${pos.row+1}`;
+    }
 
     const cls = ['floor-card'];
     if(pos.rotated) cls.push('rotated');
