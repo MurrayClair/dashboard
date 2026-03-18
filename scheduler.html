@@ -75,9 +75,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rc{font-size:10px;padding:4px 8px;border-radius:4px;background:var(--s3);border:1px solid var(--brd);cursor:pointer;color:var(--dim);transition:.15s;display:flex;align-items:center;gap:6px}
 .rc:hover{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .rc-icon{font-size:12px}
-/* Tooltip — interactive: user can hover into it to double-click drawing */
+/* Job info card — click to open, X to close */
 .tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:auto;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-.tip-title{font-weight:700;margin-bottom:6px;font-size:13px}
+.tip-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.tip-title{font-weight:700;font-size:13px}
+.tip-close{background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0 0 0 8px;line-height:1;font-weight:700}
+.tip-close:hover{color:var(--txt)}
 .tip-row{display:flex;justify-content:space-between;margin-bottom:3px;color:var(--dim)}
 .tip-row span:last-child{color:var(--txt);font-weight:600}
 .tip-drawing{margin-top:10px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;position:relative;cursor:pointer;transition:border-color .15s}
@@ -401,7 +404,7 @@ function renderGantt(filteredMachines, filteredJobs){
       const cls = j.machine.startsWith('CMM') ? 'cmm' : isLate ? 'late' : isAtRisk ? 'at-risk' : 'on-time';
       const prog = j.status === 'in-progress' ? ' in-progress' : '';
       html += `<div class="job ${cls}${prog}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px"
-        onmouseenter="showTip(event,'${j.id}')" onmouseleave="hideTip()" onclick="selectJob('${j.id}')" ondblclick="openLightbox('${j.id}')">
+        onclick="showInfoCard(event,'${j.id}')" ondblclick="openLightbox('${j.id}')">
         ${j.partId.substring(0,15)}${j.delay > 0 ? ' +'+j.delay+'h':''}
       </div>`;
     });
@@ -499,11 +502,6 @@ function selectMachine(id){
   render();
 }
 
-function selectJob(id){
-  const j = jobs.find(j => j.id === id);
-  if(!j) return;
-  toast(`Selected: ${j.id} — ${j.partDesc}`);
-}
 
 function setScale(s){
   scale = s;
@@ -748,13 +746,17 @@ function genDrawingSVG(partId, partDesc, w, h){
   return svg;
 }
 
-// ── TOOLTIP (interactive — user can hover into it to click the drawing) ──
-let tipTimer = null;
-let tipJobId = null;
+// ── INFO CARD (click to open, X to close) ──
+let openCardJobId = null;
 
-function showTip(e, jobId){
-  clearTimeout(tipTimer);
-  tipJobId = jobId;
+function showInfoCard(e, jobId){
+  e.stopPropagation();
+  // Toggle off if same job clicked again
+  if(openCardJobId === jobId){
+    closeInfoCard();
+    return;
+  }
+  openCardJobId = jobId;
   const j = jobs.find(j => j.id === jobId);
   if(!j) return;
   const tip = document.getElementById('tooltip');
@@ -762,7 +764,10 @@ function showTip(e, jobId){
   const daysLate = isLate ? Math.round((j.end - j.due)/(24*3600000)*10)/10 : 0;
   const thumbSVG = genDrawingSVG(j.partId, j.partDesc, 320, 220);
   tip.innerHTML = `
-    <div class="tip-title">${j.id}</div>
+    <div class="tip-header">
+      <div class="tip-title">${j.id}</div>
+      <button class="tip-close" onclick="closeInfoCard()">&times;</button>
+    </div>
     <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div>
     <div class="tip-row"><span>Machine</span><span>${j.machine}</span></div>
     <div class="tip-row"><span>Qty</span><span>${j.qty}</span></div>
@@ -777,31 +782,26 @@ function showTip(e, jobId){
     <div class="tip-dblclick">Double-click drawing to view full size</div>
   `;
   tip.style.display = 'block';
-  // Position — keep tooltip close to cursor so user can reach it
+  // Position near click
   const tipW = 370, tipH = 520;
   tip.style.left = Math.min(e.clientX + 10, window.innerWidth - tipW) + 'px';
-  tip.style.top = Math.min(e.clientY + 10, window.innerHeight - tipH) + 'px';
+  tip.style.top = Math.min(e.clientY - 60, window.innerHeight - tipH) + 'px';
+  // Clamp top
+  if(parseInt(tip.style.top) < 10) tip.style.top = '10px';
 }
 
-function hideTip(){
-  // Delay hide so user can move cursor from job block into tooltip
-  tipTimer = setTimeout(() => {
-    document.getElementById('tooltip').style.display = 'none';
-    tipJobId = null;
-  }, 300);
+function closeInfoCard(){
+  document.getElementById('tooltip').style.display = 'none';
+  openCardJobId = null;
 }
 
-// Keep tooltip open when user hovers into it
-(function(){
+// Close info card when clicking outside
+document.addEventListener('click', (e) => {
   const tip = document.getElementById('tooltip');
-  tip.addEventListener('mouseenter', () => clearTimeout(tipTimer));
-  tip.addEventListener('mouseleave', () => {
-    tipTimer = setTimeout(() => {
-      tip.style.display = 'none';
-      tipJobId = null;
-    }, 200);
-  });
-})();
+  if(tip.style.display !== 'none' && !tip.contains(e.target) && !e.target.closest('.job')){
+    closeInfoCard();
+  }
+});
 
 // ── LIGHTBOX (double-click to open full drawing) ──
 function openLightbox(jobId){
