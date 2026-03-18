@@ -608,7 +608,7 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
     <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
     <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
-    <button class="setup-tab" onclick="setSetupTab('apikeys')">🔑 API Keys</button>
+    <!-- API Keys merged into Integrations tab -->
   </div>
   <div class="setup-body" id="setup-body">
     <div class="setup-page active" id="sp-machines"></div>
@@ -3382,7 +3382,7 @@ async function sendChat(){
   }else{
     // No API key — local pattern matching
     const reply=parseCommand(text.toLowerCase(),text);
-    const noKeyNote='\n\n💡 Configure Anthropic API key in Setup > API Keys for full AI capabilities.';
+    const noKeyNote='\n\n💡 Configure Anthropic API key in Setup > Integrations for full AI capabilities.';
     addChatMsg('agent',reply.msg+noKeyNote,true,reply.type||'','local');
   }
 }
@@ -3939,15 +3939,53 @@ function ignoreTimeRowForever(key){
 // ══════════════════════════════════════════════════════════════
 function renderSetupIntegrations(){
   const cfg=lsGet('monday_config',{apiKey:'',boardId:'',workspaceId:''});
+  const ak=getApiKeys();
+  const ant=ak.anthropic||{};
+  const antStatus=ant.key?(ant._verified?'connected':'not-configured'):'not-configured';
+  const antStatusLabel={connected:'🟢 Connected','not-configured':'🔴 Not configured',testing:'⏳ Testing…',error:'🔴 Error'};
+  const monStatus=cfg.apiKey?'connected':'not-configured';
   document.getElementById('sp-integrations').innerHTML=`
     <div class="section-title">🔗 External Integrations</div>
+    <div class="apikey-warning">⚠️ API keys are stored in your browser's localStorage. Do not use shared or public computers.</div>
 
-    <div style="margin-bottom:24px">
-      <div class="section-title" style="font-size:13px;margin-bottom:6px">📌 Monday.com — M1 Data Quality Board</div>
-      <div class="section-desc">Configure Monday.com API to push M1 data quality warnings. In real deployment this calls the Monday.com GraphQL API.</div>
-      <div class="conn-status ${cfg.apiKey?'connected':'disconnected'}" style="margin-bottom:12px">● ${cfg.apiKey?'Configured (simulated)':'Not configured'}</div>
+    <div style="margin-bottom:24px;padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
+      <div class="section-title" style="font-size:14px;margin-bottom:6px">🤖 Anthropic (Claude) — AI Chat Engine</div>
+      <div class="section-desc">Powers the NuPhoenix AI chat assistant. Sends full schedule context (jobs, machines, priorities, breakdowns) with every message so the LLM can respond accurately.</div>
+      <div class="conn-status ${antStatus==='connected'?'connected':'disconnected'}" id="int-ant-status" style="margin:10px 0">${antStatusLabel[antStatus]||'🔴 Not configured'}</div>
       <div class="form-row">
-        <div class="form-group"><label>API Key</label><input id="mon-apikey" type="password" value="${cfg.apiKey||''}" placeholder="your-monday-api-key" style="min-width:280px"/></div>
+        <div class="form-group" style="flex:2"><label>API Key</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="password" id="int-ant-key" value="${ant.key||''}" placeholder="sk-ant-…" autocomplete="off" style="flex:1"/>
+            <button class="btn" onclick="toggleApiKeyVis('int-ant-key',this)" style="padding:4px 8px" title="Show/hide">👁</button>
+          </div>
+        </div>
+        <div class="form-group"><label>Model</label>
+          <select id="int-ant-model" style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:6px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit;min-width:240px">
+            <option value="claude-sonnet-4-20250514" ${(ant.model||'claude-sonnet-4-20250514')==='claude-sonnet-4-20250514'?'selected':''}>claude-sonnet-4-20250514 (fast)</option>
+            <option value="claude-opus-4-0-20250514" ${ant.model==='claude-opus-4-0-20250514'?'selected':''}>claude-opus-4-0-20250514 (reasoning)</option>
+          </select>
+        </div>
+      </div>
+      <div class="action-bar">
+        <button class="btn primary" onclick="testAnthropicIntegration()">🔌 Test Connection</button>
+        <button class="btn success" onclick="saveAnthropicIntegration()">💾 Save</button>
+      </div>
+      <div style="margin-top:12px;background:var(--s3);border-radius:var(--rs);padding:10px;font-size:10px;color:var(--dim)">
+        <strong style="color:var(--txt)">Context sent to LLM:</strong> Active jobs (up to 30), machine states, priority overrides, breakdowns, monthly targets, M1 warnings, scrap log. Updated on every chat message.
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px;padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
+      <div class="section-title" style="font-size:14px;margin-bottom:6px">📌 Monday.com — M1 Data Quality Board</div>
+      <div class="section-desc">Configure Monday.com API to push M1 data quality warnings. In real deployment this calls the Monday.com GraphQL API.</div>
+      <div class="conn-status ${monStatus==='connected'?'connected':'disconnected'}" style="margin:10px 0">${cfg.apiKey?'🟢 Configured':'🔴 Not configured'}</div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2"><label>API Key</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="mon-apikey" type="password" value="${cfg.apiKey||''}" placeholder="your-monday-api-key" style="flex:1" autocomplete="off"/>
+            <button class="btn" onclick="toggleApiKeyVis('mon-apikey',this)" style="padding:4px 8px" title="Show/hide">👁</button>
+          </div>
+        </div>
         <div class="form-group"><label>Board ID</label><input id="mon-boardid" value="${cfg.boardId||''}" placeholder="123456789"/></div>
         <div class="form-group"><label>Workspace ID</label><input id="mon-wsid" value="${cfg.workspaceId||''}" placeholder="987654321"/></div>
       </div>
@@ -3955,17 +3993,17 @@ function renderSetupIntegrations(){
         <button class="btn primary" onclick="testMondayConnection()">🔌 Test Connection</button>
         <button class="btn success" onclick="saveMondayConfig()">💾 Save</button>
       </div>
-      <div style="margin-top:14px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;font-size:11px;color:var(--dim)">
-        <strong style="color:var(--txt)">Real implementation notes:</strong><br>
-        • Calls <code style="background:var(--s3);padding:1px 5px;border-radius:3px">https://api.monday.com/v2</code> with GraphQL mutations<br>
-        • Creates items on the "M1 Data Quality" board for each warning<br>
-        • Maps severity → Monday.com priority column<br>
-        • Updates item status when "Mark Fixed" is clicked
+      <div style="margin-top:12px;background:var(--s3);border-radius:var(--rs);padding:10px;font-size:10px;color:var(--dim)">
+        <strong style="color:var(--txt)">Real implementation:</strong>
+        Calls <code style="background:var(--bg);padding:1px 5px;border-radius:3px">https://api.monday.com/v2</code> with GraphQL mutations •
+        Creates items on the "M1 Data Quality" board for each warning •
+        Maps severity → Monday.com priority column •
+        Updates item status when "Mark Fixed" is clicked
       </div>
     </div>
 
-    <div>
-      <div class="section-title" style="font-size:13px;margin-bottom:6px">📊 Reports Branding</div>
+    <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
+      <div class="section-title" style="font-size:14px;margin-bottom:6px">📊 Reports Branding</div>
       <div class="section-desc">Customise the company name shown on generated reports.</div>
       <div class="form-row">
         <div class="form-group"><label>Company Name</label><input id="rpt-company" value="${lsGet('report_company','NuPhoenix Group')}" placeholder="NuPhoenix Group"/></div>
@@ -3976,6 +4014,39 @@ function renderSetupIntegrations(){
     </div>`;
 }
 
+async function testAnthropicIntegration(){
+  const key=document.getElementById('int-ant-key')?.value?.trim();
+  const model=document.getElementById('int-ant-model')?.value||'claude-sonnet-4-20250514';
+  const badge=document.getElementById('int-ant-status');
+  if(!key){toast('❌ No API key entered');return;}
+  if(badge){badge.className='conn-status disconnected';badge.textContent='⏳ Testing…';}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model,max_tokens:10,messages:[{role:'user',content:'hi'}]})
+    });
+    const data=await res.json();
+    if(data.content&&data.content[0]){
+      if(badge){badge.className='conn-status connected';badge.textContent='🟢 Connected';}
+      const ak=getApiKeys();ak.anthropic={key,model,_verified:true};lsSet('api_keys',ak);
+      toast('✅ Anthropic API key verified — NuPhoenix AI chat is live');
+    }else{
+      if(badge){badge.className='conn-status disconnected';badge.textContent='🔴 Error';}
+      toast('❌ Anthropic: '+(data.error?.message||'Unknown error'));
+    }
+  }catch(e){
+    if(badge){badge.className='conn-status disconnected';badge.textContent='🔴 Error';}
+    toast('❌ Connection failed: '+e.message);
+  }
+}
+function saveAnthropicIntegration(){
+  const key=document.getElementById('int-ant-key')?.value?.trim()||'';
+  const model=document.getElementById('int-ant-model')?.value||'claude-sonnet-4-20250514';
+  const ak=getApiKeys();ak.anthropic={key,model,_verified:false};lsSet('api_keys',ak);
+  toast('✅ Anthropic config saved'+(key?'':' — add a key to enable AI chat'));
+  renderSetupIntegrations();
+}
 function testMondayConnection(){
   toast('🔌 Testing Monday.com connection… (simulated)');
   setTimeout(()=>toast(document.getElementById('mon-apikey')?.value?'⚠️ Connection simulated — Monday.com API not live':'❌ No API key configured'),1500);
