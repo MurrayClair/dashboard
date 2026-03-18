@@ -403,6 +403,7 @@ table.dtbl select{width:auto;min-width:100px}
 .modal-radios{display:flex;flex-wrap:wrap;gap:8px}
 .modal-radios label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;padding:4px 8px;border:1px solid var(--brd);border-radius:var(--rs);background:var(--s2)}
 .modal-radios input[type=radio]{accent-color:var(--accent)}
+.scrap-job-result:hover{background:var(--s3)!important}
 .modal-radios label:has(input:checked){border-color:var(--accent);background:rgba(224,122,58,.15);color:var(--accent)}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 
@@ -666,9 +667,11 @@ table.dtbl select{width:auto;min-width:100px}
     <div class="modal-title">🔧 Scrap / Rework Push-In</div>
     <div class="modal-row">
       <label>Job Number</label>
-      <select id="scrap-job-select" onchange="onScrapJobSelect()">
-        <option value="">— Select job —</option>
-      </select>
+      <div style="position:relative">
+        <input type="text" id="scrap-job-search" placeholder="Type job number, part name, or customer…" autocomplete="off" oninput="onScrapJobSearch()" onfocus="onScrapJobSearch()" />
+        <input type="hidden" id="scrap-job-select" />
+        <div id="scrap-job-results" style="position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:var(--s2);border:1px solid var(--brd);border-radius:0 0 var(--rs) var(--rs);z-index:1000;display:none"></div>
+      </div>
     </div>
     <div class="modal-row">
       <label>Part Number</label>
@@ -2894,26 +2897,55 @@ function generateCorrectionReport(){
 //  SCRAP / REWORK PUSH-IN
 // ══════════════════════════════════════════════════════════════
 function openScrapModal(){
-  // Populate job dropdown
-  const sel=document.getElementById('scrap-job-select');
-  sel.innerHTML='<option value="">— Select job —</option>';
-  jobs.filter(j=>j.status!=='complete').sort(prioSort).forEach(j=>{
-    const opt=document.createElement('option');
-    opt.value=j.id;opt.textContent=`${j.id} — ${j.partDesc} (${j.customer||'?'})`;
-    sel.appendChild(opt);
-  });
+  document.getElementById('scrap-job-search').value='';
+  document.getElementById('scrap-job-select').value='';
+  document.getElementById('scrap-job-results').style.display='none';
   document.getElementById('scrap-part').value='';
   document.getElementById('scrap-qty').value='1';
   document.getElementById('scrap-notes').value='';
   document.querySelectorAll('input[name="scrap-reason"]')[0].checked=true;
   document.getElementById('scrap-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('scrap-job-search').focus(),100);
 }
 function closeScrapModal(){document.getElementById('scrap-modal').style.display='none';}
-function onScrapJobSelect(){
-  const id=document.getElementById('scrap-job-select').value;
-  const j=jobs.find(j=>j.id===id);
-  document.getElementById('scrap-part').value=j?j.partId:'';
+function onScrapJobSearch(){
+  const q=document.getElementById('scrap-job-search').value.trim().toLowerCase();
+  const results=document.getElementById('scrap-job-results');
+  if(!q){results.style.display='none';return;}
+  const matches=jobs.filter(j=>j.status!=='complete').filter(j=>{
+    return j.id.toLowerCase().includes(q)||
+      (j.partDesc||'').toLowerCase().includes(q)||
+      (j.partId||'').toLowerCase().includes(q)||
+      (j.customer||'').toLowerCase().includes(q)||
+      (j.po||'').toLowerCase().includes(q);
+  }).sort(prioSort).slice(0,15);
+  if(!matches.length){
+    results.innerHTML='<div style="padding:10px;color:var(--dim);font-size:11px">No matching jobs found</div>';
+    results.style.display='block';return;
+  }
+  results.innerHTML=matches.map(j=>{
+    const pBadge=j.priority!==50?`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:${j.priority<10?'var(--red-d)':j.priority<20?'var(--orange-d)':'var(--s3)'};color:${j.priority<10?'var(--red)':j.priority<20?'var(--orange)':'var(--dim)'}">P${j.priority}</span> `:'';
+    const subco=j.hasSubco?'<span style="font-size:9px;color:var(--blue)">📦 SUBCO</span> ':'';
+    return `<div class="scrap-job-result" onclick="selectScrapJob('${j.id}')" style="padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--brd);transition:.1s">
+      <div style="font-weight:600;font-size:12px">${pBadge}${j.id}</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px">${j.partDesc||j.partId} ${subco}— ${j.customer||'No customer'}</div>
+    </div>`;
+  }).join('');
+  results.style.display='block';
 }
+function selectScrapJob(jobId){
+  const j=jobs.find(j2=>j2.id===jobId);
+  if(!j)return;
+  document.getElementById('scrap-job-search').value=`${j.id} — ${j.partDesc||j.partId}`;
+  document.getElementById('scrap-job-select').value=j.id;
+  document.getElementById('scrap-part').value=j.partId||'';
+  document.getElementById('scrap-job-results').style.display='none';
+}
+// Close results when clicking outside
+document.addEventListener('click',e=>{
+  const results=document.getElementById('scrap-job-results');
+  if(results&&!e.target.closest('#scrap-job-search')&&!e.target.closest('#scrap-job-results'))results.style.display='none';
+});
 function submitScrapPushIn(){
   const jobId=document.getElementById('scrap-job-select').value;
   if(!jobId){alert('Please select a job.');return;}
@@ -3158,7 +3190,7 @@ function parseAndExecuteActions(text){
       const r=revertToBookmark(parts.slice(1).join(':'));executed.push(r.msg);
     }else if(op==='scrap_pushin'&&parts[1]){
       const j=jobs.find(jj=>jj.id===parts[1]);
-      if(j){document.getElementById('scrap-job-select').value=j.id;onScrapJobSelect();openScrapModal();executed.push(`Scrap modal opened for ${parts[1]}`);}
+      if(j){openScrapModal();selectScrapJob(j.id);executed.push(`Scrap modal opened for ${parts[1]}`);}
     }else if(op==='set_mode'){
       const mode=(parts[1]||'').toLowerCase();
       if(['schedule','monitor','kpi','warnings'].includes(mode)){setMode(mode);executed.push(`Switched to ${mode}`);}
@@ -3310,7 +3342,7 @@ function parseCommand(cmd,raw){
   if(scrapMatch){
     const q=scrapMatch[1].trim();
     const j=jobs.find(jj=>jj.id.toLowerCase().includes(q)||((jj.partDesc||'').toLowerCase().includes(q)));
-    if(j){document.getElementById('scrap-job-select').value=j.id;onScrapJobSelect();openScrapModal();return{msg:`Opening scrap push-in for ${j.id}.`,type:'action'};}
+    if(j){openScrapModal();selectScrapJob(j.id);return{msg:`Opening scrap push-in for ${j.id}.`,type:'action'};}
     openScrapModal();return{msg:'Opening scrap push-in modal — please select the job.',type:'action'};
   }
   // Show schedule
