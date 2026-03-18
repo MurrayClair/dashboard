@@ -556,7 +556,13 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <span class="ctrl-label">View</span>
   <button class="btn active" onclick="setScale('day')">Day</button>
   <button class="btn" onclick="setScale('week')">Week</button>
-  <button class="btn" onclick="setScale('month')">Month</button>
+  <select id="month-select" onchange="setScale(this.value)" style="padding:5px 8px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit">
+    <option value="month1">1 Month</option>
+    <option value="month3">3 Months</option>
+    <option value="month6">6 Months</option>
+    <option value="month12">12 Months</option>
+    <option value="monthbeyond">Beyond (36 Months)</option>
+  </select>
   <div class="ctrl-sep"></div>
   <span class="ctrl-label">Filter</span>
   <button class="btn active" onclick="setFilter('all')">All</button>
@@ -907,7 +913,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 //  CONFIG & STATE
 // ══════════════════════════════════════════════════════════════
 const TODAY = new Date(); TODAY.setHours(6,0,0,0);
-const HOUR_PX = {day:12,week:4,month:1.2};
+const HOUR_PX = {day:12,week:4,month1:1.2,month3:0.5,month6:0.25,month12:0.12,monthbeyond:0.04};
 let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 const SHIFT_HOURS = 10;
 
@@ -1244,7 +1250,7 @@ function renderStats(){
 function renderGantt(fm,fj){
   const area=document.getElementById('gantt-area');
   const gantt=document.getElementById('gantt'),hpx=HOUR_PX[scale];
-  const totalDays=scale==='day'?14:scale==='week'?42:90,totalHours=totalDays*24;
+  const totalDays=getScaleDays(),totalHours=totalDays*24;
   const startTime=new Date(TODAY.getTime()-5*24*3600000);
   const labelW=160; // width of sticky machine labels
   const totalW=labelW+totalHours*hpx,rowH=44,headerH=32;
@@ -1252,11 +1258,27 @@ function renderGantt(fm,fj){
   // Header row — sticky label corner + date cells
   let html=`<div class="g-header" style="width:${totalW}px">`;
   html+=`<div class="g-label-header" style="width:${labelW}px;min-width:${labelW}px">Machines</div>`;
+  // Determine label frequency based on scale
+  const isLongView=totalDays>60;
+  const isVeryLong=totalDays>200;
+  let lastLabel='';
   for(let d=0;d<totalDays;d++){
     const date=new Date(startTime.getTime()+d*24*3600000),dayW=24*hpx;
     const isToday=date.toDateString()===TODAY.toDateString(),bg=isToday?'rgba(255,69,58,.1)':'transparent';
-    const label=date.toLocaleDateString('en-AU',{day:'numeric',month:'short',weekday:'short'});
-    html+=`<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${scale==='month'&&d%7!==0?'':label}</div>`;
+    let label='';
+    if(isVeryLong){
+      // Show month+year on 1st of each month only
+      const monthKey=date.getFullYear()+'-'+date.getMonth();
+      if(date.getDate()===1||monthKey!==lastLabel){label=date.toLocaleDateString('en-AU',{month:'short',year:'2-digit'});lastLabel=monthKey;}
+    }else if(isLongView){
+      // Show every Monday or 1st of month
+      if(date.getDay()===1||date.getDate()===1){label=date.toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
+    }else{
+      // Day/week view — show all
+      label=date.toLocaleDateString('en-AU',{day:'numeric',month:'short',weekday:'short'});
+      if(scale==='week'&&d%2!==0)label='';
+    }
+    html+=`<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${label}</div>`;
   }
   html+='</div>';
 
@@ -1340,7 +1362,33 @@ function renderLatePanel(){
 
 // ── Schedule actions ──
 function selectMachine(id){selectedMachine=selectedMachine===id?null:id;renderSchedule();}
-function setScale(s){scale=s;document.querySelectorAll('.ctrls .btn').forEach(b=>{if(['Day','Week','Month'].includes(b.textContent))b.classList.toggle('active',b.textContent.toLowerCase()===s);});renderSchedule();}
+function setScale(s){
+  scale=s;
+  // Highlight Day/Week buttons, deactivate if month selected
+  const isMonth=s.startsWith('month');
+  document.querySelectorAll('.ctrls .btn').forEach(b=>{
+    if(b.textContent==='Day') b.classList.toggle('active',s==='day');
+    if(b.textContent==='Week') b.classList.toggle('active',s==='week');
+  });
+  const sel=document.getElementById('month-select');
+  if(sel){
+    if(isMonth){sel.value=s;sel.style.background='var(--accent)';sel.style.color='#fff';sel.style.borderColor='var(--accent)';}
+    else{sel.selectedIndex=-1;sel.style.background='var(--s2)';sel.style.color='var(--dim)';sel.style.borderColor='var(--brd)';}
+  }
+  renderSchedule();
+}
+function getScaleDays(){
+  switch(scale){
+    case 'day': return 14;
+    case 'week': return 42;
+    case 'month1': return 30;
+    case 'month3': return 90;
+    case 'month6': return 180;
+    case 'month12': return 365;
+    case 'monthbeyond': return 1095; // 3 years
+    default: return 14;
+  }
+}
 function setFilter(f){filter=f;document.querySelectorAll('.ctrls .btn').forEach(b=>{const map={'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};if(map[b.textContent]!==undefined)b.classList.toggle('active',map[b.textContent]===f);});renderSchedule();}
 function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
 function addGlobalDelay(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.delay+=4;c.end=new Date(c.originalEnd.getTime()+c.delay*3600000);recalcCascade();renderSchedule();toast(`⚠️ Added 4h delay to ${c.id}`);}
