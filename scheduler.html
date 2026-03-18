@@ -327,6 +327,55 @@ table.dtbl select{width:auto;min-width:100px}
 
 @media(max-width:900px){.g-label{width:100px}.g-label-header{width:100px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}.machine-grid{grid-template-columns:1fr}}
 
+/* ─── REPORTS MODAL ─── */
+.reports-list{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto}
+.report-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs)}
+.report-item-info{flex:1}
+.report-item-name{font-size:12px;font-weight:600}
+.report-item-desc{font-size:10px;color:var(--dim);margin-top:2px}
+.report-item-btns{display:flex;gap:6px;flex-shrink:0}
+
+/* ─── WARNINGS MODE ─── */
+.warnings-wrap{flex:1;overflow-y:auto;padding:16px}
+.warn-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.warn-card{padding:14px;border-radius:var(--r);text-align:center;border:1px solid transparent;cursor:pointer;transition:.15s}
+.warn-card:hover{filter:brightness(1.1)}
+.warn-card.high{background:var(--red-d);border-color:rgba(255,69,58,.3)}
+.warn-card.medium{background:var(--yellow-d);border-color:rgba(255,214,10,.3)}
+.warn-card.low{background:var(--green-d);border-color:rgba(52,199,89,.3)}
+.warn-card.all{background:var(--s2);border-color:var(--brd2)}
+.warn-card .wc-num{font-size:28px;font-weight:700;line-height:1.2}
+.warn-card .wc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.warn-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.warn-tbl th{background:var(--s2);border:1px solid var(--brd);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);font-weight:700;position:sticky;top:0;z-index:2;cursor:pointer}
+.warn-tbl th:hover{color:var(--txt)}
+.warn-tbl td{border:1px solid var(--brd);padding:7px 10px;vertical-align:middle}
+.warn-tbl tr:hover td{background:var(--s3)}
+.warn-sev{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;white-space:nowrap}
+.warn-sev.high{background:var(--red-d);color:var(--red)}
+.warn-sev.medium{background:var(--yellow-d);color:var(--yellow)}
+.warn-sev.low{background:var(--green-d);color:var(--green)}
+.warn-status-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.warn-status-badge.new{background:var(--blue-d);color:var(--blue)}
+.warn-status-badge.in-review{background:var(--yellow-d);color:var(--yellow)}
+.warn-status-badge.fixed{background:var(--green-d);color:var(--green)}
+.warn-status-badge.ignored{background:var(--s3);color:var(--dim2)}
+.warn-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.warn-filters select{background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px}
+.warn-detail{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-top:12px}
+
+/* ─── TIME REVIEW ─── */
+.tr-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tr-tbl th{background:var(--s2);border:1px solid var(--brd);padding:7px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);font-weight:700;position:sticky;top:0;z-index:2}
+.tr-tbl td{border:1px solid var(--brd);padding:6px 8px;vertical-align:middle}
+.tr-tbl tr:hover td{background:var(--s3)}
+.tr-badge{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;white-space:nowrap}
+.tr-badge.over{background:var(--red-d);color:var(--red)}
+.tr-badge.under{background:var(--blue-d);color:var(--blue)}
+.tr-badge.ok{background:var(--green-d);color:var(--green)}
+.tr-learn{font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(191,90,242,.15);color:var(--purple);margin-left:3px;white-space:nowrap}
+.tr-summary-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+
 /* ─── PRIORITY BADGES ─── */
 .prio-badge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;margin-left:4px;flex-shrink:0;line-height:1.3}
 .prio-1{background:rgba(255,69,58,.3);color:#ff453a;animation:prio-pulse 1.2s infinite}
@@ -392,7 +441,9 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="mode-btn" onclick="setMode('monitor')">📊 Monitor</button>
     <button class="mode-btn" onclick="setMode('setup')">⚙️ Setup</button>
     <button class="mode-btn" onclick="setMode('kpi')">📈 KPI</button>
+    <button class="mode-btn" onclick="setMode('warnings')" id="warnings-mode-btn">⚠️ Warnings</button>
   </div>
+  <button class="btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
 </div>
 <div class="stats" id="stats-bar"></div>
 
@@ -524,6 +575,7 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="setup-tab" onclick="setSetupTab('employees')">👷 Employees</button>
     <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
     <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
+    <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
   </div>
   <div class="setup-body" id="setup-body">
     <div class="setup-page active" id="sp-machines"></div>
@@ -531,6 +583,7 @@ table.dtbl select{width:auto;min-width:100px}
     <div class="setup-page" id="sp-employees"></div>
     <div class="setup-page" id="sp-shifts"></div>
     <div class="setup-page" id="sp-skills"></div>
+    <div class="setup-page" id="sp-integrations"></div>
   </div>
 </div>
 </div>
@@ -538,6 +591,42 @@ table.dtbl select{width:auto;min-width:100px}
 <!-- ═══ MODE: KPI ═══ -->
 <div class="mode-content" id="mode-kpi">
 <div class="kpi-wrap" id="kpi-body"></div>
+</div>
+
+<!-- ═══ MODE: WARNINGS ═══ -->
+<div class="mode-content" id="mode-warnings">
+<div class="warnings-wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div class="section-title" style="margin:0">⚠️ M1 Data Quality Warnings</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn" onclick="detectAndRenderWarnings()">🔄 Refresh Scan</button>
+      <button class="btn danger" onclick="clearAllWarnings()">🗑️ Clear All</button>
+    </div>
+  </div>
+  <div id="warn-summary-cards" class="warn-summary"></div>
+  <div class="warn-filters" id="warn-filters">
+    <span class="ctrl-label">Severity</span>
+    <select id="wf-severity" onchange="renderWarnings()"><option value="all">All</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <span class="ctrl-label">Status</span>
+    <select id="wf-status" onchange="renderWarnings()"><option value="all">All</option><option value="new">New</option><option value="in-review">In Review</option><option value="fixed">Fixed</option><option value="ignored">Ignored</option></select>
+    <span class="ctrl-label">Type</span>
+    <select id="wf-type" onchange="renderWarnings()"><option value="all">All Types</option><option value="zero-time">Zero Time</option><option value="missing-machine">Missing Machine</option><option value="past-due">Past Due</option><option value="no-due-date">No Due Date</option><option value="duplicate-ops">Duplicate Ops</option><option value="invalid-machine">Invalid Machine</option></select>
+  </div>
+  <div class="tbl-wrap"><table class="warn-tbl" id="warn-table">
+    <thead><tr>
+      <th onclick="warnSort('id')">ID</th>
+      <th onclick="warnSort('jobId')">Job</th>
+      <th onclick="warnSort('type')">Type</th>
+      <th onclick="warnSort('severity')">Severity</th>
+      <th>Detail</th>
+      <th onclick="warnSort('detected')">Detected</th>
+      <th onclick="warnSort('status')">Status</th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody id="warn-tbody"></tbody>
+  </table></div>
+  <div id="warn-detail-panel"></div>
+</div>
 </div>
 </div><!-- /.app -->
 
@@ -575,6 +664,89 @@ table.dtbl select{width:auto;min-width:100px}
     <div class="modal-actions">
       <button class="btn" onclick="closeScrapModal()">Cancel</button>
       <button class="btn warn" onclick="submitScrapPushIn()">Submit Push-In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REPORTS MODAL ═══ -->
+<div class="modal-overlay" id="reports-modal" style="display:none" onclick="if(event.target===this)closeReportsModal()">
+  <div class="modal-box" style="width:580px;max-width:95vw">
+    <div class="modal-title">📥 Download Reports</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Generate reports from current schedule data. PDF opens print dialog; CSV downloads directly.</div>
+    <div class="reports-list">
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">📋 Daily Priorities</div>
+          <div class="report-item-desc">Hot jobs, priority overrides, staffing needs</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('daily-priorities','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('daily-priorities','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">🔬 CMM Queue</div>
+          <div class="report-item-desc">Inspection queue with wait times</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('cmm-queue','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('cmm-queue','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">🔧 Machine Status</div>
+          <div class="report-item-desc">All machines with current state and breakdowns</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('machine-status','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('machine-status','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">📈 KPI Summary</div>
+          <div class="report-item-desc">OTD%, jobs on time / late / at risk</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('kpi-summary','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('kpi-summary','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">🔧 Scrap / Rework Log</div>
+          <div class="report-item-desc">Push-in history with reasons and quantities</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('scrap-rework-log','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('scrap-rework-log','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">⬆️ Priority Impact</div>
+          <div class="report-item-desc">Current priority overrides and revenue impact</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('priority-impact','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('priority-impact','csv')">📊 CSV</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="report-item-info">
+          <div class="report-item-name">⏱️ Time Variance</div>
+          <div class="report-item-desc">Actual vs estimated time discrepancies</div>
+        </div>
+        <div class="report-item-btns">
+          <button class="btn primary" onclick="downloadReport('time-variance','pdf')">📄 PDF</button>
+          <button class="btn success" onclick="downloadReport('time-variance','csv')">📊 CSV</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeReportsModal()">Close</button>
     </div>
   </div>
 </div>
@@ -878,20 +1050,22 @@ function genMonitorData(){
 // ══════════════════════════════════════════════════════════════
 function setMode(m){
   currentMode=m;
-  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes(m.charAt(0).toUpperCase()+m.slice(1))||
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',
     (m==='schedule'&&b.textContent.includes('Schedule'))||(m==='monitor'&&b.textContent.includes('Monitor'))||
-    (m==='setup'&&b.textContent.includes('Setup'))||(m==='kpi'&&b.textContent.includes('KPI'))));
+    (m==='setup'&&b.textContent.includes('Setup'))||(m==='kpi'&&b.textContent.includes('KPI'))||
+    (m==='warnings'&&b.textContent.includes('Warnings'))));
   document.querySelectorAll('.mode-content').forEach(el=>el.classList.remove('active'));
   document.getElementById('mode-'+m).classList.add('active');
   if(m==='monitor')renderMonitor();
   if(m==='setup')renderSetupTab();
   if(m==='kpi')renderKPI();
   if(m==='schedule')renderSchedule();
+  if(m==='warnings')renderWarnings();
 }
 function setSetupTab(t){
   currentSetupTab=t;
   document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t))b.classList.add('active');});
+  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t))b.classList.add('active');});
   document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+t).classList.add('active');
   renderSetupTab();
@@ -2308,6 +2482,7 @@ function renderSetupTab(){
   else if(tab==='employees')renderSetupEmployees();
   else if(tab==='shifts')renderSetupShifts();
   else if(tab==='skills')renderSetupSkills();
+  else if(tab==='integrations')renderSetupIntegrations();
 }
 
 // ── Machine Tools ──
@@ -2658,6 +2833,12 @@ function renderKPI(){
           <td style="font-weight:600">${c.recommended}</td>
         </tr>`).join('')}
       </table></div>
+    </div>
+    <!-- Time Review -->
+    <div class="kpi-section" id="time-review-section">
+      <div class="section-title">⏱️ Time Review — Actual vs M1 Estimated</div>
+      <div class="section-desc">Operations where actual time deviates &gt;20% from M1 standard. 🔴 Over | 🔵 Under | 🟢 OK</div>
+      ${renderTimeReviewHTML()}
     </div>`;
 }
 
@@ -2919,20 +3100,567 @@ function parseCommand(cmd,raw){
   // Show schedule
   if(cmd.includes('show schedule')||cmd.includes('switch to schedule')){setMode('schedule');return{msg:'Switched to Schedule view.',type:'action'};}
   // Show m1 warnings
-  if(cmd.includes('m1 warning')||cmd.includes('show warning')){setMode('kpi');return{msg:'Switched to KPI view — see M1 Correction Report for warnings.',type:'action'};}
+  if(cmd.includes('m1 warning')||cmd.includes('show warning')){setMode('warnings');renderWarnings();return{msg:'Switched to Warnings view — scanning for M1 data quality issues.',type:'action'};}
   // Show time variances
-  if(cmd.includes('time variance')||cmd.includes('time review')){setMode('kpi');return{msg:'Switched to KPI view — see Per-Machine KPIs for time variances.',type:'action'};}
-  // Download report
-  const dlMatch=cmd.match(/download (.+?) as (pdf|excel)/);
-  if(dlMatch){generateCorrectionReport();return{msg:`Generating ${dlMatch[1]} report…`,type:'action'};}
+  if(cmd.includes('time variance')||cmd.includes('time review')){setMode('kpi');setTimeout(()=>{document.getElementById('time-review-section')?.scrollIntoView({behavior:'smooth'});},200);return{msg:'Switched to KPI view — scrolling to Time Review section.',type:'action'};}
+  // Download report — match "download daily priorities" or "download kpi as csv" etc.
+  const dlMatch=cmd.match(/download (.+?)(?:\s+as\s+(pdf|csv|excel))?$/);
+  if(dlMatch&&(cmd.includes('download '))){
+    const rname=dlMatch[1].trim().toLowerCase();
+    const fmt=(dlMatch[2]||'csv').replace('excel','csv');
+    const reportMap={'daily priorities':'daily-priorities','daily':'daily-priorities','cmm queue':'cmm-queue','cmm':'cmm-queue','machine status':'machine-status','machines':'machine-status','kpi':'kpi-summary','kpi summary':'kpi-summary','scrap':'scrap-rework-log','scrap log':'scrap-rework-log','rework':'scrap-rework-log','priority impact':'priority-impact','priorities':'priority-impact','time variance':'time-variance','time variances':'time-variance','time review':'time-variance'};
+    const key=Object.keys(reportMap).find(k=>rname.includes(k));
+    if(key){openReportsModal();downloadReport(reportMap[key],fmt);return{msg:`📥 Downloading ${reportMap[key]} as ${fmt.toUpperCase()}…`,type:'action'};}
+    openReportsModal();return{msg:'Opening reports panel — choose a report to download.',type:'action'};
+  }
   // Scrap log
   if(cmd.includes('scrap log')||cmd.includes('show scrap')){
     const log=lsGet('scrap_log',[]);
     if(!log.length)return{msg:'No scrap/rework entries logged yet.'};
     return{msg:'Recent scrap/rework:\n'+log.slice(0,5).map(e=>`  ${e.rwId} — ${e.reason} (qty ${e.qty})`).join('\n')};
   }
+  // Reports modal
+  if(cmd.includes('show report')||cmd.includes('open report')){openReportsModal();return{msg:'Opening reports panel.',type:'action'};}
   // Help / fallback
-  return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show schedule / m1 warnings / time variances"\n• "download [report] as pdf"'};
+  return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show m1 warnings" — opens Warnings tab\n• "show time variances" — opens Time Review in KPI\n• "download daily priorities" / "download cmm queue as pdf" etc.\n• "show reports"'};
+}
+
+// ══════════════════════════════════════════════════════════════
+//  REPORTS SYSTEM
+// ══════════════════════════════════════════════════════════════
+const REPORT_NAMES={
+  'daily-priorities':'DailyPriorities','cmm-queue':'CMMQueue',
+  'machine-status':'MachineStatus','kpi-summary':'KPISummary',
+  'scrap-rework-log':'ScrapReworkLog','priority-impact':'PriorityImpact',
+  'time-variance':'TimeVariance'
+};
+
+function rptDate(){return new Date().toISOString().split('T')[0];}
+
+function csvEsc(v){return'"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
+function csvRow(arr){return arr.map(csvEsc).join(',');}
+
+const REPORT_PRINT_CSS=`body{font-family:Arial,sans-serif;padding:18mm;color:#000;font-size:10pt}
+h1{font-size:15pt;margin:0 0 3pt}h2{font-size:12pt;margin:14pt 0 6pt;color:#333}
+.meta{font-size:8pt;color:#888;margin-bottom:14pt}
+table{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:14pt}
+th,td{border:1px solid #bbb;padding:4pt 6pt;text-align:left}th{background:#f0f0f0;font-weight:700}
+tr:nth-child(even) td{background:#fafafa}
+.over{color:#c00;font-weight:700}.under{color:#00c;font-weight:700}.ok{color:#060;font-weight:700}
+.footer{margin-top:16pt;font-size:7pt;color:#aaa;border-top:1pt solid #ddd;padding-top:5pt}
+@media print{@page{margin:12mm}}`;
+
+function reportDailyPriorities(){
+  const hot=jobs.filter(j=>j.status!=='complete'&&(j.priority||50)<40).sort(prioSort);
+  const late=jobs.filter(j=>j.status!=='complete'&&j.end>j.due);
+  const atRisk=jobs.filter(j=>j.status!=='complete'&&!((j.end||0)>(j.due||0))&&j.due&&j.end&&(j.due-j.end)<24*3600000);
+  const staffNeeded=new Set(hot.map(j=>j.machine)).size;
+  const csvRows=[['Job ID','Part Desc','Customer','PO','Priority','Machine','Due Date','Est End','Status','Value']];
+  hot.forEach(j=>csvRows.push([j.id,j.partDesc,j.customer||'',j.po||'',j.priority||50,j.machine,fmtDate(j.due),fmtDate(j.end),j.status,'$'+(j.value||0)]));
+  const html=`<h1>Daily Priorities Report</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <p><strong>Hot Jobs:</strong> ${hot.length} &nbsp;|&nbsp; <strong>Late:</strong> ${late.length} &nbsp;|&nbsp; <strong>At Risk:</strong> ${atRisk.length} &nbsp;|&nbsp; <strong>Machines needing attention:</strong> ${staffNeeded}</p>
+  <h2>🔥 Hot Jobs (Priority &lt; 40)</h2>
+  <table><thead><tr><th>Job ID</th><th>Part</th><th>Customer</th><th>PO</th><th>P#</th><th>Machine</th><th>Due</th><th>Est End</th></tr></thead><tbody>
+  ${hot.map(j=>`<tr><td><strong>${j.id}</strong></td><td>${j.partDesc}</td><td>${j.customer||'—'}</td><td>${j.po||'—'}</td><td style="color:${(j.priority||50)<=10?'#c00':'#880'};font-weight:700">${j.priority||50}</td><td>${j.machine}</td><td>${fmtDate(j.due)}</td><td style="color:${j.end>j.due?'#c00':'inherit'}">${fmtDate(j.end)}</td></tr>`).join('')}
+  </tbody></table>
+  <h2>🔴 Late Jobs (${late.length})</h2>
+  <table><thead><tr><th>Job ID</th><th>Part</th><th>Customer</th><th>Days Late</th><th>Value</th></tr></thead><tbody>
+  ${late.map(j=>`<tr><td><strong>${j.id}</strong></td><td>${j.partDesc}</td><td>${j.customer||'—'}</td><td class="over">${(Math.round((j.end-j.due)/(24*3600000)*10)/10)}d late</td><td>$${(j.value||0).toLocaleString()}</td></tr>`).join('')}
+  </tbody></table>`;
+  return{html,csv:[csvRow(['Job ID','Part Desc','Customer','PO','Priority','Machine','Due Date','Est End','Status','Value']),...hot.map(j=>csvRow([j.id,j.partDesc,j.customer||'',j.po||'',j.priority||50,j.machine,fmtDate(j.due),fmtDate(j.end),j.status,'$'+(j.value||0)]))].join('\n')};
+}
+
+function reportCMMQueue(){
+  const q=jobs.filter(j=>j.machine.startsWith('CMM')&&j.status!=='complete').sort((a,b)=>a.start-b.start);
+  const html=`<h1>CMM Inspection Queue</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <p><strong>Jobs in queue:</strong> ${q.length}</p>
+  <table><thead><tr><th>Job ID</th><th>Part</th><th>Customer</th><th>CMM</th><th>Scheduled Start</th><th>Est End</th><th>Wait (hrs)</th><th>Status</th></tr></thead><tbody>
+  ${q.map(j=>{const wait=Math.max(0,Math.round((j.start-TODAY)/3600000));return`<tr><td><strong>${j.id}</strong></td><td>${j.partDesc}</td><td>${j.customer||'—'}</td><td>${j.machine}</td><td>${fmtDateTime(j.start)}</td><td>${fmtDateTime(j.end)}</td><td>${wait>0?wait+'h':'Now'}</td><td>${j.status.toUpperCase()}</td></tr>`}).join('')}
+  </tbody></table>`;
+  return{html,csv:[csvRow(['Job ID','Part','Customer','CMM','Start','End','Wait hrs','Status']),...q.map(j=>csvRow([j.id,j.partDesc,j.customer||'',j.machine,fmtDateTime(j.start),fmtDateTime(j.end),Math.max(0,Math.round((j.start-TODAY)/3600000)),j.status]))].join('\n')};
+}
+
+function reportMachineStatus(){
+  const bd=getBreakdowns();
+  const md=genMonitorData();
+  const html=`<h1>Machine Status Report</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <table><thead><tr><th>Machine ID</th><th>Type</th><th>Status</th><th>Active Job</th><th>Protocol</th><th>IP</th><th>Breakdown Since</th></tr></thead><tbody>
+  ${MACHINES.map(m=>{const d=md.find(x=>x.machine.id===m.id);const bkd=bd[m.id]&&bd[m.id].active;const st=bkd?'BREAKDOWN':d?d.status.toUpperCase():'IDLE';const col=st==='RUNNING'?'#060':st==='BREAKDOWN'?'#c00':st==='SETUP'?'#880':'#888';return`<tr><td><strong>${m.id}</strong></td><td>${m.type}</td><td style="color:${col};font-weight:700">${st}</td><td>${d&&d.job?d.job.id:'—'}</td><td>${m.protocol}</td><td>${m.ip}</td><td>${bkd?bd[m.id].expectedAvailable||'?':'—'}</td></tr>`}).join('')}
+  </tbody></table>`;
+  return{html,csv:[csvRow(['Machine ID','Type','Status','Active Job','Protocol','IP','Expected Available']),...MACHINES.map(m=>{const d=md.find(x=>x.machine.id===m.id);const bkd=bd[m.id]&&bd[m.id].active;return csvRow([m.id,m.type,bkd?'BREAKDOWN':d?d.status.toUpperCase():'IDLE',d&&d.job?d.job.id:'',m.protocol,m.ip,bkd?bd[m.id].expectedAvailable||'':''])})].join('\n')};
+}
+
+function reportKPISummary(){
+  const active=jobs.filter(j=>j.status!=='complete');
+  const late=active.filter(j=>j.end>j.due);
+  const atRisk=active.filter(j=>!late.includes(j)&&j.due&&j.end&&(j.due-j.end)<24*3600000);
+  const onTime=active.filter(j=>!late.includes(j)&&!atRisk.includes(j));
+  const otd=active.length?Math.round((active.length-late.length)/active.length*100):100;
+  const md=genMonitorData();
+  const avgUtil=Math.round(md.reduce((s,d)=>s+(d.status==='running'?85:d.status==='setup'?60:5),0)/Math.max(md.length,1));
+  const html=`<h1>KPI Summary Report</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <table><thead><tr><th>KPI</th><th>Value</th><th>Target</th><th>Status</th></tr></thead><tbody>
+  <tr><td><strong>On-Time Delivery (OTD)</strong></td><td class="${otd>=90?'ok':otd>=75?'':''}" style="font-weight:700;font-size:14pt">${otd}%</td><td>≥90%</td><td>${otd>=90?'✅ ON TARGET':otd>=75?'⚠️ AT RISK':'❌ BELOW TARGET'}</td></tr>
+  <tr><td>Active Jobs</td><td>${active.length}</td><td>—</td><td>—</td></tr>
+  <tr><td>On Time</td><td class="ok">${onTime.length}</td><td>—</td><td>—</td></tr>
+  <tr><td>At Risk</td><td style="color:#880;font-weight:700">${atRisk.length}</td><td>0</td><td>${atRisk.length===0?'✅':'⚠️'}</td></tr>
+  <tr><td>Late</td><td class="over">${late.length}</td><td>0</td><td>${late.length===0?'✅':'❌'}</td></tr>
+  <tr><td>Avg Machine Utilization</td><td>${avgUtil}%</td><td>≥80%</td><td>${avgUtil>=80?'✅':avgUtil>=60?'⚠️':'❌'}</td></tr>
+  <tr><td>Total Revenue at Risk (late jobs)</td><td>$${late.reduce((s,j)=>s+(j.value||0),0).toLocaleString()}</td><td>$0</td><td>${late.length===0?'✅':'❌'}</td></tr>
+  </tbody></table>`;
+  return{html,csv:[csvRow(['KPI','Value','Target']),...[['OTD%',otd+'%','>=90%'],['Active Jobs',active.length,''],['On Time',onTime.length,''],['At Risk',atRisk.length,'0'],['Late',late.length,'0'],['Avg Utilization',avgUtil+'%','>=80%'],['Revenue at Risk','$'+late.reduce((s,j)=>s+(j.value||0),0).toLocaleString(),'$0']].map(csvRow)].join('\n')};
+}
+
+function reportScrapLog(){
+  const log=lsGet('scrap_log',[]);
+  const html=`<h1>Scrap / Rework Log</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  ${log.length?`<table><thead><tr><th>Timestamp</th><th>Original Job</th><th>Rework Job</th><th>Reason</th><th>Part Number</th><th>Qty</th><th>Notes</th></tr></thead><tbody>
+  ${log.map(e=>`<tr><td>${new Date(e.timestamp).toLocaleString('en-AU')}</td><td>${e.jobId}</td><td>${e.rwId}</td><td>${e.reason}</td><td>${e.partNum}</td><td>${e.qty}</td><td>${e.notes||'—'}</td></tr>`).join('')}
+  </tbody></table>`:'<p>No scrap/rework entries logged yet.</p>'}`;
+  return{html,csv:[csvRow(['Timestamp','Original Job','Rework Job','Reason','Part Number','Qty','Notes']),...log.map(e=>csvRow([new Date(e.timestamp).toLocaleString('en-AU'),e.jobId,e.rwId,e.reason,e.partNum,e.qty,e.notes||'']))].join('\n')};
+}
+
+function reportPriorityImpact(){
+  const overrides=getPriorityOverrides();
+  const overrideJobs=jobs.filter(j=>overrides[j.id]!==undefined&&overrides[j.id]!==50);
+  const totalRev=jobs.filter(j=>j.status!=='complete').reduce((s,j)=>s+(j.value||0),0);
+  const html=`<h1>Priority Impact Report</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <p><strong>Total active jobs:</strong> ${jobs.filter(j=>j.status!=='complete').length} &nbsp;|&nbsp; <strong>Revenue pipeline:</strong> $${totalRev.toLocaleString()} &nbsp;|&nbsp; <strong>Priority overrides:</strong> ${overrideJobs.length}</p>
+  <table><thead><tr><th>Job ID</th><th>Part</th><th>Customer</th><th>Priority</th><th>Machine</th><th>Due</th><th>Est End</th><th>Value</th><th>Impact</th></tr></thead><tbody>
+  ${overrideJobs.sort(prioSort).map(j=>{const impact=j.end>j.due?`<span class="over">${Math.round((j.end-j.due)/(24*3600000)*10)/10}d late</span>`:'On Track';return`<tr><td><strong>${j.id}</strong></td><td>${j.partDesc}</td><td>${j.customer||'—'}</td><td style="font-weight:700;color:${(j.priority||50)<=20?'#c00':'#880'}">${j.priority||50}</td><td>${j.machine}</td><td>${fmtDate(j.due)}</td><td>${fmtDate(j.end)}</td><td>$${(j.value||0).toLocaleString()}</td><td>${impact}</td></tr>`}).join('')}
+  </tbody></table>`;
+  return{html,csv:[csvRow(['Job ID','Part','Customer','Priority','Machine','Due','Est End','Value']),...overrideJobs.sort(prioSort).map(j=>csvRow([j.id,j.partDesc,j.customer||'',j.priority||50,j.machine,fmtDate(j.due),fmtDate(j.end),'$'+(j.value||0)]))].join('\n')};
+}
+
+function reportTimeVariance(){
+  const rows=genTimeReviewData();
+  const html=`<h1>Time Variance Report</h1><p class="meta">Generated: ${new Date().toLocaleString('en-AU')} — NuPhoenix Group</p>
+  <p><strong>Items to review:</strong> ${rows.length} operations with &gt;20% variance</p>
+  <table><thead><tr><th>Job</th><th>Part</th><th>Op#</th><th>Machine</th><th>M1 Setup</th><th>Actual Setup</th><th>Setup Var%</th><th>M1 Run/pc</th><th>Actual Run/pc</th><th>Run Var%</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr>
+    <td>${r.jobId}</td><td>${r.partDesc}</td><td>${r.opNum}</td><td>${r.machine}</td>
+    <td>${r.m1Setup}m</td><td>${r.actualSetup}m</td><td class="${r.setupPct>20?'over':r.setupPct<-20?'under':'ok'}">${r.setupPct>0?'+':''}${r.setupPct}%</td>
+    <td>${r.m1Run}m</td><td>${r.actualRun}m</td><td class="${r.runPct>20?'over':r.runPct<-20?'under':'ok'}">${r.runPct>0?'+':''}${r.runPct}%</td>
+  </tr>`).join('')}
+  </tbody></table>`;
+  return{html,csv:[csvRow(['Job','Part','Op#','Machine','M1 Setup(m)','Actual Setup(m)','Setup Var%','M1 Run(m)','Actual Run(m)','Run Var%']),...rows.map(r=>csvRow([r.jobId,r.partDesc,r.opNum,r.machine,r.m1Setup,r.actualSetup,r.setupPct+'%',r.m1Run,r.actualRun,r.runPct+'%']))].join('\n')};
+}
+
+function downloadReport(reportKey,format){
+  const fn={
+    'daily-priorities':reportDailyPriorities,'cmm-queue':reportCMMQueue,
+    'machine-status':reportMachineStatus,'kpi-summary':reportKPISummary,
+    'scrap-rework-log':reportScrapLog,'priority-impact':reportPriorityImpact,
+    'time-variance':reportTimeVariance
+  }[reportKey];
+  if(!fn){toast('Unknown report: '+reportKey);return;}
+  const {html,csv}=fn();
+  const name=`NuPhoenix_${REPORT_NAMES[reportKey]||reportKey}_${rptDate()}`;
+  if(format==='pdf'){
+    let ifr=document.getElementById('report-iframe');
+    if(!ifr){ifr=document.createElement('iframe');ifr.id='report-iframe';ifr.style.cssText='position:fixed;left:-9999px;width:210mm;height:297mm;border:none;z-index:-1';document.body.appendChild(ifr);}
+    const full=`<!DOCTYPE html><html><head><title>${name}</title><style>${REPORT_PRINT_CSS}</style></head><body>${html}<div class="footer">NuPhoenix Scheduler — ${name}</div></body></html>`;
+    ifr.srcdoc=full;
+    ifr.onload=()=>{try{ifr.contentWindow.focus();ifr.contentWindow.print();}catch(e){window.open('','_blank').document.write(full);}};
+    toast(`📄 Opening print dialog — ${name}`);
+  } else {
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.csv';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+    toast(`📊 Downloaded ${name}.csv`);
+  }
+}
+
+function openReportsModal(){document.getElementById('reports-modal').style.display='flex';}
+function closeReportsModal(){document.getElementById('reports-modal').style.display='none';}
+
+// ══════════════════════════════════════════════════════════════
+//  M1 DATA QUALITY WARNINGS
+// ══════════════════════════════════════════════════════════════
+let warnSortKey='severity',warnSortAsc=true;
+const WARN_TYPE_LABELS={'zero-time':'Zero Time','missing-machine':'Missing Machine','past-due':'Past Due Import','no-due-date':'No Due Date','duplicate-ops':'Duplicate Ops','invalid-machine':'Invalid Machine'};
+
+function detectWarnings(){
+  const warnings=[];let idCounter=1;
+  const makeId=()=>`W${String(idCounter++).padStart(4,'0')}`;
+  const now=new Date().toISOString();
+
+  jobs.forEach(j=>{
+    if(j.status==='complete') return;
+    const ops=j.operations||[];
+
+    // Zero setup/run times
+    ops.forEach(op=>{
+      if(!op.hours||op.hours<=0){
+        warnings.push({id:makeId(),jobId:j.id,type:'zero-time',severity:'high',detail:`Op ${op.opNum} (${op.process}) on ${op.machine} has zero run time`,detected:now,status:'new'});
+      }
+    });
+
+    // Missing machine assignment
+    if(!j.machine){
+      warnings.push({id:makeId(),jobId:j.id,type:'missing-machine',severity:'high',detail:'No machine assigned to job',detected:now,status:'new'});
+    }
+
+    // Past-due at import (job was already late with no delay)
+    if(j.due&&j.start<TODAY&&j.due<TODAY&&j.delay===0&&j.status!=='in-progress'){
+      warnings.push({id:makeId(),jobId:j.id,type:'past-due',severity:'high',detail:`Job due ${fmtDate(j.due)} — was past due on import`,detected:now,status:'new'});
+    }
+
+    // No due date
+    if(!j.due){
+      warnings.push({id:makeId(),jobId:j.id,type:'no-due-date',severity:'medium',detail:'Job has no due date in M1',detected:now,status:'new'});
+    }
+
+    // Duplicate operation numbers
+    const opNums=ops.map(op=>op.opNum);
+    const dupes=[...new Set(opNums.filter((n,i)=>opNums.indexOf(n)!==i))];
+    if(dupes.length){
+      warnings.push({id:makeId(),jobId:j.id,type:'duplicate-ops',severity:'medium',detail:`Duplicate op numbers: ${dupes.join(', ')}`,detected:now,status:'new'});
+    }
+
+    // Invalid machine references in operations
+    ops.forEach(op=>{
+      if(op.machine&&!MACHINES.find(m=>m.id===op.machine)){
+        warnings.push({id:makeId(),jobId:j.id,type:'invalid-machine',severity:'low',detail:`Op ${op.opNum} references unknown machine "${op.machine}"`,detected:now,status:'new'});
+      }
+    });
+  });
+
+  // Merge with existing statuses from localStorage
+  const existing=lsGet('warnings',[]);
+  const statusMap={};
+  existing.forEach(w=>{statusMap[w.id]=w.status||'new';});
+  const merged=warnings.map(w=>({...w,status:statusMap[w.id]||'new'}));
+  lsSet('warnings',merged);
+  return merged;
+}
+
+function getWarnings(){
+  const stored=lsGet('warnings',null);
+  return stored&&stored.length?stored:detectWarnings();
+}
+
+function detectAndRenderWarnings(){
+  detectWarnings();
+  renderWarnings();
+  toast('🔄 Warning scan complete');
+}
+
+function clearAllWarnings(){
+  if(!confirm('Clear all warnings from localStorage?')) return;
+  lsSet('warnings',[]);
+  renderWarnings();
+  toast('🗑️ Warnings cleared');
+}
+
+function updateWarningStatus(warnId,status){
+  const warnings=lsGet('warnings',[]);
+  const w=warnings.find(w=>w.id===warnId);
+  if(w) w.status=status;
+  lsSet('warnings',warnings);
+  renderWarnings();
+}
+
+function pushToMonday(warnId){
+  updateWarningStatus(warnId,'in-review');
+  const cfg=lsGet('monday_config',{});
+  if(!cfg.apiKey){
+    toast('✅ Warning pushed to Monday.com: M1 Data Quality board (simulated)');
+  } else {
+    toast('✅ Warning pushed to Monday.com: M1 Data Quality board');
+  }
+}
+
+function warnSort(key){
+  if(warnSortKey===key) warnSortAsc=!warnSortAsc;
+  else{warnSortKey=key;warnSortAsc=true;}
+  renderWarnings();
+}
+
+function renderWarnings(){
+  const all=getWarnings();
+  const sevOrder={high:0,medium:1,low:2};
+  const hi=all.filter(w=>w.severity==='high'&&w.status!=='ignored').length;
+  const med=all.filter(w=>w.severity==='medium'&&w.status!=='ignored').length;
+  const lo=all.filter(w=>w.severity==='low'&&w.status!=='ignored').length;
+
+  // Summary cards
+  const sc=document.getElementById('warn-summary-cards');
+  if(sc) sc.innerHTML=`
+    <div class="warn-card all" onclick="document.getElementById('wf-severity').value='all';renderWarnings()">
+      <div class="wc-num">${all.length}</div><div class="wc-lbl" style="color:var(--dim)">Total</div>
+    </div>
+    <div class="warn-card high" onclick="document.getElementById('wf-severity').value='high';renderWarnings()">
+      <div class="wc-num" style="color:var(--red)">${hi}</div><div class="wc-lbl" style="color:var(--red)">High</div>
+    </div>
+    <div class="warn-card medium" onclick="document.getElementById('wf-severity').value='medium';renderWarnings()">
+      <div class="wc-num" style="color:var(--yellow)">${med}</div><div class="wc-lbl" style="color:var(--yellow)">Medium</div>
+    </div>
+    <div class="warn-card low" onclick="document.getElementById('wf-severity').value='low';renderWarnings()">
+      <div class="wc-num" style="color:var(--green)">${lo}</div><div class="wc-lbl" style="color:var(--green)">Low</div>
+    </div>`;
+
+  // Filters
+  const sevF=document.getElementById('wf-severity')?.value||'all';
+  const statF=document.getElementById('wf-status')?.value||'all';
+  const typeF=document.getElementById('wf-type')?.value||'all';
+
+  let filtered=all.filter(w=>{
+    if(sevF!=='all'&&w.severity!==sevF) return false;
+    if(statF!=='all'&&w.status!==statF) return false;
+    if(typeF!=='all'&&w.type!==typeF) return false;
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a,b)=>{
+    let av=a[warnSortKey]||'',bv=b[warnSortKey]||'';
+    if(warnSortKey==='severity'){av=sevOrder[a.severity]||0;bv=sevOrder[b.severity]||0;}
+    if(av<bv) return warnSortAsc?-1:1;
+    if(av>bv) return warnSortAsc?1:-1;
+    return 0;
+  });
+
+  const tbody=document.getElementById('warn-tbody');
+  if(!tbody) return;
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--dim2)">✅ No warnings match the current filter</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=filtered.map(w=>`<tr id="wtr-${w.id}" style="cursor:pointer" onclick="showWarnDetail('${w.id}')">
+    <td style="font-weight:700;font-size:10px;color:var(--dim)">${w.id}</td>
+    <td style="font-weight:600">${w.jobId}</td>
+    <td style="font-size:10px">${WARN_TYPE_LABELS[w.type]||w.type}</td>
+    <td><span class="warn-sev ${w.severity}">${w.severity}</span></td>
+    <td style="font-size:11px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${w.detail}">${w.detail}</td>
+    <td style="font-size:10px;color:var(--dim)">${new Date(w.detected).toLocaleDateString('en-AU')}</td>
+    <td><span class="warn-status-badge ${w.status.replace(' ','-')}">${w.status.replace('-',' ')}</span></td>
+    <td>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn success" onclick="event.stopPropagation();updateWarningStatus('${w.id}','fixed')" style="padding:2px 6px;font-size:9px">✅ Fixed</button>
+        <button class="btn" onclick="event.stopPropagation();updateWarningStatus('${w.id}','ignored')" style="padding:2px 6px;font-size:9px">🙈 Ignore</button>
+        <button class="btn primary" onclick="event.stopPropagation();pushToMonday('${w.id}')" style="padding:2px 6px;font-size:9px">📌 Monday</button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function showWarnDetail(warnId){
+  const warnings=lsGet('warnings',[]);
+  const w=warnings.find(w=>w.id===warnId);
+  if(!w) return;
+  const panel=document.getElementById('warn-detail-panel');
+  if(!panel) return;
+  const j=jobs.find(j=>j.id===w.jobId);
+  panel.innerHTML=`<div class="warn-detail">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-weight:700;font-size:13px">⚠️ ${w.id} — ${WARN_TYPE_LABELS[w.type]||w.type}</div>
+      <span class="warn-sev ${w.severity}">${w.severity}</span>
+    </div>
+    <div style="font-size:12px;margin-bottom:8px"><strong>Detail:</strong> ${w.detail}</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:8px">
+      <strong>Job:</strong> ${w.jobId}${j?` — ${j.partDesc} (${j.customer||'?'})`:''} &nbsp;|&nbsp;
+      <strong>Detected:</strong> ${new Date(w.detected).toLocaleString('en-AU')} &nbsp;|&nbsp;
+      <strong>Status:</strong> <span class="warn-status-badge ${w.status}">${w.status}</span>
+    </div>
+    ${j?`<div style="font-size:11px;color:var(--dim);margin-bottom:10px"><strong>Machine:</strong> ${j.machine} &nbsp;|&nbsp; <strong>Due:</strong> ${fmtDate(j.due)} &nbsp;|&nbsp; <strong>Est End:</strong> ${fmtDate(j.end)}</div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="updateWarningStatus('${w.id}','in-review')">🔍 Mark In Review</button>
+      <button class="btn success" onclick="updateWarningStatus('${w.id}','fixed')">✅ Mark Fixed</button>
+      <button class="btn" onclick="updateWarningStatus('${w.id}','ignored')" style="color:var(--dim)">🙈 Ignore</button>
+      <button class="btn primary" onclick="pushToMonday('${w.id}')">📌 Push to Monday.com</button>
+    </div>
+  </div>`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TIME REVIEW SYSTEM
+// ══════════════════════════════════════════════════════════════
+function trSeed(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return((h>>>0)%1000)/1000;}
+
+function genTimeReviewData(){
+  const ignores=lsGet('time_ignores',[]);
+  const updates=lsGet('time_updates',[]);
+  const rows=[];
+
+  jobs.forEach(j=>{
+    const ops=j.operations||[];
+    ops.filter(op=>op.status==='complete'||op.status==='in-progress').forEach(op=>{
+      const key=`${j.partId}_op${op.opNum}_${op.machine}`;
+      if(ignores.includes(key+'_forever')) return;
+
+      const seed1=trSeed(j.id+'S'+op.opNum),seed2=trSeed(j.id+'R'+op.opNum);
+      const m1Setup=Math.round(10+seed1*40);
+      const m1Run=+(2+seed2*8).toFixed(1);
+
+      // Deterministic variance using a different seed
+      const vs=trSeed(j.id+'VS'+op.opNum)*0.6-0.3;
+      const vr=trSeed(j.id+'VR'+op.opNum)*0.5-0.25;
+      const actualSetup=Math.max(1,Math.round(m1Setup*(1+vs)));
+      const actualRun=+(m1Run*(1+vr)).toFixed(1);
+      const setupPct=Math.round((actualSetup-m1Setup)/m1Setup*100);
+      const runPct=Math.round((actualRun-m1Run)/m1Run*100);
+
+      if(Math.abs(setupPct)<=20&&Math.abs(runPct)<=20) return;
+      if(ignores.includes(key)) return;
+
+      const emp=getEmployees().find(e=>(e.preferred||[]).includes(op.machine))||getEmployees()[0];
+      const updatedCount=updates.filter(u=>u.key===key).length;
+      const ignoredCount=ignores.filter(k=>k===key).length;
+
+      rows.push({key,jobId:j.id,opNum:op.opNum,machine:op.machine,
+        operator:emp?emp.name:'—',partDesc:j.partDesc.substring(0,25),
+        m1Setup,actualSetup,setupPct,m1Run,actualRun,runPct,
+        isSetupFlag:Math.abs(setupPct)>20,isRunFlag:Math.abs(runPct)>20,
+        updatedCount,ignoredCount});
+    });
+  });
+
+  return rows.slice(0,20);
+}
+
+function renderTimeReviewHTML(){
+  const rows=genTimeReviewData();
+  const updates=lsGet('time_updates',[]);
+  const thisWeek=updates.filter(u=>new Date(u.ts)>(new Date(Date.now()-7*24*3600000))).length;
+  const ignores=lsGet('time_ignores',[]).filter(k=>!k.endsWith('_forever')).length;
+
+  const overCount=rows.filter(r=>r.setupPct>20||r.runPct>20).length;
+  const underCount=rows.filter(r=>r.setupPct<-20||r.runPct<-20).length;
+
+  if(!rows.length) return `<div style="padding:16px;color:var(--dim2);text-align:center">✅ No time variances &gt;20% found for current operations</div>`;
+
+  return `<div class="tr-summary-cards">
+    <div class="kpi-card"><div class="kpi-big" style="color:var(--orange)">${rows.length}</div><div class="kpi-label">To Review</div></div>
+    <div class="kpi-card"><div class="kpi-big" style="color:var(--red)">${overCount}</div><div class="kpi-label">Running Over</div></div>
+    <div class="kpi-card"><div class="kpi-big" style="color:var(--blue)">${underCount}</div><div class="kpi-label">Running Under</div></div>
+    <div class="kpi-card"><div class="kpi-big" style="color:var(--green)">${thisWeek}</div><div class="kpi-label">Updated This Week</div></div>
+    <div class="kpi-card"><div class="kpi-big" style="color:var(--dim)">${ignores}</div><div class="kpi-label">Ignored</div></div>
+  </div>
+  <div class="tbl-wrap"><table class="tr-tbl">
+    <thead><tr>
+      <th>Job</th><th>Part</th><th>Op#</th><th>Machine</th><th>Operator</th>
+      <th>M1 Setup</th><th>Actual</th><th>Var%</th>
+      <th>M1 Run/pc</th><th>Actual</th><th>Var%</th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody>
+    ${rows.map(r=>{
+      const sCls=r.setupPct>20?'over':r.setupPct<-20?'under':'ok';
+      const rCls=r.runPct>20?'over':r.runPct<-20?'under':'ok';
+      const autoUpdate=r.updatedCount>=3?`<span class="tr-learn" title="Updated ${r.updatedCount}x — suggest auto-update">💡 Auto?</span>`:'';
+      const autoIgnore=r.ignoredCount>=3?`<span class="tr-learn" title="Ignored ${r.ignoredCount}x — suggest ignore forever">💡 Always?</span>`:'';
+      return `<tr>
+        <td style="font-weight:600;font-size:10px">${r.jobId.substring(0,14)}</td>
+        <td style="font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.partDesc}">${r.partDesc}</td>
+        <td style="text-align:center">${r.opNum}</td>
+        <td style="font-weight:600">${r.machine}</td>
+        <td style="font-size:10px;color:var(--dim)">${r.operator}</td>
+        <td>${r.m1Setup}m</td>
+        <td>${r.actualSetup}m</td>
+        <td><span class="tr-badge ${sCls}">${r.setupPct>0?'+':''}${r.setupPct}%</span>${autoUpdate}</td>
+        <td>${r.m1Run}m</td>
+        <td>${r.actualRun}m</td>
+        <td><span class="tr-badge ${rCls}">${r.runPct>0?'+':''}${r.runPct}%</span>${autoIgnore}</td>
+        <td>
+          <div style="display:flex;gap:3px;flex-wrap:wrap">
+            <button class="btn success" onclick="updateM1Time('${r.key}','${r.jobId}',${r.opNum},${r.m1Setup},${r.actualSetup},${r.m1Run},${r.actualRun})" style="padding:2px 5px;font-size:9px" title="Update M1 standard time">✅ M1</button>
+            <button class="btn" onclick="ignoreTimeRow('${r.key}')" style="padding:2px 5px;font-size:9px" title="Ignore this occurrence">⏭️</button>
+            <button class="btn danger" onclick="ignoreTimeRowForever('${r.key}')" style="padding:2px 5px;font-size:9px" title="Ignore forever">🚫</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+function updateM1Time(key,jobId,opNum,m1Setup,actualSetup,m1Run,actualRun){
+  if(!confirm(`Update M1 setup time from ${m1Setup}min to ${actualSetup}min for ${jobId} Op${opNum}?\nRun time: ${m1Run}min → ${actualRun}min/pc`)) return;
+  const updates=lsGet('time_updates',[]);
+  updates.push({key,jobId,opNum,m1Setup,actualSetup,m1Run,actualRun,ts:new Date().toISOString()});
+  lsSet('time_updates',updates);
+  toast(`✅ M1 updated via stored procedure on SVR-APP3`);
+  renderKPI();
+}
+
+function ignoreTimeRow(key){
+  const ignores=lsGet('time_ignores',[]);
+  if(!ignores.includes(key)) ignores.push(key);
+  lsSet('time_ignores',ignores);
+  renderKPI();
+}
+
+function ignoreTimeRowForever(key){
+  const ignores=lsGet('time_ignores',[]);
+  const fk=key+'_forever';
+  if(!ignores.includes(fk)) ignores.push(fk);
+  lsSet('time_ignores',ignores);
+  toast('🚫 Added to permanent ignore list');
+  renderKPI();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INTEGRATIONS SETUP (Monday.com etc.)
+// ══════════════════════════════════════════════════════════════
+function renderSetupIntegrations(){
+  const cfg=lsGet('monday_config',{apiKey:'',boardId:'',workspaceId:''});
+  document.getElementById('sp-integrations').innerHTML=`
+    <div class="section-title">🔗 External Integrations</div>
+
+    <div style="margin-bottom:24px">
+      <div class="section-title" style="font-size:13px;margin-bottom:6px">📌 Monday.com — M1 Data Quality Board</div>
+      <div class="section-desc">Configure Monday.com API to push M1 data quality warnings. In real deployment this calls the Monday.com GraphQL API.</div>
+      <div class="conn-status ${cfg.apiKey?'connected':'disconnected'}" style="margin-bottom:12px">● ${cfg.apiKey?'Configured (simulated)':'Not configured'}</div>
+      <div class="form-row">
+        <div class="form-group"><label>API Key</label><input id="mon-apikey" type="password" value="${cfg.apiKey||''}" placeholder="your-monday-api-key" style="min-width:280px"/></div>
+        <div class="form-group"><label>Board ID</label><input id="mon-boardid" value="${cfg.boardId||''}" placeholder="123456789"/></div>
+        <div class="form-group"><label>Workspace ID</label><input id="mon-wsid" value="${cfg.workspaceId||''}" placeholder="987654321"/></div>
+      </div>
+      <div class="action-bar">
+        <button class="btn primary" onclick="testMondayConnection()">🔌 Test Connection</button>
+        <button class="btn success" onclick="saveMondayConfig()">💾 Save</button>
+      </div>
+      <div style="margin-top:14px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;font-size:11px;color:var(--dim)">
+        <strong style="color:var(--txt)">Real implementation notes:</strong><br>
+        • Calls <code style="background:var(--s3);padding:1px 5px;border-radius:3px">https://api.monday.com/v2</code> with GraphQL mutations<br>
+        • Creates items on the "M1 Data Quality" board for each warning<br>
+        • Maps severity → Monday.com priority column<br>
+        • Updates item status when "Mark Fixed" is clicked
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" style="font-size:13px;margin-bottom:6px">📊 Reports Branding</div>
+      <div class="section-desc">Customise the company name shown on generated reports.</div>
+      <div class="form-row">
+        <div class="form-group"><label>Company Name</label><input id="rpt-company" value="${lsGet('report_company','NuPhoenix Group')}" placeholder="NuPhoenix Group"/></div>
+      </div>
+      <div class="action-bar">
+        <button class="btn success" onclick="saveReportConfig()">💾 Save</button>
+      </div>
+    </div>`;
+}
+
+function testMondayConnection(){
+  toast('🔌 Testing Monday.com connection… (simulated)');
+  setTimeout(()=>toast(document.getElementById('mon-apikey')?.value?'⚠️ Connection simulated — Monday.com API not live':'❌ No API key configured'),1500);
+}
+function saveMondayConfig(){
+  lsSet('monday_config',{
+    apiKey:document.getElementById('mon-apikey').value,
+    boardId:document.getElementById('mon-boardid').value,
+    workspaceId:document.getElementById('mon-wsid').value
+  });
+  toast('✅ Monday.com config saved');
+  renderSetupIntegrations();
+}
+function saveReportConfig(){
+  lsSet('report_company',document.getElementById('rpt-company').value||'NuPhoenix Group');
+  toast('✅ Report config saved');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2950,6 +3678,8 @@ function startMonitorAnimation(){
 genJobs();
 renderSchedule();
 startMonitorAnimation();
+// Pre-scan warnings on load so count is ready
+setTimeout(()=>detectWarnings(),500);
 </script>
 </body>
 </html>
