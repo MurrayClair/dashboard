@@ -320,6 +320,9 @@ table.dtbl select{width:auto;min-width:100px}
 .conn-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--rs);font-size:11px;font-weight:600;margin-bottom:12px}
 .conn-status.connected{background:var(--green-d);color:var(--green)}
 .conn-status.disconnected{background:var(--red-d);color:var(--red)}
+.m1-table-row:hover{background:var(--s3)!important}
+.m1-table-row.selected{background:var(--blue-d)!important;outline:1px solid var(--blue)}
+.m1-table-row.selected td{border-color:var(--blue)!important}
 
 /* Correction report */
 .correction-row{background:var(--yellow-d);border-left:3px solid var(--yellow)}
@@ -2553,12 +2556,18 @@ function saveMachines(){
 }
 
 // ── M1 Connection ──
+let m1SelectedTable=-1;
+let m1AdminUnlocked=false;
 function renderSetupM1(){
   const cfg=getM1Config();
+  const connStatus=lsGet('m1_conn_status',{connected:false,lastTest:null});
+  const statusCls=connStatus.connected?'connected':'disconnected';
+  const statusDot=connStatus.connected?'🟢':'🔴';
+  const statusTxt=connStatus.connected?'Connected':'Disconnected (simulated)';
   document.getElementById('sp-m1conn').innerHTML=`
     <div class="section-title">🔌 M1 ERP Connection</div>
     <div class="section-desc">Configure SQL Server connection to ECi M1 database.</div>
-    <div class="conn-status disconnected">● Disconnected (simulated)</div>
+    <div class="conn-status ${statusCls}">${statusDot} ${statusTxt}${connStatus.lastTest?' — last tested '+new Date(connStatus.lastTest).toLocaleTimeString():''}</div>
     <div class="form-row">
       <div class="form-group"><label>SQL Server</label><input id="m1-server" value="${cfg.server}"/></div>
       <div class="form-group"><label>Database</label><input id="m1-db" value="${cfg.database}"/></div>
@@ -2566,19 +2575,93 @@ function renderSetupM1(){
       <div class="form-group"><label>Password</label><input id="m1-pass" type="password" value="${cfg.password}" placeholder="••••••"/></div>
       <div class="form-group"><label>Schema</label><input id="m1-schema" value="${cfg.schema}"/></div>
     </div>
-    <div class="action-bar"><button class="btn primary" onclick="testM1Connection()">🔌 Test Connection</button><button class="btn success" onclick="saveM1Config()">💾 Save</button></div>
+    <div class="action-bar">
+      <button class="btn primary" onclick="testM1Connection()">🔌 Test Connection</button>
+      <button class="btn success" onclick="saveM1Config()">💾 Save</button>
+    </div>
+
     <div class="section-title" style="margin-top:20px">📋 Table Mappings</div>
-    <div class="section-desc">Map logical table names to actual M1 table paths. Update if your M1 schema differs.</div>
+    <div class="section-desc">Click a table row to select it. Admin password required to edit M1 table paths.</div>
+    <div class="action-bar" style="margin-bottom:8px">
+      <button class="btn primary" onclick="addM1Table()">＋ Add Table</button>
+      <button class="btn danger" onclick="deleteM1Table()">✕ Delete Selected</button>
+      <div class="ctrl-sep"></div>
+      ${!m1AdminUnlocked?
+        `<button class="btn warn" onclick="unlockM1Admin()">🔒 Unlock Edit (Admin)</button>`
+        :`<span style="font-size:10px;color:var(--green);font-weight:600">🔓 Admin unlocked</span>`}
+    </div>
     <div class="tbl-wrap"><table class="dtbl" id="m1-tables">
-      <tr><th>Logical Name</th><th>M1 Table Path</th></tr>
-      ${cfg.tables.map((t,i)=>`<tr><td>${t.name}</td><td><input value="${t.path}" data-tidx="${i}"/></td></tr>`).join('')}
-    </table></div>`;
+      <tr><th style="width:40px">Status</th><th>Logical Name</th><th>M1 Table Path</th></tr>
+      ${cfg.tables.map((t,i)=>{
+        const isSelected=m1SelectedTable===i;
+        const tStatus=lsGet('m1_table_status',{})[t.path];
+        const dot=tStatus==='ok'?'🟢':tStatus==='error'?'🔴':'⚪';
+        return `<tr class="m1-table-row${isSelected?' selected':''}" onclick="selectM1Table(${i})" style="cursor:pointer${isSelected?';background:var(--blue-d);border-color:var(--blue)':''}">
+          <td style="text-align:center;font-size:14px">${dot}</td>
+          <td><input value="${t.name}" data-tidx="${i}" data-f="name" ${!m1AdminUnlocked?'readonly style="pointer-events:none;opacity:.7"':''}/></td>
+          <td><input value="${t.path}" data-tidx="${i}" data-f="path" ${!m1AdminUnlocked?'readonly style="pointer-events:none;opacity:.7"':'style="color:var(--green)"'}/></td>
+        </tr>`;}).join('')}
+    </table></div>
+    ${m1SelectedTable>=0&&m1SelectedTable<cfg.tables.length?`
+    <div style="margin-top:8px;padding:10px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs)">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:4px">Selected: <strong style="color:var(--txt)">${cfg.tables[m1SelectedTable].name}</strong> → <code style="color:var(--green)">${cfg.tables[m1SelectedTable].path}</code></div>
+      <button class="btn primary" onclick="testM1Table(${m1SelectedTable})" style="font-size:10px">🔌 Test This Table</button>
+    </div>`:''}`;
 }
-function testM1Connection(){toast('🔌 Testing connection… (simulated)');setTimeout(()=>toast('❌ Connection failed — this is a simulation'),1500);}
+function selectM1Table(i){m1SelectedTable=(m1SelectedTable===i)?-1:i;renderSetupM1();}
+function unlockM1Admin(){
+  const pwd=prompt('Enter admin password to edit table mappings:');
+  const adminPwd=lsGet('m1_admin_pwd','nupress2026');
+  if(pwd===adminPwd){m1AdminUnlocked=true;toast('🔓 Admin access granted');renderSetupM1();}
+  else{toast('❌ Incorrect admin password');}
+}
+function addM1Table(){
+  if(!m1AdminUnlocked){toast('🔒 Unlock admin access first');return;}
+  const cfg=getM1Config();
+  cfg.tables.push({name:'New Table',path:'dbo.newtable'});
+  lsSet('m1config',cfg);toast('Added new table mapping');renderSetupM1();
+}
+function deleteM1Table(){
+  if(!m1AdminUnlocked){toast('🔒 Unlock admin access first');return;}
+  if(m1SelectedTable<0){toast('Select a table row first');return;}
+  const cfg=getM1Config();
+  if(!confirm(`Delete table mapping "${cfg.tables[m1SelectedTable].name}"?`))return;
+  cfg.tables.splice(m1SelectedTable,1);
+  m1SelectedTable=-1;
+  lsSet('m1config',cfg);toast('Table mapping deleted');renderSetupM1();
+}
+function testM1Table(i){
+  const cfg=getM1Config();
+  const t=cfg.tables[i];
+  toast(`🔌 Testing table ${t.path}…`);
+  const statuses=lsGet('m1_table_status',{});
+  // Simulated — randomly succeed or fail
+  setTimeout(()=>{
+    const ok=Math.random()>0.3;
+    statuses[t.path]=ok?'ok':'error';
+    lsSet('m1_table_status',statuses);
+    toast(ok?`✅ ${t.path} — accessible`:`❌ ${t.path} — table not found or access denied`);
+    renderSetupM1();
+  },1000);
+}
+function testM1Connection(){
+  toast('🔌 Testing connection…');
+  // Simulated
+  setTimeout(()=>{
+    const ok=Math.random()>0.5;
+    lsSet('m1_conn_status',{connected:ok,lastTest:Date.now()});
+    toast(ok?'✅ Connected to M1 database':'❌ Connection failed — check server/credentials');
+    renderSetupM1();
+  },1500);
+}
 function saveM1Config(){
   const cfg={server:document.getElementById('m1-server').value,database:document.getElementById('m1-db').value,user:document.getElementById('m1-user').value,password:document.getElementById('m1-pass').value,schema:document.getElementById('m1-schema').value,tables:[]};
-  document.querySelectorAll('#m1-tables input[data-tidx]').forEach(el=>{const i=parseInt(el.dataset.tidx);const oldCfg=getM1Config();cfg.tables.push({name:oldCfg.tables[i]?.name||'Table '+i,path:el.value});});
-  lsSet('m1config',cfg);toast('✅ M1 config saved');
+  document.querySelectorAll('#m1-tables input[data-tidx]').forEach(el=>{
+    const i=parseInt(el.dataset.tidx);const f=el.dataset.f;
+    if(!cfg.tables[i])cfg.tables[i]={name:'',path:''};
+    cfg.tables[i][f]=el.value;
+  });
+  lsSet('m1config',cfg);toast('✅ M1 config saved');renderSetupM1();
 }
 
 // ── Employees ──
