@@ -56,15 +56,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mode-content.active{display:flex;flex-direction:column}
 /* Gantt layout: labels + timeline + late panel */
 .gantt-wrap{flex:1;display:flex;overflow:hidden;position:relative}
-.gantt-labels{width:170px;min-width:170px;background:var(--s1);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;user-select:none}
-.gl-header{height:32px;min-height:32px;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:700;color:var(--dim2);text-transform:uppercase;letter-spacing:.5px}
-.gl-body{flex:1;overflow:hidden}
-.gl-row{height:44px;display:flex;align-items:center;padding:0 10px;gap:8px;border-bottom:1px solid var(--brd);cursor:pointer;font-size:12px;font-weight:600;color:var(--dim);transition:.15s;white-space:nowrap}
-.gl-row:hover{background:var(--s2);color:var(--txt)}
-.gl-row.active{background:var(--blue-d);color:var(--blue)}
+/* Machine labels — sticky left column inside gantt scroll area (no separate container) */
+.g-label{position:absolute;left:0;z-index:5;background:var(--s1);border-right:1px solid var(--brd);width:160px;height:44px;display:flex;align-items:center;padding:0 10px;gap:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--dim);white-space:nowrap;border-bottom:1px solid var(--brd)}
+.g-label:hover{background:var(--s2);color:var(--txt)}
+.g-label.active{background:var(--blue-d);color:var(--blue)}
 .gl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .gl-name{flex:1;overflow:hidden;text-overflow:ellipsis}
-.gl-cnt{font-size:10px;background:var(--s3);padding:1px 6px;border-radius:10px;font-:700}
+.gl-cnt{font-size:10px;background:var(--s3);padding:1px 6px;border-radius:10px;font-weight:700}
 /* Timeline area */
 .gantt-area{flex:1;overflow:auto;position:relative}
 .gantt{position:relative;min-width:100%}
@@ -229,7 +227,7 @@ table.dtbl select{width:auto;min-width:100px}
 .correction-row{background:var(--yellow-d);border-left:3px solid var(--yellow)}
 .correction-row td{color:var(--yellow) !important}
 
-@media(max-width:900px){.gantt-labels{width:120px;min-width:120px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}.machine-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.g-label{width:100px}.g-label-header{width:100px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}.machine-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -280,10 +278,6 @@ table.dtbl select{width:auto;min-width:100px}
   <div id="search-results"></div>
 </div>
 <div class="gantt-wrap">
-  <div class="gantt-labels" id="gantt-labels">
-    <div class="gl-header">Machines</div>
-    <div class="gl-body" id="gl-body"></div>
-  </div>
   <div class="gantt-area" id="gantt-area">
     <div class="gantt" id="gantt"></div>
   </div>
@@ -591,7 +585,7 @@ function setSetupTab(t){
 function getFilteredMachines(){let fm=MACHINES;if(filter==='cmm')fm=MACHINES.filter(m=>m.type==='cmm');if(selectedMachine)fm=MACHINES.filter(m=>m.id===selectedMachine);return fm;}
 function getFilteredJobs(){let fj=jobs;if(filter==='late')fj=jobs.filter(j=>j.end>j.due&&j.status!=='complete');else if(filter==='at-risk')fj=jobs.filter(j=>j.status!=='complete'&&!(j.end>j.due)&&(j.due-j.end)<24*3600000);else if(filter==='cmm')fj=jobs.filter(j=>j.machine.startsWith('CMM'));return fj;}
 
-function renderSchedule(){renderStats();const fm=getFilteredMachines(),fj=getFilteredJobs();renderMachineLabels(fm,fj);renderGantt(fm,fj);renderLatePanel();}
+function renderSchedule(){renderStats();const fm=getFilteredMachines(),fj=getFilteredJobs();renderGantt(fm,fj);renderLatePanel();}
 
 function renderStats(){
   const active=jobs.filter(j=>j.status!=='complete'),late=active.filter(j=>j.end>j.due);
@@ -606,18 +600,17 @@ function renderStats(){
     <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>`;
 }
 
-function renderMachineLabels(fm,fj){
-  document.getElementById('gl-body').innerHTML=fm.map(m=>{
-    const cnt=fj.filter(j=>j.machine===m.id&&j.status!=='complete').length;
-    return `<div class="gl-row ${selectedMachine===m.id?'active':''}" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
-  }).join('');
-}
-
 function renderGantt(fm,fj){
+  const area=document.getElementById('gantt-area');
   const gantt=document.getElementById('gantt'),hpx=HOUR_PX[scale];
   const totalDays=scale==='day'?14:scale==='week'?42:90,totalHours=totalDays*24;
-  const startTime=new Date(TODAY.getTime()-5*24*3600000),totalW=totalHours*hpx,rowH=44,headerH=32;
+  const startTime=new Date(TODAY.getTime()-5*24*3600000);
+  const labelW=160; // width of sticky machine labels
+  const totalW=labelW+totalHours*hpx,rowH=44,headerH=32;
+
+  // Header row — sticky label corner + date cells
   let html=`<div class="g-header" style="width:${totalW}px">`;
+  html+=`<div class="g-label-header" style="width:${labelW}px;min-width:${labelW}px">Machines</div>`;
   for(let d=0;d<totalDays;d++){
     const date=new Date(startTime.getTime()+d*24*3600000),dayW=24*hpx;
     const isToday=date.toDateString()===TODAY.toDateString(),bg=isToday?'rgba(255,69,58,.1)':'transparent';
@@ -625,21 +618,41 @@ function renderGantt(fm,fj){
     html+=`<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${scale==='month'&&d%7!==0?'':label}</div>`;
   }
   html+='</div>';
+
+  // Machine rows — label + job blocks in same row, label is sticky left
   fm.forEach((m,mi)=>{
     const y=headerH+mi*rowH;
-    html+=`<div class="g-row" style="position:absolute;top:${y}px;left:0;width:${totalW}px;height:${rowH}px"></div>`;
+    const cnt=fj.filter(j=>j.machine===m.id&&j.status!=='complete').length;
+    // Row background (full width)
+    html+=`<div class="g-row" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalW-labelW}px;height:${rowH}px"></div>`;
+    // Sticky machine label
+    html+=`<div class="g-label ${selectedMachine===m.id?'active':''}" style="position:absolute;top:${y}px;left:0" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
+    // Job blocks
     fj.filter(j=>j.machine===m.id&&j.status!=='complete').forEach(j=>{
       const jStart=(j.start-startTime)/3600000,jDur=(j.end-j.start)/3600000;
-      const x=jStart*hpx,w=Math.max(jDur*hpx,20);
+      const x=labelW+jStart*hpx,w=Math.max(jDur*hpx,20);
       const isLate=j.end>j.due,isAtRisk=!isLate&&(j.due-j.end)<24*3600000;
       const cls=j.machine.startsWith('CMM')?'cmm':isLate?'late':isAtRisk?'at-risk':'on-time';
       html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,15)}${j.delay>0?' +'+j.delay+'h':''}</div>`;
     });
   });
-  const todayX=((TODAY-startTime)/3600000)*hpx;
+
+  // Today line
+  const todayX=labelW+((TODAY-startTime)/3600000)*hpx;
   html+=`<div class="today-line" style="left:${todayX}px;top:0;height:${headerH+fm.length*rowH}px"><div class="today-label">TODAY</div></div>`;
+
   gantt.style.width=totalW+'px';gantt.style.height=(headerH+fm.length*rowH)+'px';gantt.innerHTML=html;
-  document.getElementById('gantt-area').scrollLeft=Math.max(0,todayX-document.getElementById('gantt-area').clientWidth/3);
+  area.scrollLeft=Math.max(0,todayX-area.clientWidth/3);
+
+  // Make labels sticky on horizontal scroll
+  area.onscroll=function(){
+    const scrollL=area.scrollLeft;
+    gantt.querySelectorAll('.g-label,.g-label-header').forEach(el=>{
+      el.style.transform=`translateX(${scrollL}px)`;
+    });
+  };
+  // Trigger initial position
+  area.onscroll();
 }
 
 function renderLatePanel(){
@@ -668,14 +681,7 @@ function renderLatePanel(){
   }).join('');
 }
 
-// ── Scroll sync ──
-(function(){
-  const area=document.getElementById('gantt-area'),glBody=document.getElementById('gl-body');
-  let syncing=false;
-  area.addEventListener('scroll',()=>{if(syncing)return;syncing=true;glBody.scrollTop=area.scrollTop<=32?0:area.scrollTop-32;syncing=false;});
-  glBody.addEventListener('scroll',()=>{if(syncing)return;syncing=true;area.scrollTop=glBody.scrollTop+32;syncing=false;});
-  glBody.style.overflowY='auto';glBody.style.scrollbarWidth='none';glBody.style.msOverflowStyle='none';
-})();
+// (scroll sync no longer needed — labels are inside the gantt area)
 
 // ── Schedule actions ──
 function selectMachine(id){selectedMachine=selectedMachine===id?null:id;renderSchedule();}
