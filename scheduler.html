@@ -47,6 +47,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .enquiry-ops td{padding:8px;border:1px solid var(--brd);font-size:12px}
 .enquiry-timeline{height:8px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:4px}
 .enquiry-timeline-fill{height:100%;border-radius:4px}
+/* Allocation panel */
+.alloc-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:6px;background:var(--s2);transition:.15s}
+.alloc-row:hover{border-color:var(--blue)}
+.alloc-row.overridden{border-color:var(--orange);background:var(--orange-d)}
+.alloc-machine{font-weight:700;font-size:12px;min-width:100px}
+.alloc-job{font-size:11px;color:var(--dim);min-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alloc-select{background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px;font-family:inherit;min-width:150px}
+.alloc-select.overridden{border-color:var(--orange);color:var(--orange)}
+.alloc-cap{font-size:10px;color:var(--dim);min-width:80px}
+.alloc-priority{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;min-width:50px;text-align:center}
+.alloc-priority.red{background:var(--red-d);color:var(--red)}
+.alloc-priority.yellow{background:var(--yellow-d);color:var(--yellow)}
+.alloc-priority.green{background:var(--green-d);color:var(--green)}
+.alloc-staff-card{padding:8px 10px;border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:6px;background:var(--s2);font-size:11px}
+.alloc-staff-card .name{font-weight:700;font-size:12px}
+.alloc-staff-card .prefs{font-size:10px;color:var(--dim);margin-top:3px}
+.alloc-staff-card.assigned{opacity:.5}
+.impact-card{background:var(--orange-d);border:1px solid rgba(255,159,10,.3);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.impact-card h4{font-size:13px;color:var(--orange);margin-bottom:6px}
+.impact-card .detail{font-size:11px;color:var(--dim)}
 .btn.success{background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3)}
 .btn.primary{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .ctrl-label{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-right:4px}
@@ -268,6 +288,8 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="btn" onclick="doSearch()" style="padding:5px 10px">🔍 Search</button>
     <button class="btn" onclick="clearSearch()" style="padding:5px 8px;font-size:13px" title="Clear">✕</button>
   </div>
+  <div class="ctrl-sep"></div>
+  <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
 </div>
 <!-- Search Results Panel -->
 <div id="search-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:12px 16px;max-height:60vh;overflow-y:auto">
@@ -276,6 +298,36 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="btn" onclick="clearSearch()" style="font-size:10px">✕ Close</button>
   </div>
   <div id="search-results"></div>
+</div>
+<!-- Human Allocation Panel -->
+<div id="alloc-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:0">
+  <div style="display:flex;height:55vh;overflow:hidden">
+    <!-- Left: allocation grid -->
+    <div style="flex:1;overflow:auto;padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:700;font-size:14px">👷 Staff → Machine Allocation</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn success" onclick="autoAllocate()">🤖 Auto-Allocate</button>
+          <button class="btn" onclick="toggleAllocPanel()">✕ Close</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:10px">Software assigns staff to maximise schedule compliance. Override by selecting a different employee — impact shown automatically.</div>
+      <div id="alloc-grid"></div>
+      <!-- Impact report -->
+      <div id="alloc-impact" style="display:none;margin-top:12px"></div>
+    </div>
+    <!-- Right: available staff -->
+    <div style="width:240px;min-width:240px;border-left:1px solid var(--brd);overflow-y:auto;padding:12px">
+      <div style="font-weight:700;font-size:12px;margin-bottom:8px">Available Staff</div>
+      <div style="margin-bottom:8px">
+        <select id="alloc-shift-filter" onchange="renderAllocPanel()" style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px;width:100%">
+          <option value="day">☀️ Day Shift</option>
+          <option value="night">🌙 Night Shift</option>
+        </select>
+      </div>
+      <div id="alloc-staff-list"></div>
+    </div>
+  </div>
 </div>
 <div class="gantt-wrap">
   <div class="gantt-area" id="gantt-area">
@@ -375,16 +427,16 @@ const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.typ
 //  EMPLOYEES
 // ══════════════════════════════════════════════════════════════
 const DEFAULT_EMPLOYEES=[
-  {id:'E001',name:'Dale Robinson',shift:'Day',active:true,notes:'Lead machinist, 15yr exp'},
-  {id:'E002',name:'Steve Kovacs',shift:'Day',active:true,notes:'Mill-turn specialist'},
-  {id:'E003',name:'Jason Tran',shift:'Day',active:true,notes:'5-axis certified'},
-  {id:'E004',name:'Mark Sullivan',shift:'Day',active:true,notes:'Apprentice — Year 3'},
-  {id:'E005',name:'Chris Hartley',shift:'Night',active:true,notes:'Night lead'},
-  {id:'E006',name:'Ben O\'Reilly',shift:'Night',active:true,notes:'HMC specialist'},
-  {id:'E007',name:'Ryan Mitchell',shift:'Night',active:true,notes:''},
-  {id:'E008',name:'Tom Nguyen',shift:'Rotating',active:true,notes:'CMM inspector'},
-  {id:'E009',name:'Paul Whitmore',shift:'Day',active:false,notes:'On leave'},
-  {id:'E010',name:'Sam Patel',shift:'Rotating',active:true,notes:'Wire EDM / CMM'},
+  {id:'E001',name:'Dale Robinson',shift:'Day',active:true,notes:'Lead machinist, 15yr exp',preferred:['QTN450M','QTN350MY']},
+  {id:'E002',name:'Steve Kovacs',shift:'Day',active:true,notes:'Mill-turn specialist',preferred:['INTE2004S','INTE4004S']},
+  {id:'E003',name:'Jason Tran',shift:'Day',active:true,notes:'5-axis certified',preferred:['VRX730','DMU75']},
+  {id:'E004',name:'Mark Sullivan',shift:'Day',active:true,notes:'Apprentice — Year 3',preferred:['QT20','QT20HP']},
+  {id:'E005',name:'Chris Hartley',shift:'Night',active:true,notes:'Night lead',preferred:['INTE2004S','NTX2500']},
+  {id:'E006',name:'Ben O\'Reilly',shift:'Night',active:true,notes:'HMC specialist',preferred:['HCN8800','FH4800']},
+  {id:'E007',name:'Ryan Mitchell',shift:'Night',active:true,notes:'',preferred:['VCS530C','VTC530C']},
+  {id:'E008',name:'Tom Nguyen',shift:'Rotating',active:true,notes:'CMM inspector',preferred:['CMM1','CMM2']},
+  {id:'E009',name:'Paul Whitmore',shift:'Day',active:false,notes:'On leave',preferred:['SQT10M']},
+  {id:'E010',name:'Sam Patel',shift:'Rotating',active:true,notes:'Wire EDM / CMM',preferred:['ROBOCUT1','CMM1']},
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -771,6 +823,196 @@ document.addEventListener('click',(e)=>{const tip=document.getElementById('toolt
 function openLightbox(jobId){if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}const j=jobs.find(j=>j.id===jobId);if(!j)return;closeInfoCard();document.getElementById('lb-title').textContent=`${j.partId} — ${j.partDesc}`;document.getElementById('lb-drawing').innerHTML=genDrawingSVG(j.partId,j.partDesc,800,560);document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(e){if(e&&e.type==='click'&&e.target!==document.getElementById('lightbox'))return;document.getElementById('lightbox').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open');});
+
+// ══════════════════════════════════════════════════════════════
+//  HUMAN ALLOCATION ENGINE
+// ══════════════════════════════════════════════════════════════
+let allocations={}; // machineId → employeeId
+let autoAllocations={}; // what the algorithm chose (for override detection)
+let allocPanelOpen=false;
+
+function toggleAllocPanel(){
+  allocPanelOpen=!allocPanelOpen;
+  document.getElementById('alloc-panel').style.display=allocPanelOpen?'block':'none';
+  document.getElementById('alloc-btn').classList.toggle('active',allocPanelOpen);
+  if(allocPanelOpen){autoAllocate();renderAllocPanel();}
+}
+
+function autoAllocate(){
+  const emps=getEmployees().filter(e=>e.active);
+  const shift=document.getElementById('alloc-shift-filter')?.value||'day';
+  const shiftEmps=emps.filter(e=>e.shift.toLowerCase()===shift||e.shift==='Rotating');
+  
+  // Get machines that need staff (have active/queued jobs)
+  const activeJobs=jobs.filter(j=>j.status==='in-progress'||j.status==='queued');
+  const machinesNeeded=[];
+  MACHINES.forEach(m=>{
+    const mJobs=activeJobs.filter(j=>j.machine===m.id);
+    if(!mJobs.length) return;
+    // Prioritise: late > at-risk > on-time
+    const topJob=mJobs.sort((a,b)=>{
+      const aLate=a.end>a.due?2:((a.due-a.end)<24*3600000?1:0);
+      const bLate=b.end>b.due?2:((b.due-b.end)<24*3600000?1:0);
+      return bLate-aLate || a.due-b.due;
+    })[0];
+    const isLate=topJob.end>topJob.due;
+    const isAtRisk=!isLate&&(topJob.due-topJob.end)<24*3600000;
+    machinesNeeded.push({machine:m,job:topJob,priority:isLate?'red':isAtRisk?'yellow':'green',score:isLate?3:isAtRisk?2:1});
+  });
+  
+  // Sort: highest priority first
+  machinesNeeded.sort((a,b)=>b.score-a.score || a.job.due-b.job.due);
+  
+  const newAlloc={};
+  const assigned=new Set();
+  
+  machinesNeeded.forEach(({machine})=>{
+    // Find best employee: prefer someone with this machine in their preferred list
+    const candidates=shiftEmps.filter(e=>!assigned.has(e.id));
+    if(!candidates.length) return;
+    
+    // Score candidates: preferred machine = +10, skills match = +5
+    const scored=candidates.map(e=>{
+      let score=0;
+      if((e.preferred||[]).includes(machine.id)) score+=10;
+      // Check skills if they exist
+      const skills=getSkills();
+      const sk=skills[e.id]?.[machine.id];
+      if(sk?.operate) score+=5;
+      if(sk?.setup) score+=3;
+      return {emp:e,score};
+    }).sort((a,b)=>b.score-a.score);
+    
+    const best=scored[0];
+    if(best){
+      newAlloc[machine.id]=best.emp.id;
+      assigned.add(best.emp.id);
+    }
+  });
+  
+  autoAllocations={...newAlloc};
+  // Preserve manual overrides
+  Object.keys(allocations).forEach(mId=>{
+    if(allocations[mId]!==autoAllocations[mId]) newAlloc[mId]=allocations[mId];
+  });
+  allocations=newAlloc;
+  renderAllocPanel();
+  toast('🤖 Auto-allocation complete');
+}
+
+function renderAllocPanel(){
+  const emps=getEmployees().filter(e=>e.active);
+  const shift=document.getElementById('alloc-shift-filter')?.value||'day';
+  const shiftEmps=emps.filter(e=>e.shift.toLowerCase()===shift||e.shift==='Rotating');
+  const activeJobs=jobs.filter(j=>j.status==='in-progress'||j.status==='queued');
+  const assignedIds=new Set(Object.values(allocations));
+  
+  // Build allocation grid
+  const grid=document.getElementById('alloc-grid');
+  let html='';
+  
+  MACHINES.forEach(m=>{
+    const mJobs=activeJobs.filter(j=>j.machine===m.id);
+    if(!mJobs.length) return;
+    const topJob=mJobs[0];
+    const isLate=topJob.end>topJob.due;
+    const isAtRisk=!isLate&&(topJob.due-topJob.end)<24*3600000;
+    const priorityCls=isLate?'red':isAtRisk?'yellow':'green';
+    const priorityLabel=isLate?'LATE':isAtRisk?'AT RISK':'OK';
+    const currentEmpId=allocations[m.id]||'';
+    const isOverridden=currentEmpId && autoAllocations[m.id] && currentEmpId!==autoAllocations[m.id];
+    
+    // Build employee dropdown (only shift-compatible staff)
+    const options=shiftEmps.map(e=>{
+      const isPref=(e.preferred||[]).includes(m.id);
+      return `<option value="${e.id}"${currentEmpId===e.id?' selected':''}>${e.name}${isPref?' ⭐':''}</option>`;
+    }).join('');
+    
+    html+=`<div class="alloc-row${isOverridden?' overridden':''}">
+      <div class="alloc-priority ${priorityCls}">${priorityLabel}</div>
+      <div class="alloc-machine"><div style="display:flex;align-items:center;gap:6px"><div class="gl-dot" style="background:${m.color}"></div>${m.id}</div></div>
+      <div class="alloc-job" title="${topJob.partDesc}">${topJob.id.substring(0,12)} — ${topJob.partDesc.substring(0,20)}</div>
+      <select class="alloc-select${isOverridden?' overridden':''}" data-machine="${m.id}" onchange="onAllocChange('${m.id}',this.value)">
+        <option value="">— Unassigned —</option>
+        ${options}
+      </select>
+      <div class="alloc-cap">${isOverridden?'⚠️ Override':'✅ Auto'}</div>
+    </div>`;
+  });
+  
+  grid.innerHTML=html||'<div style="color:var(--dim);padding:12px">No machines need allocation</div>';
+  
+  // Staff list (right panel)
+  const staffList=document.getElementById('alloc-staff-list');
+  staffList.innerHTML=shiftEmps.map(e=>{
+    const isAssigned=assignedIds.has(e.id);
+    const assignedTo=Object.entries(allocations).find(([m,eid])=>eid===e.id);
+    const prefs=(e.preferred||[]).join(' + ')||'None set';
+    return `<div class="alloc-staff-card${isAssigned?' assigned':''}">
+      <div class="name">${e.name}</div>
+      <div style="font-size:10px;color:${isAssigned?'var(--green)':'var(--dim)'}">${isAssigned?'→ '+assignedTo[0]:'Available'}</div>
+      <div class="prefs">⭐ Preferred: ${prefs}</div>
+    </div>`;
+  }).join('');
+  
+  // Check for overrides and show impact
+  renderAllocImpact();
+}
+
+function onAllocChange(machineId,empId){
+  allocations[machineId]=empId;
+  renderAllocPanel();
+}
+
+function renderAllocImpact(){
+  const impactEl=document.getElementById('alloc-impact');
+  const overrides=[];
+  
+  Object.keys(allocations).forEach(mId=>{
+    if(autoAllocations[mId]&&allocations[mId]&&allocations[mId]!==autoAllocations[mId]){
+      const autoEmp=getEmployees().find(e=>e.id===autoAllocations[mId]);
+      const manualEmp=getEmployees().find(e=>e.id===allocations[mId]);
+      const machine=MACHINES.find(m=>m.id===mId);
+      const mJobs=jobs.filter(j=>j.machine===mId&&(j.status==='in-progress'||j.status==='queued'));
+      const topJob=mJobs[0];
+      
+      // Check if manual pick has this machine in preferred
+      const isPref=(manualEmp?.preferred||[]).includes(mId);
+      const autoWasPref=(autoEmp?.preferred||[]).includes(mId);
+      
+      // Estimate delay: if moving away from preferred person, estimate +15% time
+      let delayEstHours=0;
+      if(autoWasPref&&!isPref&&topJob) delayEstHours=Math.round(topJob.totalHours*0.15*10)/10;
+      
+      // Check what the auto person was assigned to instead — are they now displaced?
+      const autoNowOn=Object.entries(allocations).find(([m,eid])=>eid===autoAllocations[mId]&&m!==mId);
+      
+      overrides.push({
+        machine:mId,machineName:machine?.id||mId,
+        autoEmp:autoEmp?.name||'?',manualEmp:manualEmp?.name||'?',
+        job:topJob,isPref,autoWasPref,delayEstHours,
+        autoNowOn:autoNowOn?autoNowOn[0]:null
+      });
+    }
+  });
+  
+  if(!overrides.length){impactEl.style.display='none';return;}
+  
+  impactEl.style.display='block';
+  impactEl.innerHTML=`<div style="font-weight:700;font-size:13px;color:var(--orange);margin-bottom:8px">⚠️ Schedule Impact Report (${overrides.length} override${overrides.length>1?'s':''})</div>`+
+    overrides.map(o=>{
+      return `<div class="impact-card">
+        <h4>${o.machineName}: ${o.autoEmp} → ${o.manualEmp}</h4>
+        <div class="detail">
+          <div>Job: ${o.job?.id||'—'} — ${o.job?.partDesc||''}</div>
+          <div>Auto recommended <strong>${o.autoEmp}</strong>${o.autoWasPref?' (preferred machine)':''}</div>
+          <div>Override to <strong>${o.manualEmp}</strong>${o.isPref?' (preferred machine)':' (NOT preferred)'}</div>
+          ${o.delayEstHours>0?`<div style="color:var(--red);font-weight:600;margin-top:4px">⏱ Estimated delay: +${o.delayEstHours}h (moving from preferred operator)</div>`:''}
+          ${o.autoNowOn?`<div>${o.autoEmp} now assigned to ${o.autoNowOn} instead</div>`:`<div style="color:var(--yellow)">${o.autoEmp} is now unassigned</div>`}
+        </div>
+      </div>`;
+    }).join('');
+}
 
 // ══════════════════════════════════════════════════════════════
 //  SEARCH, CANCEL ORDER & JOB ENQUIRY
@@ -1196,18 +1438,54 @@ function renderSetupSkills(){
   const skills=getSkills();
   const lvls=['none','easy','medium','complex'];
   const lvlLabels={none:'—',easy:'Easy',medium:'Med',complex:'Complex'};
+  const machineOpts=CNC_MACHINES.map(m=>`<option value="${m.id}">${m.id}</option>`).join('');
 
-  let html=`<div class="section-title">📊 Skills Matrix</div>
-    <div class="section-desc">For each employee × machine: tick <b>Setup</b> / <b>Operate</b> and select the max complexity level they're certified for. Complexity is cumulative — "Medium" means they can handle Easy + Medium jobs.</div>
-    <div class="action-bar"><button class="btn success" onclick="saveSkills()">💾 Save Skills Matrix</button></div>
-    <div class="skills-grid"><table>
-      <tr><th class="corner">Employee</th>${CNC_MACHINES.map(m=>`<th class="machine-hdr"><div>${m.id}</div></th>`).join('')}</tr>`;
+  // Preferred machines panel (left) + skills grid (right)
+  let html=`<div class="section-title">📊 Skills Matrix & Preferred Machines</div>
+    <div class="section-desc">Left: set preferred machines per employee (for operators who stand between 2 machines). Right: tick Setup / Operate and complexity level per machine.</div>
+    <div class="action-bar">
+      <button class="btn success" onclick="saveSkills();savePreferredMachines()">💾 Save All</button>
+    </div>
+    <div style="display:flex;gap:12px;overflow:hidden">
+      <!-- Preferred Machines Panel -->
+      <div style="min-width:260px;max-width:260px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--rs);background:var(--s2);padding:10px">
+        <div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--blue)">⭐ Preferred Machines</div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:10px">Employees who stand between 2 machines — set their primary + secondary. Auto-allocation uses these preferences.</div>`;
+  
+  emps.forEach(e=>{
+    const prefs=e.preferred||[];
+    html+=`<div style="border:1px solid var(--brd);border-radius:var(--rs);padding:8px;margin-bottom:6px;background:var(--s1)">
+      <div style="font-weight:600;font-size:11px;margin-bottom:4px">${e.name} <span style="color:var(--dim);font-size:9px">${e.id} · ${e.shift}</span></div>
+      <div style="display:flex;gap:4px;align-items:center;margin-bottom:3px">
+        <span style="font-size:9px;color:var(--dim);min-width:50px">Primary:</span>
+        <select class="pref-select" data-emp="${e.id}" data-slot="0" style="flex:1;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:3px 6px;border-radius:3px;font-size:10px">
+          <option value="">— None —</option>
+          ${CNC_MACHINES.map(m=>`<option value="${m.id}"${prefs[0]===m.id?' selected':''}>${m.id}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-size:9px;color:var(--dim);min-width:50px">Secondary:</span>
+        <select class="pref-select" data-emp="${e.id}" data-slot="1" style="flex:1;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:3px 6px;border-radius:3px;font-size:10px">
+          <option value="">— None —</option>
+          ${CNC_MACHINES.map(m=>`<option value="${m.id}"${prefs[1]===m.id?' selected':''}>${m.id}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  });
+  
+  html+=`</div>
+      <!-- Skills Grid -->
+      <div style="flex:1;overflow:auto">
+        <div class="skills-grid"><table>
+          <tr><th class="corner">Employee</th>${CNC_MACHINES.map(m=>`<th class="machine-hdr"><div>${m.id}</div></th>`).join('')}</tr>`;
 
   emps.forEach(e=>{
     html+=`<tr><td class="emp-name">${e.name}<br><span style="font-size:9px;color:var(--dim)">${e.id} · ${e.shift}</span></td>`;
     CNC_MACHINES.forEach(m=>{
       const sk=skills[e.id]?.[m.id]||{setup:false,operate:false,setupLvl:'none',operateLvl:'none'};
-      html+=`<td><div class="skill-cell">
+      const isPref=(e.preferred||[]).includes(m.id);
+      html+=`<td style="${isPref?'background:rgba(90,200,250,.08);':''}"><div class="skill-cell">
+        ${isPref?'<div style="font-size:8px;color:var(--blue)">⭐</div>':''}
         <label><input type="checkbox" data-emp="${e.id}" data-mch="${m.id}" data-role="setup" ${sk.setup?'checked':''}/> Setup</label>
         <select data-emp="${e.id}" data-mch="${m.id}" data-lvl="setupLvl">${lvls.map(l=>`<option value="${l}"${sk.setupLvl===l?' selected':''}>${lvlLabels[l]}</option>`).join('')}</select>
         <label><input type="checkbox" data-emp="${e.id}" data-mch="${m.id}" data-role="operate" ${sk.operate?'checked':''}/> Operate</label>
@@ -1216,8 +1494,22 @@ function renderSetupSkills(){
     });
     html+=`</tr>`;
   });
-  html+=`</table></div>`;
+  html+=`</table></div></div></div>`;
   document.getElementById('sp-skills').innerHTML=html;
+}
+function savePreferredMachines(){
+  const emps=getEmployees();
+  document.querySelectorAll('.pref-select').forEach(sel=>{
+    const empId=sel.dataset.emp,slot=parseInt(sel.dataset.slot);
+    const emp=emps.find(e=>e.id===empId);
+    if(!emp) return;
+    if(!emp.preferred) emp.preferred=[];
+    emp.preferred[slot]=sel.value||'';
+    // Clean empty trailing slots
+    while(emp.preferred.length&&!emp.preferred[emp.preferred.length-1]) emp.preferred.pop();
+  });
+  lsSet('employees',emps);
+  toast('⭐ Preferred machines saved');
 }
 function saveSkills(){
   const skills=getSkills();
