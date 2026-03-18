@@ -429,6 +429,34 @@ table.dtbl select{width:auto;min-width:100px}
 .chat-input:focus{border-color:var(--accent)}
 .chat-send{background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
 .chat-send:hover{filter:brightness(1.1)}
+/* ─── API KEYS SETUP ─── */
+.apikey-warning{background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.3);border-radius:var(--rs);padding:10px 14px;font-size:11px;color:var(--yellow);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.apikey-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.apikey-card-title{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.apikey-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:auto}
+.apikey-status.connected{background:var(--green-d);color:var(--green)}
+.apikey-status.not-configured{background:var(--s3);color:var(--dim)}
+.apikey-status.testing{background:var(--blue-d);color:var(--blue)}
+.apikey-status.error{background:var(--red-d);color:var(--red)}
+.apikey-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.apikey-input-wrap{position:relative;flex:1;min-width:200px}
+.apikey-input-wrap input{width:100%;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:6px 32px 6px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit}
+.apikey-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;line-height:1;padding:0}
+.apikey-eye:hover{color:var(--txt)}
+/* ─── CHAT SOURCE BADGE & THINKING ─── */
+.chat-source{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:6px;flex-shrink:0;vertical-align:middle}
+.chat-source.ai{background:rgba(90,200,250,.15);color:var(--blue)}
+.chat-source.local{background:rgba(136,136,136,.15);color:var(--dim)}
+.chat-msg-wrap{display:flex;flex-direction:column;max-width:85%}
+.chat-msg-wrap.user{align-self:flex-end}
+.chat-msg-wrap.agent{align-self:flex-start}
+.chat-msg-wrap .chat-msg{max-width:100%}
+.chat-thinking{align-self:flex-start;display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--s3);border-radius:10px;border-bottom-left-radius:3px;font-size:11px;color:var(--dim)}
+.thinking-dots{display:flex;gap:3px}
+.thinking-dots span{width:5px;height:5px;border-radius:50%;background:var(--dim);animation:thinking-bounce .8s infinite}
+.thinking-dots span:nth-child(2){animation-delay:.15s}
+.thinking-dots span:nth-child(3){animation-delay:.3s}
+@keyframes thinking-bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
 </style>
 </head>
 <body>
@@ -576,6 +604,7 @@ table.dtbl select{width:auto;min-width:100px}
     <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
     <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
     <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
+    <button class="setup-tab" onclick="setSetupTab('apikeys')">🔑 API Keys</button>
   </div>
   <div class="setup-body" id="setup-body">
     <div class="setup-page active" id="sp-machines"></div>
@@ -584,6 +613,7 @@ table.dtbl select{width:auto;min-width:100px}
     <div class="setup-page" id="sp-shifts"></div>
     <div class="setup-page" id="sp-skills"></div>
     <div class="setup-page" id="sp-integrations"></div>
+    <div class="setup-page" id="sp-apikeys"></div>
   </div>
 </div>
 </div>
@@ -1065,7 +1095,7 @@ function setMode(m){
 function setSetupTab(t){
   currentSetupTab=t;
   document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t))b.classList.add('active');});
+  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t))b.classList.add('active');});
   document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+t).classList.add('active');
   renderSetupTab();
@@ -2483,6 +2513,7 @@ function renderSetupTab(){
   else if(tab==='shifts')renderSetupShifts();
   else if(tab==='skills')renderSetupSkills();
   else if(tab==='integrations')renderSetupIntegrations();
+  else if(tab==='apikeys')renderSetupApiKeys();
 }
 
 // ── Machine Tools ──
@@ -2994,6 +3025,150 @@ function listBookmarks(){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  CLAUDE API INTEGRATION
+// ══════════════════════════════════════════════════════════════
+let _lastApiCall=0;
+
+function buildScheduleContext(){
+  const active=jobs.filter(j=>j.status!=='complete');
+  const late=active.filter(j=>j.end>j.due);
+  const atRisk=active.filter(j=>!late.includes(j)&&j.due&&j.end&&(j.due-j.end)<24*3600000);
+  const complete=jobs.filter(j=>j.status==='complete');
+  const overrides=getPriorityOverrides();
+  const prioOverrides=jobs.filter(j=>overrides[j.id]!==undefined&&overrides[j.id]!==50).map(j=>`${j.id} P${j.priority}`);
+  const breakdowns=getBreakdowns();
+  const brokenMachines=Object.keys(breakdowns).filter(m=>breakdowns[m].active);
+  const scrapLog=lsGet('scrap_log',[]);
+  const warnings=lsGet('warnings',[]);
+  const openWarnings=warnings.filter(w=>w.status==='new'||w.status==='in-review');
+  const totalRev=active.reduce((s,j)=>s+(j.value||0),0);
+  const projectedRev=active.filter(j=>!late.includes(j)).reduce((s,j)=>s+(j.value||0),0);
+  const activeJobsJson=active.slice(0,30).map(j=>({
+    id:j.id,part:j.partDesc,customer:j.customer||'',machine:j.machine,
+    priority:j.priority||50,due:fmtDate(j.due),estEnd:fmtDate(j.end),
+    status:j.status,hasSubco:j.hasSubco||false,value:j.value||0,
+    late:j.end>j.due,atRisk:atRisk.includes(j)
+  }));
+  const machineJson=MACHINES.slice(0,15).map(m=>{
+    const bd=breakdowns[m.id]&&breakdowns[m.id].active;
+    const cur=jobs.find(j=>j.machine===m.id&&j.status!=='complete');
+    return{id:m.id,type:m.type,status:bd?'BREAKDOWN':cur?cur.status:'idle',currentJob:cur?cur.id:null};
+  });
+  return `You are NuPhoenix AI — the scheduling assistant for Nupress Group, a precision CNC machine shop.
+You have access to the current schedule state. Answer questions and execute commands.
+
+CURRENT SCHEDULE STATE:
+- Total jobs: ${jobs.length} (${active.length} active, ${complete.length} complete)
+- Priority overrides: ${prioOverrides.length?prioOverrides.join(', '):'none'}
+- Machines in breakdown: ${brokenMachines.length?brokenMachines.join(', '):'none'}
+- Jobs late: ${late.length} | Jobs at risk: ${atRisk.length}
+- Monthly target: $500K, current pipeline: $${totalRev.toLocaleString()}, projected on-time: $${projectedRev.toLocaleString()}
+- Scrap push-ins today: ${scrapLog.filter(e=>new Date(e.timestamp).toDateString()===new Date().toDateString()).length}
+- M1 warnings open: ${openWarnings.length}
+
+ACTIVE JOBS (up to 30):
+${JSON.stringify(activeJobsJson,null,1)}
+
+MACHINE STATUS:
+${JSON.stringify(machineJson,null,1)}
+
+You can execute commands by including them in your response wrapped in <action> tags:
+<action>prioritise:JOB_ID:PRIORITY</action>
+<action>deprioritise:JOB_ID</action>
+<action>bookmark:NAME</action>
+<action>revert:NAME</action>
+<action>scrap_pushin:JOB_ID</action>
+<action>set_mode:SCHEDULE|MONITOR|KPI|WARNINGS</action>
+
+Be concise. Speak like a manufacturing person. Confirm before making changes unless the user has enabled auto mode (current mode: ${chatAutoMode?'AUTO':'CONFIRM'}).`;
+}
+
+function getChatHistoryForAPI(){
+  const msgs=document.getElementById('chat-msgs');
+  if(!msgs)return[];
+  const bubbles=Array.from(msgs.querySelectorAll('.chat-msg'));
+  const history=[];
+  for(const b of bubbles){
+    const role=b.classList.contains('user')?'user':'assistant';
+    // Strip any badge text appended to message
+    const clone=b.cloneNode(true);
+    clone.querySelectorAll('.chat-source').forEach(el=>el.remove());
+    const text=clone.textContent.trim();
+    if(text)history.push({role,content:text});
+  }
+  // Return last 20 messages (10 pairs)
+  return history.slice(-20);
+}
+
+async function callClaude(userMessage){
+  const now=Date.now();
+  if(now-_lastApiCall<3000)return null; // rate limit: 1 call per 3s
+  const ak=getApiKeys();
+  if(!ak.anthropic?.key)return null;
+  _lastApiCall=now;
+  const history=getChatHistoryForAPI();
+  // history already includes the user message we just added; build messages array
+  // Use history up to (but not including) the last user msg, then add current
+  const msgs=history.filter((_,i)=>i<history.length-1);
+  msgs.push({role:'user',content:userMessage});
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':ak.anthropic.key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:ak.anthropic.model||'claude-sonnet-4-20250514',
+        max_tokens:1024,
+        system:buildScheduleContext(),
+        messages:msgs
+      })
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.error?.message||`HTTP ${res.status}`);
+    }
+    const data=await res.json();
+    return data.content?.[0]?.text||null;
+  }catch(e){
+    return{error:e.message};
+  }
+}
+
+function parseAndExecuteActions(text){
+  const actionRe=/<action>([^<]+)<\/action>/g;
+  let match;
+  const executed=[];
+  while((match=actionRe.exec(text))!==null){
+    const cmd=match[1].trim();
+    const parts=cmd.split(':');
+    const op=parts[0];
+    if(op==='prioritise'&&parts[1]){
+      const jobId=parts[1],prio=parseInt(parts[2])||10;
+      const j=jobs.find(jj=>jj.id===jobId);
+      if(j){const ov=getPriorityOverrides();ov[jobId]=prio;savePriorityOverrides(ov);applyPriorityOverrides();executed.push(`P${prio} → ${jobId}`);}
+    }else if(op==='deprioritise'&&parts[1]){
+      const r=deprioritiseJob(parts[1]);executed.push(r.msg);
+    }else if(op==='bookmark'&&parts[1]){
+      createNamedBookmark(parts.slice(1).join(':'));executed.push(`Bookmark: ${parts.slice(1).join(':')}`);
+    }else if(op==='revert'&&parts[1]){
+      const r=revertToBookmark(parts.slice(1).join(':'));executed.push(r.msg);
+    }else if(op==='scrap_pushin'&&parts[1]){
+      const j=jobs.find(jj=>jj.id===parts[1]);
+      if(j){document.getElementById('scrap-job-select').value=j.id;onScrapJobSelect();openScrapModal();executed.push(`Scrap modal opened for ${parts[1]}`);}
+    }else if(op==='set_mode'){
+      const mode=(parts[1]||'').toLowerCase();
+      if(['schedule','monitor','kpi','warnings'].includes(mode)){setMode(mode);executed.push(`Switched to ${mode}`);}
+    }
+  }
+  if(executed.length){renderSchedule();if(currentMode==='monitor')renderMonitor();}
+  return text.replace(/<action>[^<]+<\/action>/g,'').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+// ══════════════════════════════════════════════════════════════
 //  CHAT AGENT PANEL
 // ══════════════════════════════════════════════════════════════
 let chatOpen=false;
@@ -3031,29 +3206,70 @@ function loadChatHistory(){
 function saveChatHistory(){
   const msgs=document.getElementById('chat-msgs');
   const bubbles=msgs.querySelectorAll('.chat-msg');
-  const history=Array.from(bubbles).map(b=>({role:b.classList.contains('user')?'user':'agent',text:b.textContent}));
+  const history=Array.from(bubbles).map(b=>{
+    const clone=b.cloneNode(true);
+    clone.querySelectorAll('.chat-source').forEach(el=>el.remove());
+    return{role:b.classList.contains('user')?'user':'agent',text:clone.textContent.trim()};
+  });
   lsSet('chat',history.slice(-100));
 }
 
-function addChatMsg(role,text,save=true,type=''){
+function addChatMsg(role,text,save=true,type='',source=''){
   const msgs=document.getElementById('chat-msgs');
   const div=document.createElement('div');
   div.className=`chat-msg ${role}${type?' '+type:''}`;
   div.textContent=text;
+  if(source){
+    const badge=document.createElement('span');
+    badge.className=`chat-source ${source}`;
+    badge.textContent=source==='ai'?'🤖 AI':'📎 Local';
+    div.appendChild(badge);
+  }
   msgs.appendChild(div);
   msgs.scrollTop=msgs.scrollHeight;
   if(save)saveChatHistory();
   return div;
 }
 
-function sendChat(){
+async function sendChat(){
   const input=document.getElementById('chat-input');
   const text=input.value.trim();
   if(!text)return;
   input.value='';
   addChatMsg('user',text);
-  const reply=parseCommand(text.toLowerCase(),text);
-  addChatMsg('agent',reply.msg,true,reply.type||'');
+
+  // Check if Claude API key is configured
+  const ak=getApiKeys();
+  if(ak.anthropic?.key){
+    // Show thinking indicator
+    const msgs=document.getElementById('chat-msgs');
+    const thinking=document.createElement('div');
+    thinking.className='chat-thinking';
+    thinking.innerHTML='NuPhoenix AI <div class="thinking-dots"><span></span><span></span><span></span></div>';
+    msgs.appendChild(thinking);
+    msgs.scrollTop=msgs.scrollHeight;
+
+    const result=await callClaude(text);
+    thinking.remove();
+
+    if(result&&!result.error){
+      const cleaned=parseAndExecuteActions(result);
+      addChatMsg('agent',cleaned,true,'','ai');
+    }else if(result&&result.error){
+      // API error — fall back to local
+      const fallback=parseCommand(text.toLowerCase(),text);
+      addChatMsg('agent',`⚠️ API error: ${result.error}. Falling back to local.\n\n${fallback.msg}`,true,fallback.type||'','local');
+    }else{
+      // Rate limited or no key — use local
+      const fallback=parseCommand(text.toLowerCase(),text);
+      addChatMsg('agent',fallback.msg,true,fallback.type||'','local');
+    }
+  }else{
+    // No API key — local pattern matching
+    const reply=parseCommand(text.toLowerCase(),text);
+    const noKeyNote='\n\n💡 Configure Anthropic API key in Setup > API Keys for full AI capabilities.';
+    addChatMsg('agent',reply.msg+noKeyNote,true,reply.type||'','local');
+  }
 }
 
 function parseCommand(cmd,raw){
@@ -3661,6 +3877,141 @@ function saveMondayConfig(){
 function saveReportConfig(){
   lsSet('report_company',document.getElementById('rpt-company').value||'NuPhoenix Group');
   toast('✅ Report config saved');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  API KEYS SETUP
+// ══════════════════════════════════════════════════════════════
+function getApiKeys(){return lsGet('api_keys',{});}
+
+function renderSetupApiKeys(){
+  const ak=getApiKeys();
+  const ant=ak.anthropic||{};
+  const mon=ak.monday||{};
+  const antStatus=ant.key?(ant._verified?'connected':'not-configured'):'not-configured';
+  const monStatus=mon.key?(mon._verified?'connected':'not-configured'):'not-configured';
+  const statusLabel={connected:'✅ Connected','not-configured':'— Not configured',testing:'⏳ Testing…',error:'❌ Error'};
+  document.getElementById('sp-apikeys').innerHTML=`
+    <div class="section-title">🔑 API Keys</div>
+    <div class="apikey-warning">⚠️ API keys are stored in your browser's localStorage. Do not use shared or public computers.</div>
+
+    <div class="apikey-card">
+      <div class="apikey-card-title">
+        <span>🤖 Anthropic (Claude)</span>
+        <span class="apikey-status ${antStatus}" id="ant-status-badge">${statusLabel[antStatus]}</span>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>API Key</label>
+        <div class="apikey-row" style="margin:0">
+          <div class="apikey-input-wrap">
+            <input type="password" id="ant-key" value="${ant.key||''}" placeholder="sk-ant-…" autocomplete="off"/>
+            <button class="apikey-eye" onclick="toggleApiKeyVis('ant-key',this)" title="Show/hide">👁</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Model</label>
+        <select id="ant-model" style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:6px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit;min-width:260px">
+          <option value="claude-sonnet-4-20250514" ${(ant.model||'claude-sonnet-4-20250514')==='claude-sonnet-4-20250514'?'selected':''}>claude-sonnet-4-20250514 (default)</option>
+          <option value="claude-opus-4-0-20250514" ${ant.model==='claude-opus-4-0-20250514'?'selected':''}>claude-opus-4-0-20250514</option>
+        </select>
+      </div>
+      <div class="action-bar">
+        <button class="btn primary" onclick="testAnthropicKey()">🔌 Test Connection</button>
+        <button class="btn success" onclick="saveAnthropicKey()">💾 Save</button>
+      </div>
+    </div>
+
+    <div class="apikey-card">
+      <div class="apikey-card-title">
+        <span>📌 Monday.com</span>
+        <span class="apikey-status ${monStatus}" id="mon-status-badge2">${statusLabel[monStatus]}</span>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>API Key</label>
+        <div class="apikey-row" style="margin:0">
+          <div class="apikey-input-wrap">
+            <input type="password" id="mon2-key" value="${mon.key||''}" placeholder="your-monday-api-token" autocomplete="off"/>
+            <button class="apikey-eye" onclick="toggleApiKeyVis('mon2-key',this)" title="Show/hide">👁</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Board ID</label><input id="mon2-board" value="${mon.boardId||''}" placeholder="123456789"/></div>
+        <div class="form-group"><label>Workspace</label><input id="mon2-ws" value="${mon.workspace||''}" placeholder="My Workspace"/></div>
+      </div>
+      <div class="action-bar">
+        <button class="btn primary" onclick="testMondayKey()">🔌 Test Connection</button>
+        <button class="btn success" onclick="saveMondayKey()">💾 Save</button>
+      </div>
+    </div>`;
+}
+
+function toggleApiKeyVis(inputId,btn){
+  const inp=document.getElementById(inputId);
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
+
+async function testAnthropicKey(){
+  const key=document.getElementById('ant-key')?.value?.trim();
+  const model=document.getElementById('ant-model')?.value||'claude-sonnet-4-20250514';
+  const badge=document.getElementById('ant-status-badge');
+  if(!key){toast('❌ No API key entered');return;}
+  if(badge){badge.className='apikey-status testing';badge.textContent='⏳ Testing…';}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model,max_tokens:10,messages:[{role:'user',content:'hi'}]})
+    });
+    const data=await res.json();
+    if(data.content&&data.content[0]){
+      if(badge){badge.className='apikey-status connected';badge.textContent='✅ Connected';}
+      // Persist verified flag
+      const ak=getApiKeys();ak.anthropic={...(ak.anthropic||{}),key,model,_verified:true};lsSet('api_keys',ak);
+      toast('✅ Anthropic API key verified');
+    }else{
+      if(badge){badge.className='apikey-status error';badge.textContent='❌ Error';}
+      toast('❌ Anthropic: '+(data.error?.message||'Unknown error'));
+    }
+  }catch(e){
+    if(badge){badge.className='apikey-status error';badge.textContent='❌ Error';}
+    toast('❌ Connection failed: '+e.message);
+  }
+}
+
+function saveAnthropicKey(){
+  const key=document.getElementById('ant-key')?.value?.trim()||'';
+  const model=document.getElementById('ant-model')?.value||'claude-sonnet-4-20250514';
+  const ak=getApiKeys();
+  ak.anthropic={key,model,_verified:false};
+  lsSet('api_keys',ak);
+  toast('✅ Anthropic key saved'+(key?'':' — configure a key first'));
+  renderSetupApiKeys();
+}
+
+async function testMondayKey(){
+  const key=document.getElementById('mon2-key')?.value?.trim();
+  const badge=document.getElementById('mon-status-badge2');
+  if(!key){toast('❌ No API key entered');return;}
+  if(badge){badge.className='apikey-status testing';badge.textContent='⏳ Testing…';}
+  // Monday.com requires server-side proxy for CORS — simulate
+  setTimeout(()=>{
+    if(badge){badge.className='apikey-status not-configured';badge.textContent='⚠️ CORS — use server proxy';}
+    toast('⚠️ Monday.com test requires server-side proxy (CORS). Key saved.');
+  },800);
+}
+
+function saveMondayKey(){
+  const key=document.getElementById('mon2-key')?.value?.trim()||'';
+  const boardId=document.getElementById('mon2-board')?.value?.trim()||'';
+  const workspace=document.getElementById('mon2-ws')?.value?.trim()||'';
+  const ak=getApiKeys();
+  ak.monday={key,boardId,workspace,_verified:false};
+  lsSet('api_keys',ak);
+  toast('✅ Monday.com config saved');
+  renderSetupApiKeys();
 }
 
 // ══════════════════════════════════════════════════════════════
