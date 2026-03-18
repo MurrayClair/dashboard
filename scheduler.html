@@ -1314,30 +1314,30 @@ let floorAssign = {};
 
 // Floor layout: grid positions for each machine
 const FLOOR_LAYOUT = [
-  // Row 1 — col 1..5
+  // Row 1 — VTC530C left, then ROBOCUT1-FH4800 shifted right to align with row 2
   {id:'VTC530C', col:1,row:1, rotated:true},
-  {id:'ROBOCUT1',col:2,row:1},
-  {id:'VCS530C', col:3,row:1},
-  {id:'VRX730',  col:4,row:1},
-  {id:'FH4800',  col:5,row:1},
-  // Row 2 — col 1..7 (rotated integrex bank)
+  {id:'ROBOCUT1',col:3,row:1},
+  {id:'VCS530C', col:4,row:1},
+  {id:'VRX730',  col:5,row:1},
+  {id:'FH4800',  col:6,row:1},
+  // Row 2 — rotated integrex bank + INTE2004S (large, where INTEi200 was)
   {id:'MV3000',  col:1,row:2},
   {id:'HCN8800', col:2,row:2, rotated:true},
   {id:'QTN350MY',col:3,row:2, rotated:true},
   {id:'INTEJ400',col:4,row:2, rotated:true},
   {id:'INTE4004S',col:5,row:2,rotated:true},
-  {id:'INTEi200',col:6,row:2, rotated:true},
-  // Row 2.5 — DMU75 below MV3000
+  {id:'INTE2004S',col:6,row:2, rotated:true},
+  // Row 2.5 — DMU75 below MV3000, INTEi200 below INTE4004S
   {id:'DMU75',   col:1,row:3},
+  {id:'INTEi200',col:5,row:3},
   // Row 3 — main lathe / millturn row
   {id:'QTN450M', col:1,row:4, rotated:true},
   {id:'SQT10M',  col:2,row:4},
   {id:'QT20',    col:3,row:4},
   {id:'NTX2500', col:4,row:4},
   {id:'NHX5000', col:6,row:4, rotated:true, label:'NHX5000 ×2'},
-  // Row 3.5 — sub-row
-  {id:'QT20HP',  col:2,row:5},
-  {id:'INTE2004S',col:3,row:5},
+  // Row 3.5 — QT20HP moved right to col 3
+  {id:'QT20HP',  col:3,row:5},
   // Row 4 — inspection / assembly
   {id:'CMM2',    col:1,row:6},
   {id:'CMM1',    col:2,row:6},
