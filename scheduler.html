@@ -1561,31 +1561,32 @@ function floorDrop(e, machineId){
   e.currentTarget.classList.remove('drag-over');
   const empId = floorDragEmpId;
   if(!empId) return;
+  const emp = getEmployees().find(e=>e.id===empId);
 
-  // If coming from another machine and dropped on a *different* machine:
-  // create a tie (worker serves both) — unless they're already there
+  // Rule: max 1 person per machine. Bump existing person if any.
+  const bumped = (floorAssign[machineId]||[]).filter(id=>id!==empId);
+  if(bumped.length){
+    const bumpedEmp = getEmployees().find(e=>e.id===bumped[0]);
+    // Remove bumped person from this machine entirely
+    Object.keys(floorAssign).forEach(mId=>{
+      floorAssign[mId] = floorAssign[mId].filter(id=>id!==bumped[0]);
+      if(!floorAssign[mId].length) delete floorAssign[mId];
+    });
+    floorShowToast(`↩️ ${bumpedEmp?.name||bumped[0]} bumped back to pool`);
+  }
+
+  // If dragging from another machine to this one (tie: person serves both)
   if(floorDragFrom && floorDragFrom !== 'pool' && floorDragFrom !== machineId){
-    // Worker already on floorDragFrom; add to new machine too (tie)
-    if(!floorAssign[machineId]) floorAssign[machineId]=[];
-    if(!floorAssign[machineId].includes(empId)){
-      floorAssign[machineId].push(empId);
-      const emp = getEmployees().find(e=>e.id===empId);
-      floorShowToast(`🔗 ${emp?.name||empId} now serves ${floorDragFrom} + ${machineId}`);
-    }
+    floorAssign[machineId] = [empId];
+    floorShowToast(`🔗 ${emp?.name||empId} now serves ${floorDragFrom} + ${machineId}`);
   } else {
-    // From pool or first assignment — ADD to this machine (don't remove existing)
-    const existingMachines = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(empId)).map(([m])=>m);
-    if(!floorAssign[machineId]) floorAssign[machineId]=[];
-    if(!floorAssign[machineId].includes(empId)){
-      floorAssign[machineId].push(empId);
-    }
-    const emp = getEmployees().find(e=>e.id===empId);
-    if(existingMachines.length > 0 && !existingMachines.includes(machineId)){
-      // They already had a machine — this creates a tie
-      floorShowToast(`🔗 ${emp?.name||empId} now serves ${existingMachines.join(' + ')} + ${machineId}`);
-    } else {
-      floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
-    }
+    // From pool — remove from any previous machines, assign here
+    Object.keys(floorAssign).forEach(mId=>{
+      floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
+      if(!floorAssign[mId].length) delete floorAssign[mId];
+    });
+    floorAssign[machineId] = [empId];
+    floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
   }
 
   floorDragEmpId = null;
@@ -1609,13 +1610,19 @@ function floorMobileAssign(machineId){
   if(!floorMobilePendingWorker) return;
   const empId = floorMobilePendingWorker;
   floorMobilePendingWorker = null;
-  // Remove previous
+  // Bump anyone already on this machine
+  if(floorAssign[machineId]){
+    Object.keys(floorAssign).forEach(mId=>{
+      floorAssign[mId] = floorAssign[mId].filter(id=>!floorAssign[machineId].includes(id)||id===empId);
+      if(!floorAssign[mId].length) delete floorAssign[mId];
+    });
+  }
+  // Remove this person from previous
   Object.keys(floorAssign).forEach(mId=>{
     floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
     if(!floorAssign[mId].length) delete floorAssign[mId];
   });
-  if(!floorAssign[machineId]) floorAssign[machineId]=[];
-  floorAssign[machineId].push(empId);
+  floorAssign[machineId] = [empId];
   const emp = getEmployees().find(e=>e.id===empId);
   floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
   renderFloorGrid();
@@ -1747,17 +1754,12 @@ function floorAutoAssign(){
     }
   });
 
-  // Now handle tie lines: if an employee has 2 preferred machines, assign to both
+  // Auto-assign: 1 person per machine only (no automatic tie lines)
+  // Tie lines are created manually by dragging a person from one machine to another
   shiftEmps.forEach(e=>{
     if(!assigned.has(e.id)) return;
-    const prefs = e.preferred||[];
-    if(prefs.length>=2){
-      prefs.forEach(mId=>{
-        const pos = FLOOR_LAYOUT.find(p=>p.id===mId&&!p.arriving);
-        if(!pos) return;
-        if(!floorAssign[mId]) floorAssign[mId]=[];
-        if(!floorAssign[mId].includes(e.id)) floorAssign[mId].push(e.id);
-      });
+    // No-op: ties are manual only
+    if(false){
     }
   });
 
