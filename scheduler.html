@@ -1794,13 +1794,15 @@ function renderStaffingAnalysis(){
   const allMachineIds = FLOOR_LAYOUT.filter(p=>!p.arriving).map(p=>p.id);
   const assignedMachines = new Set(Object.keys(floorAssign).filter(m=>floorAssign[m]?.length>0));
   
-  // Unstaffed machines with active work
   const unstaffed = allMachineIds.filter(mId=>{
     if(assignedMachines.has(mId)) return false;
     return activeJobs.some(j=>j.machine===mId);
   });
   
-  // Calculate what each unstaffed machine is losing
+  // Max possible machine hours per shift (all machines with work)
+  const totalWithWork = allMachineIds.filter(mId=>activeJobs.some(j=>j.machine===mId)).length;
+  const maxCapacityPerShift = totalWithWork * SHIFT_HOURS;
+  
   const losses = unstaffed.map(mId=>{
     const mJobs = activeJobs.filter(j=>j.machine===mId).sort((a,b)=>a.due-b.due);
     const topJob = mJobs[0];
@@ -1808,37 +1810,21 @@ function renderStaffingAnalysis(){
     const hoursWaiting = topJob ? topJob.totalHours : 0;
     const machine = MACHINES.find(m=>m.id===mId);
     return {
-      machine: mId,
-      type: machine?.type||'unknown',
-      jobCount: mJobs.length,
-      topJob,
-      hoursWaiting,
-      isLate,
+      machine: mId, type: machine?.type||'unknown', jobCount: mJobs.length,
+      topJob, hoursWaiting, isLate,
       lostPerShift: Math.min(SHIFT_HOURS, hoursWaiting),
-      lostRevenuePerShift: Math.min(SHIFT_HOURS, hoursWaiting) * MACHINE_HOURLY_RATE,
     };
-  }).sort((a,b)=>b.lostRevenuePerShift-a.lostRevenuePerShift);
+  }).sort((a,b)=>b.lostPerShift-a.lostPerShift);
   
   const totalUnstaffed = unstaffed.length;
   const totalStaffed = assignedMachines.size;
-  const totalWithWork = allMachineIds.filter(mId=>activeJobs.some(j=>j.machine===mId)).length;
   const coveragePct = totalWithWork>0 ? Math.round(totalStaffed/totalWithWork*100) : 100;
   const totalLostPerShift = losses.reduce((s,l)=>s+l.lostPerShift,0);
-  const totalLostRevPerShift = losses.reduce((s,l)=>s+l.lostRevenuePerShift,0);
-  const totalLostRevPerDay = totalLostRevPerShift * 2; // day + night
-  const totalLostRevPerWeek = totalLostRevPerDay * DAYS_PER_WEEK;
-  const totalLostRevPerMonth = totalLostRevPerWeek * WEEKS_PER_MONTH;
-  
-  // +1 employee scenarios
-  const bestSetupRun = losses[0]; // highest impact machine
-  const bestRunOnly = losses.find(l=>l.topJob && !l.isLate) || losses[0]; // non-late preferred for run-only
-  
-  // Calculate gain from +1 employee
-  const gain1Shift = bestSetupRun ? bestSetupRun.lostPerShift : 0;
-  const gain1Revenue = gain1Shift * MACHINE_HOURLY_RATE;
-  const gain1Day = gain1Revenue * 1; // 1 shift per day for new hire
-  const gain1Week = gain1Day * DAYS_PER_WEEK;
-  const gain1Month = gain1Week * WEEKS_PER_MONTH;
+  const totalLostPerDay = totalLostPerShift * 2;
+  const totalLostPerWeek = totalLostPerDay * DAYS_PER_WEEK;
+  const totalLostPerMonth = totalLostPerWeek * WEEKS_PER_MONTH;
+  const utilizationPct = maxCapacityPerShift>0 ? Math.round((maxCapacityPerShift-totalLostPerShift)/maxCapacityPerShift*100) : 100;
+  const throughputLossPct = maxCapacityPerShift>0 ? Math.round(totalLostPerShift/maxCapacityPerShift*100) : 0;
   
   let html = `<div class="sa-panel">
     <div class="sa-header">
@@ -1849,21 +1835,22 @@ function renderStaffingAnalysis(){
     <div class="sa-grid">
       <div class="sa-card"><div class="val" style="color:var(--green)">${totalStaffed}</div><div class="lbl">Machines Staffed</div></div>
       <div class="sa-card"><div class="val" style="color:var(--red)">${totalUnstaffed}</div><div class="lbl">Unstaffed (with work)</div></div>
-      <div class="sa-card"><div class="val" style="color:${coveragePct>=80?'var(--green)':coveragePct>=60?'var(--yellow)':'var(--red)'}">${coveragePct}%</div><div class="lbl">Coverage Rate</div></div>
-      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerShift).toLocaleString()}</div><div class="lbl">Lost per Shift</div></div>
-      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerDay).toLocaleString()}</div><div class="lbl">Lost per Day</div></div>
-      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerWeek).toLocaleString()}</div><div class="lbl">Lost per Week</div></div>
-      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerMonth).toLocaleString()}</div><div class="lbl">Lost per Month</div></div>
-      <div class="sa-card"><div class="val">${totalLostPerShift.toFixed(1)}h</div><div class="lbl">Machine Hours Lost / Shift</div></div>
+      <div class="sa-card"><div class="val" style="color:${coveragePct>=80?'var(--green)':coveragePct>=60?'var(--yellow)':'var(--red)'}">${coveragePct}%</div><div class="lbl">Staff Coverage</div></div>
+      <div class="sa-card"><div class="val" style="color:${utilizationPct>=80?'var(--green)':utilizationPct>=60?'var(--yellow)':'var(--red)'}">${utilizationPct}%</div><div class="lbl">Capacity Utilisation</div></div>
+      <div class="sa-card"><div class="val sa-loss">${throughputLossPct}%</div><div class="lbl">Throughput Loss</div></div>
+      <div class="sa-card"><div class="val sa-loss">${totalLostPerShift.toFixed(1)}h</div><div class="lbl">Hours Lost / Shift</div></div>
+      <div class="sa-card"><div class="val sa-loss">${totalLostPerDay.toFixed(1)}h</div><div class="lbl">Hours Lost / Day</div></div>
+      <div class="sa-card"><div class="val sa-loss">${totalLostPerWeek.toFixed(0)}h</div><div class="lbl">Hours Lost / Week</div></div>
     </div>`;
   
   // Unstaffed machines breakdown
   if(losses.length){
-    html += `<div style="font-weight:700;font-size:13px;margin-bottom:8px">🔴 Unstaffed Machines — Lost Production</div>
+    html += `<div style="font-weight:700;font-size:13px;margin-bottom:8px">🔴 Unstaffed Machines — Idle Capacity</div>
     <table class="sa-table"><thead><tr>
-      <th>Machine</th><th>Type</th><th>Jobs Waiting</th><th>Top Job</th><th>Status</th><th>Hours Lost/Shift</th><th>Revenue Lost/Shift</th>
+      <th>Machine</th><th>Type</th><th>Jobs Waiting</th><th>Top Job</th><th>Status</th><th>Hours Lost/Shift</th><th>% of Shift Idle</th>
     </tr></thead><tbody>`;
     losses.forEach(l=>{
+      const pctIdle = Math.round(l.lostPerShift/SHIFT_HOURS*100);
       html += `<tr>
         <td style="font-weight:700">${l.machine}</td>
         <td>${l.type}</td>
@@ -1871,33 +1858,32 @@ function renderStaffingAnalysis(){
         <td style="font-size:11px">${l.topJob?l.topJob.id.substring(0,12)+' — '+l.topJob.partDesc.substring(0,18):'—'}</td>
         <td style="color:${l.isLate?'var(--red)':'var(--yellow)'}; font-weight:600">${l.isLate?'LATE':'WAITING'}</td>
         <td>${l.lostPerShift.toFixed(1)}h</td>
-        <td class="sa-loss">$${Math.round(l.lostRevenuePerShift).toLocaleString()}</td>
+        <td class="sa-loss">${pctIdle}%</td>
       </tr>`;
     });
     html += `</tbody></table>`;
   }
   
-  // Multi-hire stacking analysis: +1, +2, +3 across 3 skill types
+  // Multi-hire stacking: +1, +2, +3 across 3 skill types — all in %/hours
   const SKILL_TYPES = [
-    {key:'setupRun', label:'Setup & Run', emoji:'🟢', efficiency:1.0, desc:'Can set up and run independently'},
-    {key:'runOnly',  label:'Run Only',    emoji:'🟡', efficiency:0.7, desc:'Can run parts, needs setup from others (~70% output)'},
-    {key:'apprentice',label:'Apprentice', emoji:'🔵', efficiency:0.45, desc:'Learning, needs supervision (~45% output)'},
+    {key:'setupRun', label:'Setup & Run', emoji:'🟢', efficiency:1.0},
+    {key:'runOnly',  label:'Run Only',    emoji:'🟡', efficiency:0.7},
+    {key:'apprentice',label:'Apprentice', emoji:'🔵', efficiency:0.45},
   ];
   const MAX_HIRES = Math.min(3, losses.length);
   
   html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">💡 Throughput Gain by Hiring — Stacking Analysis</div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Each additional hire covers the next highest-impact unstaffed machine. Shows diminishing returns.</div>`;
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Each hire covers the next highest-impact idle machine. Shows hours recovered and % throughput gain.</div>`;
   
-  // Build comparison table
   html += `<table class="sa-table"><thead><tr>
     <th>Hire #</th><th>Machine</th><th>Top Job</th>`;
   SKILL_TYPES.forEach(st=>{
     html += `<th style="text-align:center">${st.emoji} ${st.label}<br><span style="font-size:8px;font-weight:400">${Math.round(st.efficiency*100)}% eff</span></th>`;
   });
-  html += `<th>Cumulative (Setup&Run)</th></tr></thead><tbody>`;
+  html += `<th>Cumulative Hours/Shift</th></tr></thead><tbody>`;
   
-  let cumulativeByType = {};
-  SKILL_TYPES.forEach(st=>cumulativeByType[st.key]={shift:0,month:0,year:0});
+  let cumShift = {};
+  SKILL_TYPES.forEach(st=>cumShift[st.key]=0);
   
   for(let h=0; h<MAX_HIRES; h++){
     const l = losses[h];
@@ -1908,46 +1894,40 @@ function renderStaffingAnalysis(){
     
     SKILL_TYPES.forEach(st=>{
       const gainHrs = l.lostPerShift * st.efficiency;
-      const gainMonth = gainHrs * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH;
-      cumulativeByType[st.key].shift += gainHrs;
-      cumulativeByType[st.key].month += gainMonth;
-      cumulativeByType[st.key].year += gainMonth * 12;
+      cumShift[st.key] += gainHrs;
+      const gainPct = maxCapacityPerShift>0 ? (gainHrs/maxCapacityPerShift*100).toFixed(1) : 0;
       html += `<td style="text-align:center">
-        <div class="sa-gain" style="font-size:14px">+$${Math.round(gainMonth).toLocaleString()}/mo</div>
-        <div style="font-size:9px;color:var(--dim)">+${gainHrs.toFixed(1)}h/shift</div>
+        <div class="sa-gain" style="font-size:14px">+${gainHrs.toFixed(1)}h</div>
+        <div style="font-size:9px;color:var(--dim)">+${gainPct}% throughput</div>
       </td>`;
     });
     
-    // Cumulative for setup&run
+    const cumPct = maxCapacityPerShift>0 ? (cumShift.setupRun/maxCapacityPerShift*100).toFixed(1) : 0;
     html += `<td style="text-align:center;background:rgba(52,199,89,.05)">
-      <div class="sa-gain" style="font-size:14px">+$${Math.round(cumulativeByType.setupRun.month).toLocaleString()}/mo</div>
-      <div style="font-size:9px;color:var(--dim)">+${cumulativeByType.setupRun.shift.toFixed(1)}h/shift total</div>
+      <div class="sa-gain" style="font-size:14px">+${cumShift.setupRun.toFixed(1)}h</div>
+      <div style="font-size:9px;color:var(--dim)">+${cumPct}% total gain</div>
     </td></tr>`;
   }
   html += `</tbody></table>`;
   
-  // Visual comparison: annual recovery by scenario
-  const annualLoss = totalLostRevPerMonth * 12;
-  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">📊 Annual Recovery Comparison</div>`;
-  html += `<table class="sa-table"><thead><tr><th>Scenario</th><th>Per Month</th><th>Per Year</th><th>% of Lost Production Recovered</th></tr></thead><tbody>`;
+  // Recovery % comparison
+  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">📊 Capacity Recovery Comparison</div>`;
+  html += `<table class="sa-table"><thead><tr><th>Scenario</th><th>Hours/Shift</th><th>Hours/Week</th><th>% of Idle Capacity Recovered</th></tr></thead><tbody>`;
   
   for(let h=1; h<=MAX_HIRES; h++){
     SKILL_TYPES.forEach(st=>{
-      // Calculate cumulative for this many hires of this type
-      let cumMonth = 0;
-      for(let i=0; i<h && i<losses.length; i++){
-        cumMonth += losses[i].lostPerShift * st.efficiency * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH;
-      }
-      const cumYear = cumMonth * 12;
-      const pctRecovered = annualLoss > 0 ? Math.round(cumYear / annualLoss * 100) : 0;
+      let cumHrsShift = 0;
+      for(let i=0; i<h && i<losses.length; i++) cumHrsShift += losses[i].lostPerShift * st.efficiency;
+      const cumHrsWeek = cumHrsShift * 2 * DAYS_PER_WEEK;
+      const pctRecovered = totalLostPerShift>0 ? Math.round(cumHrsShift/totalLostPerShift*100) : 0;
       const barW = Math.min(pctRecovered, 100);
       html += `<tr>
         <td>${st.emoji} <strong>+${h} ${st.label}</strong></td>
-        <td class="sa-gain">$${Math.round(cumMonth).toLocaleString()}</td>
-        <td class="sa-gain">$${Math.round(cumYear).toLocaleString()}</td>
+        <td class="sa-gain">+${cumHrsShift.toFixed(1)}h</td>
+        <td class="sa-gain">+${cumHrsWeek.toFixed(0)}h</td>
         <td><div style="display:flex;align-items:center;gap:8px">
           <div style="flex:1;height:16px;background:var(--s3);border-radius:8px;overflow:hidden">
-            <div style="width:${barW}%;height:100%;background:${pctRecovered>=80?'var(--green)':pctRecovered>=50?'var(--yellow)':'var(--orange)'};border-radius:8px;transition:width .3s"></div>
+            <div style="width:${barW}%;height:100%;background:${pctRecovered>=80?'var(--green)':pctRecovered>=50?'var(--yellow)':'var(--orange)'};border-radius:8px"></div>
           </div>
           <span style="font-weight:700;min-width:40px">${pctRecovered}%</span>
         </div></td>
@@ -1956,36 +1936,35 @@ function renderStaffingAnalysis(){
   }
   html += `</tbody></table>`;
   
-  // HR Decision Summary
+  // Summary
   html += `<div style="background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.3);border-radius:var(--r);padding:14px;margin-top:12px">
     <div style="font-weight:700;font-size:13px;color:var(--purple);margin-bottom:6px">📊 HR Decision Summary</div>
     <div style="font-size:12px">
-      <div>Current annual lost production: <strong class="sa-loss">$${Math.round(annualLoss).toLocaleString()}</strong> (${totalUnstaffed} unstaffed machines)</div>`;
+      <div>Current throughput loss: <strong class="sa-loss">${throughputLossPct}%</strong> (${totalLostPerShift.toFixed(1)}h/shift across ${totalUnstaffed} idle machines)</div>`;
   
-  // Find the sweet spot — best ROI
   if(losses.length >= 1){
     const first = losses[0];
-    const firstYearSetup = first.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
-    const firstYearRun = first.lostPerShift * 0.7 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+    const firstPct = maxCapacityPerShift>0 ? (first.lostPerShift/maxCapacityPerShift*100).toFixed(1) : 0;
     html += `<div style="margin-top:8px;padding:8px;background:rgba(52,199,89,.1);border-radius:var(--rs)">
-      <strong>🎯 Highest ROI:</strong> +1 Setup & Run on <strong>${first.machine}</strong> → recovers <strong class="sa-gain">$${Math.round(firstYearSetup).toLocaleString()}/year</strong>
+      <strong>🎯 Best hire:</strong> +1 Setup & Run on <strong>${first.machine}</strong> → recovers <strong class="sa-gain">+${first.lostPerShift.toFixed(1)}h/shift (+${firstPct}% throughput)</strong>
     </div>`;
     if(losses.length >= 2){
       const second = losses[1];
-      const marginalGain = second.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+      const secPct = maxCapacityPerShift>0 ? (second.lostPerShift/maxCapacityPerShift*100).toFixed(1) : 0;
+      const dimPct = first.lostPerShift>0 ? Math.round(second.lostPerShift/first.lostPerShift*100) : 0;
       html += `<div style="margin-top:4px;padding:8px;background:rgba(255,214,10,.1);border-radius:var(--rs)">
-        <strong>📈 2nd hire:</strong> +1 on <strong>${second.machine}</strong> → additional <strong class="sa-gain">$${Math.round(marginalGain).toLocaleString()}/year</strong> (diminishing return: ${Math.round(marginalGain/firstYearSetup*100)}% of first hire)
+        <strong>📈 2nd hire:</strong> +1 on <strong>${second.machine}</strong> → additional <strong class="sa-gain">+${second.lostPerShift.toFixed(1)}h/shift (+${secPct}%)</strong> <span style="color:var(--dim)">(${dimPct}% of first hire's impact)</span>
       </div>`;
     }
     if(losses.length >= 3){
       const third = losses[2];
-      const marginalGain3 = third.lostPerShift * 1.0 * MACHINE_HOURLY_RATE * DAYS_PER_WEEK * WEEKS_PER_MONTH * 12;
+      const thirdPct = maxCapacityPerShift>0 ? (third.lostPerShift/maxCapacityPerShift*100).toFixed(1) : 0;
       html += `<div style="margin-top:4px;padding:8px;background:rgba(255,159,10,.1);border-radius:var(--rs)">
-        <strong>📉 3rd hire:</strong> +1 on <strong>${third.machine}</strong> → additional <strong class="sa-gain">$${Math.round(marginalGain3).toLocaleString()}/year</strong>
+        <strong>📉 3rd hire:</strong> +1 on <strong>${third.machine}</strong> → additional <strong class="sa-gain">+${third.lostPerShift.toFixed(1)}h/shift (+${thirdPct}%)</strong>
       </div>`;
     }
   }
-  html += `<div style="margin-top:8px;color:var(--dim);font-size:11px">Based on $${MACHINE_HOURLY_RATE}/hr machine rate × ${SHIFT_HOURS}hr shifts. Run-Only at 70% efficiency, Apprentice at 45%. Adjust machine rate in Setup → M1 Connection for accurate figures.</div>
+  html += `<div style="margin-top:8px;color:var(--dim);font-size:11px">${SHIFT_HOURS}hr shifts, ${DAYS_PER_WEEK} days/week. Run-Only at 70% efficiency, Apprentice at 45%. All figures based on current allocation.</div>
     </div>
   </div>`;
   
