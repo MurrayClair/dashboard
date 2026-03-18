@@ -465,21 +465,88 @@ table.dtbl select{width:auto;min-width:100px}
 .thinking-dots span:nth-child(2){animation-delay:.15s}
 .thinking-dots span:nth-child(3){animation-delay:.3s}
 @keyframes thinking-bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* ─── KIOSK MODE ─── */
+body.kiosk-mode{font-size:15px}
+body.kiosk-mode .app-header{padding:12px 20px}
+body.kiosk-mode .app-header .logo{font-size:18px}
+body.kiosk-mode .mode-btn{font-size:14px;padding:8px 18px}
+body.kiosk-mode .stats .st-v{font-size:22px}
+body.kiosk-mode .stats .st-l{font-size:10px}
+body.kiosk-mode .mcard{padding:18px}
+body.kiosk-mode .mcard-name{font-size:16px}
+body.kiosk-mode .mcard-status{font-size:12px;padding:4px 10px}
+body.kiosk-mode .job{height:32px;font-size:12px}
+body.kiosk-mode .floor-card .fc-id{font-size:14px}
+.kiosk-clock{font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.kiosk-shift-badge{padding:3px 10px;border-radius:var(--rs);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.kiosk-shift-badge.day{background:rgba(255,214,10,.2);color:var(--yellow)}
+.kiosk-shift-badge.night{background:rgba(90,200,250,.15);color:var(--blue)}
+.kiosk-machine-label{font-size:13px;font-weight:700;color:var(--accent);background:rgba(224,122,58,.12);padding:4px 12px;border-radius:var(--rs);border:1px solid rgba(224,122,58,.3);flex-shrink:0}
+
+/* ─── WS CONNECTION STATUS BAR ─── */
+.ws-status-bar{display:none;align-items:center;gap:10px;padding:5px 16px;background:var(--s1);border-top:1px solid var(--brd);font-size:11px;flex-shrink:0}
+.ws-status-bar.visible{display:flex}
+.ws-conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.ws-conn-dot.connected{background:var(--green)}
+.ws-conn-dot.disconnected{background:var(--red);animation:ws-pulse 1.2s infinite}
+@keyframes ws-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ws-status-text.connected{color:var(--green)}
+.ws-status-text.disconnected{color:var(--red)}
+.ws-last-update{font-size:10px;color:var(--dim);margin-left:auto}
+.ws-shift-info{font-size:10px;color:var(--dim);border-left:1px solid var(--brd);padding-left:10px;margin-left:8px}
+.ws-operator-info{font-size:10px;color:var(--dim);border-left:1px solid var(--brd);padding-left:10px;margin-left:4px}
+
+/* ─── PI STATIONS PANEL ─── */
+.pi-stations-panel{margin-top:16px;border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;background:var(--s1)}
+.pi-stations-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--brd);cursor:pointer;user-select:none;transition:.15s}
+.pi-stations-header:hover{background:var(--s3)}
+.pi-stations-title{font-weight:700;font-size:13px;flex:1}
+.pi-stations-body{padding:12px}
+.pi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.pi-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px;cursor:pointer;transition:.15s}
+.pi-card:hover{border-color:var(--blue);background:var(--blue-d)}
+.pi-card.pi-connected{border-color:rgba(52,199,89,.3)}
+.pi-card-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.pi-card-id{font-weight:700;font-size:12px;flex:1}
+.pi-card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pi-card-dot.connected{background:var(--green)}
+.pi-card-dot.disconnected{background:var(--red)}
+.pi-card-ip{font-size:10px;color:var(--dim);margin-bottom:2px}
+.pi-card-hb{font-size:10px;color:var(--dim2)}
+
+/* ─── WS SERVER INTEGRATION SECTION ─── */
+.ws-client-list{border:1px solid var(--brd);border-radius:var(--rs);overflow:hidden;margin-top:10px;background:var(--s3)}
+.ws-client-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--brd);font-size:11px}
+.ws-client-row:last-child{border-bottom:none}
+.ws-client-row:hover{background:rgba(255,255,255,.03)}
+.ws-client-machine{font-weight:700;min-width:100px}
+.ws-client-ip{color:var(--dim);min-width:120px}
+.ws-client-hb{color:var(--dim2);flex:1}
+.ws-client-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.ws-client-status.connected{background:var(--green-d);color:var(--green)}
+.ws-client-status.disconnected{background:var(--red-d);color:var(--red)}
+.ws-server-status-row{display:flex;align-items:center;gap:10px;padding:8px 0;flex-wrap:wrap}
 </style>
 </head>
 <body>
 <div class="app">
 <!-- ═══ HEADER ═══ -->
 <div class="app-header">
-  <div class="logo"><span>🦅</span> NuPhoenix Scheduler</div>
-  <div class="mode-nav">
+  <div class="logo"><span>🦅</span> <span id="app-logo-text">NuPhoenix Scheduler</span></div>
+  <div class="mode-nav" id="mode-nav">
     <button class="mode-btn active" onclick="setMode('schedule')">📋 Schedule</button>
     <button class="mode-btn" onclick="setMode('monitor')">📊 Monitor</button>
-    <button class="mode-btn" onclick="setMode('setup')">⚙️ Setup</button>
+    <button class="mode-btn" id="setup-mode-btn" onclick="setMode('setup')">⚙️ Setup</button>
     <button class="mode-btn" onclick="setMode('kpi')">📈 KPI</button>
     <button class="mode-btn" onclick="setMode('warnings')" id="warnings-mode-btn">⚠️ Warnings</button>
   </div>
-  <button class="btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
+  <button class="btn" id="reports-btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
+  <span id="kiosk-machine-label" class="kiosk-machine-label" style="display:none"></span>
+  <div class="kiosk-clock" id="kiosk-clock" style="display:none">
+    <span id="kiosk-time">--:--</span>
+    <span class="kiosk-shift-badge day" id="kiosk-shift-badge">Day</span>
+  </div>
 </div>
 <div class="stats" id="stats-bar"></div>
 
@@ -579,6 +646,16 @@ table.dtbl select{width:auto;min-width:100px}
     </div>
     <!-- Staffing Impact Analysis -->
     <div id="staffing-panel" style="display:none;margin-top:12px"></div>
+    <!-- Pi Stations Dashboard (main scheduler only) -->
+    <div class="pi-stations-panel" id="pi-stations-panel" style="display:none">
+      <div class="pi-stations-header" onclick="togglePiStationsPanel()">
+        <span>📡</span>
+        <span class="pi-stations-title">Pi Stations</span>
+        <span id="pi-stations-count" style="font-size:10px;color:var(--dim);font-weight:400">0 connected</span>
+        <span id="pi-stations-chevron" style="color:var(--dim);margin-left:8px;transition:transform .2s">▼</span>
+      </div>
+      <div class="pi-stations-body" id="pi-stations-body" style="display:none"></div>
+    </div>
     <!-- Legacy card view (hidden by default) -->
     <div id="monitor-legacy" style="display:none">
       <div class="machine-grid" id="monitor-grid"></div>
@@ -666,6 +743,14 @@ table.dtbl select{width:auto;min-width:100px}
   <div id="warn-detail-panel"></div>
 </div>
 </div>
+  <!-- WebSocket / Pi Connection Status Bar (shown in kiosk/Pi mode) -->
+  <div class="ws-status-bar" id="ws-status-bar">
+    <div class="ws-conn-dot disconnected" id="ws-dot"></div>
+    <span class="ws-status-text disconnected" id="ws-status-text">Disconnected — retrying...</span>
+    <span class="ws-last-update" id="ws-last-update"></span>
+    <div class="ws-shift-info" id="ws-shift-info"></div>
+    <div class="ws-operator-info" id="ws-operator-info" style="display:none"></div>
+  </div>
 </div><!-- /.app -->
 
 <!-- ═══ SCRAP/REWORK MODAL ═══ -->
@@ -826,6 +911,23 @@ const HOUR_PX = {day:12,week:4,month:1.2};
 let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 const SHIFT_HOURS = 10;
 
+// ── URL Parameters (Pi / Kiosk mode) ──
+const _urlParams = new URLSearchParams(window.location.search);
+const machineFilter = _urlParams.get('machine');   // e.g. ?machine=VCS530C
+const piMode       = _urlParams.get('mode');       // e.g. ?mode=kiosk
+const screenMode   = _urlParams.get('screen');     // e.g. ?screen=2
+const isPiMode     = !!machineFilter || piMode === 'kiosk';
+const isKiosk      = piMode === 'kiosk';
+const isScreen2    = screenMode === '2';
+
+// ── WebSocket state ──
+let ws = null;
+let wsReconnectTimer = null;
+let wsConnected = false;
+let wsLastUpdate = null;
+// Registry of connected Pi stations (populated from WS server messages)
+let piStations = {};  // { machineId: { ip, lastHeartbeat, connected } }
+
 // ══════════════════════════════════════════════════════════════
 //  MACHINES
 // ══════════════════════════════════════════════════════════════
@@ -923,6 +1025,7 @@ function getBreakdowns(){return lsGet('breakdowns',{});}
 function setBreakdowns(bd){lsSet('breakdowns',bd);}
 function toggleBreakdown(machineId){
   const breakdowns=getBreakdowns();
+  let bdActive=false,bdExpected='';
   if(breakdowns[machineId]&&breakdowns[machineId].active){
     // Restore from breakdown
     delete breakdowns[machineId];
@@ -931,10 +1034,13 @@ function toggleBreakdown(machineId){
   }else{
     // Set to breakdown
     const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
-    breakdowns[machineId]={active:true,expectedAvailable:tomorrow.toISOString().split('T')[0],timestamp:new Date().toISOString()};
+    bdExpected=tomorrow.toISOString().split('T')[0];
+    breakdowns[machineId]={active:true,expectedAvailable:bdExpected,timestamp:new Date().toISOString()};
     setBreakdowns(breakdowns);
+    bdActive=true;
     toast(`🔧 ${machineId} set to breakdown maintenance`);
   }
+  broadcastChange('breakdown',{machineId,active:bdActive,expectedAvailable:bdExpected});
   // Refresh views
   if(currentMode==='monitor')renderMonitor();
   if(currentMode==='schedule')renderSchedule();
@@ -1259,6 +1365,7 @@ function setPriority(jobId,p){
   if(j)j.priority=p;
   recalcCascade();
   renderSchedule();
+  broadcastChange('priority_change',{jobId,priority:p});
 }
 
 function prioritiseJobs(query){
@@ -3177,6 +3284,7 @@ function submitScrapPushIn(){
   log.unshift({timestamp:new Date().toISOString(),jobId,rwId,reason,qty,partNum,notes});
   lsSet('scrap_log',log);
 
+  broadcastChange('scrap_pushin',{job:{...rwJob,start:rwJob.start.toISOString(),end:rwJob.end.toISOString(),due:rwJob.due.toISOString(),originalEnd:rwJob.originalEnd.toISOString()}});
   closeScrapModal();
   renderSchedule();
   toast(`🔧 Rework job ${rwId} created — Priority ${rwPriority} (${reason})`);
@@ -3240,6 +3348,7 @@ function applyBookmarkState(state,msg){
   if(state.breakdowns)setBreakdowns(state.breakdowns);
   recalcCascade();
   renderSchedule();
+  broadcastChange('schedule_update',{jobs:jobs.filter(j=>j.status!=='complete').slice(0,50).map(j=>({...j,start:j.start.toISOString(),end:j.end.toISOString(),due:j.due.toISOString(),originalEnd:(j.originalEnd||j.end).toISOString()}))});
   return{msg:msg||'State restored.'};
 }
 
@@ -4114,6 +4223,43 @@ function renderSetupIntegrations(){
       </div>
     </div>
 
+    <div style="margin-bottom:24px;padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
+      <div class="section-title" style="font-size:14px;margin-bottom:6px">🖥️ Raspberry Pi Push Server</div>
+      <div class="section-desc">Manage WebSocket connections to Pi stations on the shop floor. Each Pi opens this scheduler with <code style="background:var(--bg);padding:1px 5px;border-radius:3px">?machine=ID&amp;mode=kiosk</code> to show a filtered view.</div>
+      <div class="ws-server-status-row">
+        <div class="conn-status disconnected" id="ws-server-status" style="margin:0">🔴 Not connected</div>
+        <span style="font-size:11px;color:var(--dim)">Connected clients: <strong id="ws-client-count">0</strong></span>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-group" style="flex:2">
+          <label>Server Address</label>
+          <input id="ws-server-addr" value="${lsGet('ws_server','ws://localhost:8080')}" placeholder="ws://localhost:8080" style="font-family:monospace;font-size:12px"/>
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <div style="display:flex;gap:6px">
+            <button class="btn success" onclick="saveWsServerConfig()">💾 Save</button>
+            <button class="btn primary" onclick="connectWebSocket();toast('🔌 Connecting to WS server…')">🔌 Connect</button>
+            <button class="btn warn" onclick="simulateWsServer()">🎮 Simulate</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Connected Pi Stations</div>
+        <div class="ws-client-list" id="ws-server-clients">
+          <div style="color:var(--dim);font-size:11px;padding:8px 12px">No clients connected — click Simulate to demo</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:var(--s3);border-radius:var(--rs);padding:10px;font-size:10px;color:var(--dim)">
+        <strong style="color:var(--txt)">Pi Setup:</strong>
+        Each Raspberry Pi opens a Chromium browser in kiosk mode pointing to this scheduler URL with
+        <code style="background:var(--bg);padding:1px 5px;border-radius:3px">?machine=VCS530C&amp;mode=kiosk</code> appended •
+        The WS server is a separate Python/Node.js process running on the Nupress PC •
+        Pi stations auto-reconnect every 5 seconds if disconnected •
+        Use <strong style="color:var(--txt)">Screen 2</strong> button (kiosk mode) to open setup sheets + inspection forms
+      </div>
+    </div>
+
     <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
       <div class="section-title" style="font-size:14px;margin-bottom:6px">📊 Reports Branding</div>
       <div class="section-desc">Customise the company name shown on generated reports.</div>
@@ -4175,6 +4321,13 @@ function saveMondayConfig(){
 function saveReportConfig(){
   lsSet('report_company',document.getElementById('rpt-company').value||'NuPhoenix Group');
   toast('✅ Report config saved');
+}
+function saveWsServerConfig(){
+  const addr=document.getElementById('ws-server-addr')?.value?.trim()||'ws://localhost:8080';
+  lsSet('ws_server',addr);
+  toast('✅ WS server address saved — reconnecting…');
+  if(ws){try{ws.close();}catch(e){}}
+  connectWebSocket();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -4313,6 +4466,365 @@ function saveMondayKey(){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  WEBSOCKET CLIENT
+// ══════════════════════════════════════════════════════════════
+function connectWebSocket(){
+  if(ws&&(ws.readyState===WebSocket.CONNECTING||ws.readyState===WebSocket.OPEN))return;
+  const wsUrl=lsGet('ws_server','ws://localhost:8080');
+  try{
+    ws=new WebSocket(wsUrl);
+    ws.onopen=()=>{
+      wsConnected=true;
+      wsLastUpdate=new Date();
+      updateWsStatusBar(true);
+      console.log('[NuPhoenix WS] Connected to',wsUrl);
+      // Register this station
+      ws.send(JSON.stringify({
+        type:'register',
+        machineId:machineFilter||'scheduler-main',
+        piIp:location.hostname,
+        timestamp:new Date().toISOString()
+      }));
+    };
+    ws.onmessage=(event)=>{
+      try{
+        const msg=JSON.parse(event.data);
+        wsLastUpdate=new Date();
+        updateWsStatusBar(true);
+        handlePushMessage(msg);
+      }catch(e){console.warn('[NuPhoenix WS] Bad message:',e);}
+    };
+    ws.onclose=()=>{
+      wsConnected=false;
+      updateWsStatusBar(false);
+      console.log('[NuPhoenix WS] Disconnected — reconnecting in 5s');
+      if(wsReconnectTimer)clearTimeout(wsReconnectTimer);
+      wsReconnectTimer=setTimeout(connectWebSocket,5000);
+    };
+    ws.onerror=(e)=>{
+      console.warn('[NuPhoenix WS] Error:',e);
+      // onclose fires after onerror — reconnect handled there
+    };
+  }catch(e){
+    console.warn('[NuPhoenix WS] Could not create socket:',e.message);
+    wsConnected=false;
+    updateWsStatusBar(false);
+    if(wsReconnectTimer)clearTimeout(wsReconnectTimer);
+    wsReconnectTimer=setTimeout(connectWebSocket,5000);
+  }
+}
+
+function handlePushMessage(msg){
+  switch(msg.type){
+    case 'schedule_update':
+      // Full schedule push — replace jobs array
+      if(msg.jobs&&Array.isArray(msg.jobs)){
+        // Merge incoming job data (preserve Date objects)
+        msg.jobs.forEach(incoming=>{
+          const idx=jobs.findIndex(j=>j.id===incoming.id);
+          const parsed={...incoming,start:new Date(incoming.start),end:new Date(incoming.end),due:new Date(incoming.due),originalEnd:new Date(incoming.originalEnd||incoming.end)};
+          if(idx>=0)jobs[idx]={...jobs[idx],...parsed};else jobs.push(parsed);
+        });
+        recalcCascade();
+        renderSchedule();
+        if(currentMode==='monitor')renderMonitor();
+        toast('📡 Schedule updated from server');
+      }
+      break;
+    case 'priority_change':
+      if(msg.jobId&&msg.priority!==undefined){
+        setPriority(msg.jobId,msg.priority);
+        toast(`📡 Priority update: ${msg.jobId} → P${msg.priority}`);
+      }
+      break;
+    case 'breakdown':
+      if(msg.machineId){
+        const bd=getBreakdowns();
+        if(msg.active){
+          const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+          bd[msg.machineId]={active:true,expectedAvailable:msg.expectedAvailable||tomorrow.toISOString().split('T')[0],timestamp:msg.timestamp||new Date().toISOString()};
+        }else{delete bd[msg.machineId];}
+        setBreakdowns(bd);
+        if(currentMode==='monitor')renderMonitor();
+        if(currentMode==='schedule')renderSchedule();
+        toast(`📡 Breakdown update: ${msg.machineId} ${msg.active?'→ DOWN':'→ restored'}`);
+      }
+      break;
+    case 'scrap_pushin':
+      if(msg.job){
+        const rwJob={...msg.job,start:new Date(msg.job.start),end:new Date(msg.job.end),due:new Date(msg.job.due),originalEnd:new Date(msg.job.originalEnd||msg.job.end)};
+        if(!jobs.find(j=>j.id===rwJob.id))jobs.push(rwJob);
+        recalcCascade();renderSchedule();
+        toast(`📡 Scrap push-in received: ${rwJob.id}`);
+      }
+      break;
+    case 'alert':
+      toast(msg.text||'📡 Server notification');
+      break;
+    case 'setup_sheet':
+      if(msg.pdfUrl){
+        // Open PDF in screen 2 or a popup
+        const target=isScreen2?'_self':'screen2-'+msg.machineId;
+        window.open(msg.pdfUrl,target);
+      }
+      break;
+    case 'shift_change':
+      toast(`📡 Shift change: ${msg.shift||'new shift'} started`);
+      updateKioskShift();
+      break;
+    case 'heartbeat':
+      // Pi station heartbeat — update registry
+      if(msg.machineId){
+        piStations[msg.machineId]={
+          machineId:msg.machineId,
+          ip:msg.piIp||'unknown',
+          lastHeartbeat:new Date().toISOString(),
+          connected:true
+        };
+        updatePiStationsPanel();
+      }
+      break;
+    case 'client_list':
+      // Server sends full client list
+      if(msg.clients&&Array.isArray(msg.clients)){
+        const fresh={};
+        msg.clients.forEach(c=>{fresh[c.machineId]={...c,connected:true,lastHeartbeat:c.lastHeartbeat||new Date().toISOString()};});
+        piStations=fresh;
+        updatePiStationsPanel();
+        updateWsServerPanel();
+      }
+      break;
+  }
+}
+
+function broadcastChange(type,data){
+  if(!ws||ws.readyState!==WebSocket.OPEN)return;
+  try{
+    ws.send(JSON.stringify({type,timestamp:new Date().toISOString(),...data}));
+  }catch(e){console.warn('[NuPhoenix WS] Broadcast failed:',e);}
+}
+
+// ── WS Status Bar UI ──
+function updateWsStatusBar(connected){
+  const bar=document.getElementById('ws-status-bar');
+  const dot=document.getElementById('ws-dot');
+  const txt=document.getElementById('ws-status-text');
+  const lu=document.getElementById('ws-last-update');
+  if(!bar)return;
+  if(connected){
+    dot.className='ws-conn-dot connected';
+    txt.className='ws-status-text connected';
+    txt.textContent='Connected to NuPhoenix Server';
+    if(wsLastUpdate)lu.textContent='Last update: '+wsLastUpdate.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }else{
+    dot.className='ws-conn-dot disconnected';
+    txt.className='ws-status-text disconnected';
+    txt.textContent='Disconnected — retrying...';
+    lu.textContent=wsLastUpdate?'Last: '+wsLastUpdate.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'Never connected';
+  }
+}
+
+// ── Pi Stations Panel ──
+function updatePiStationsPanel(){
+  const panel=document.getElementById('pi-stations-panel');
+  const body=document.getElementById('pi-stations-body');
+  const countEl=document.getElementById('pi-stations-count');
+  if(!panel)return;
+  const stations=Object.values(piStations);
+  const connected=stations.filter(s=>s.connected).length;
+  if(countEl)countEl.textContent=`${connected} connected`;
+  if(!body)return;
+  if(!stations.length){
+    body.innerHTML='<div style="color:var(--dim);font-size:11px;padding:8px">No Pi stations registered yet. Stations connect automatically when powered on.</div>';
+    return;
+  }
+  const rows=stations.map(s=>{
+    const hb=s.lastHeartbeat?new Date(s.lastHeartbeat):'';
+    const hbStr=hb?hb.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'--';
+    return `<div class="pi-card ${s.connected?'pi-connected':''}" onclick="viewPiStation('${s.machineId}')">
+      <div class="pi-card-head">
+        <span class="pi-card-dot ${s.connected?'connected':'disconnected'}"></span>
+        <span class="pi-card-id">${s.machineId}</span>
+      </div>
+      <div class="pi-card-ip">📍 ${s.ip||'unknown'}</div>
+      <div class="pi-card-hb">♡ ${hbStr}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML=`<div class="pi-grid">${rows}</div>`;
+}
+
+function togglePiStationsPanel(){
+  const body=document.getElementById('pi-stations-body');
+  const chevron=document.getElementById('pi-stations-chevron');
+  if(!body)return;
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  if(chevron)chevron.style.transform=open?'':'rotate(180deg)';
+}
+
+function viewPiStation(machineId){
+  const station=piStations[machineId];
+  if(!station)return;
+  toast(`📡 ${machineId} @ ${station.ip} — last seen ${station.lastHeartbeat?new Date(station.lastHeartbeat).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'unknown'}`);
+}
+
+// ── WS Server Panel (Integrations tab) ──
+function updateWsServerPanel(){
+  const el=document.getElementById('ws-server-clients');
+  if(!el)return;
+  const stations=Object.values(piStations);
+  const countEl=document.getElementById('ws-client-count');
+  if(countEl)countEl.textContent=stations.filter(s=>s.connected).length;
+  if(!stations.length){
+    el.innerHTML='<div style="color:var(--dim);font-size:11px;padding:8px 12px">No clients connected</div>';
+    return;
+  }
+  el.innerHTML=stations.map(s=>{
+    const hb=s.lastHeartbeat?new Date(s.lastHeartbeat).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'-';
+    return `<div class="ws-client-row">
+      <span class="ws-client-machine">${s.machineId}</span>
+      <span class="ws-client-ip">${s.ip||'unknown'}</span>
+      <span class="ws-client-hb">♡ ${hb}</span>
+      <span class="ws-client-status ${s.connected?'connected':'disconnected'}">${s.connected?'Connected':'Offline'}</span>
+    </div>`;
+  }).join('');
+}
+
+function simulateWsServer(){
+  // Demo: simulate a server starting and some Pi clients connecting
+  toast('🖥️ Simulated WS server started — demo mode');
+  const demoStations=[
+    {machineId:'VCS530C',ip:'192.168.1.220'},{machineId:'QTN450M',ip:'192.168.1.221'},{machineId:'INTE2004S',ip:'192.168.1.222'}
+  ];
+  demoStations.forEach((s,i)=>{
+    setTimeout(()=>{
+      piStations[s.machineId]={...s,connected:true,lastHeartbeat:new Date().toISOString()};
+      updatePiStationsPanel();
+      updateWsServerPanel();
+      if(i===demoStations.length-1){
+        const panel=document.getElementById('pi-stations-panel');
+        if(panel)panel.style.display='block';
+      }
+    },600+i*400);
+  });
+  const statusEl=document.getElementById('ws-server-status');
+  if(statusEl){statusEl.className='conn-status connected';statusEl.textContent='🟢 Server Running (simulated)';}
+}
+
+// ── Kiosk Mode ──
+let kioskClockInterval=null;
+let kioskRefreshInterval=null;
+
+function applyKioskMode(){
+  document.body.classList.add('kiosk-mode');
+  // No right-click
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+  // Show clock
+  const clock=document.getElementById('kiosk-clock');
+  if(clock)clock.style.display='flex';
+  updateKioskClock();
+  kioskClockInterval=setInterval(updateKioskClock,10000);
+  // Auto-refresh every 30s
+  kioskRefreshInterval=setInterval(()=>{
+    try{if(currentMode==='schedule')renderSchedule();if(currentMode==='monitor')renderMonitor();}catch(e){}
+  },30000);
+  // Show WS status bar
+  const bar=document.getElementById('ws-status-bar');
+  if(bar)bar.classList.add('visible');
+}
+
+function applyMachineFilter(){
+  if(!machineFilter)return;
+  // Update header
+  const logoText=document.getElementById('app-logo-text');
+  if(logoText)logoText.textContent=`NuPhoenix — ${machineFilter}`;
+  const label=document.getElementById('kiosk-machine-label');
+  if(label){label.textContent=machineFilter;label.style.display='inline-block';}
+  // Hide Setup tab
+  const setupBtn=document.getElementById('setup-mode-btn');
+  if(setupBtn)setupBtn.style.display='none';
+  // Hide chat
+  const chat=document.getElementById('chat-bubble');
+  if(chat)chat.style.display='none';
+  // Show WS status bar
+  const bar=document.getElementById('ws-status-bar');
+  if(bar)bar.classList.add('visible');
+  // Apply machine filter to gantt
+  selectedMachine=machineFilter;
+}
+
+function applyScreen2Mode(){
+  // Screen 2: setup sheet + inspection viewer
+  document.body.innerHTML=`
+    <div style="background:#0f0f0f;color:#e8e8e8;font-family:-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column">
+      <div style="background:#1a1a1a;border-bottom:1px solid #333;padding:12px 20px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px">🦅</span>
+        <span style="font-weight:700;font-size:15px">NuPhoenix — ${machineFilter||'Station'} | Setup & Inspection</span>
+        <span style="font-size:11px;color:#888;margin-left:auto">Screen 2</span>
+      </div>
+      <div style="flex:1;display:flex;gap:0;overflow:hidden">
+        <div style="flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;overflow-y:auto">
+          <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">📋 Current Job Setup Sheet</div>
+            <div style="font-size:12px;color:#888;background:#222;border-radius:6px;padding:40px;text-align:center">
+              Setup sheet PDF will appear here when pushed from the scheduler.<br>
+              <span style="font-size:10px;margin-top:8px;display:block">Waiting for job assignment from NuPhoenix Server…</span>
+            </div>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">🔬 In-Process Inspection Form</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Operator</label><input type="text" placeholder="Name or badge…" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
+              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Time</label><input type="time" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
+              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Measurement 1 (mm)</label><input type="number" step="0.001" placeholder="0.000" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
+              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Measurement 2 (mm)</label><input type="number" step="0.001" placeholder="0.000" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
+            </div>
+            <div style="margin-top:12px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Notes</label><textarea placeholder="Any issues or observations…" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:12px;font-family:inherit;min-height:80px;resize:vertical"></textarea></div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button onclick="this.textContent='✅ Submitted';this.style.background='rgba(52,199,89,.2)';this.style.color='#34c759'" style="background:rgba(90,200,250,.1);color:#5ac8fa;border:1px solid rgba(90,200,250,.3);padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Submit Inspection</button>
+              <button onclick="document.querySelectorAll('input,textarea').forEach(el=>el.value='')" style="background:rgba(255,255,255,.05);color:#888;border:1px solid #333;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Clear Form</button>
+            </div>
+          </div>
+        </div>
+        <div style="width:220px;background:#1a1a1a;border-left:1px solid #333;padding:16px;overflow-y:auto">
+          <div style="font-weight:700;font-size:12px;margin-bottom:12px">Job Routing</div>
+          <div style="font-size:11px;color:#888">Waiting for job data from server…</div>
+        </div>
+      </div>
+      <div style="background:#1a1a1a;border-top:1px solid #333;padding:6px 16px;font-size:11px;color:#888;display:flex;align-items:center;gap:8px">
+        <div id="s2-ws-dot" style="width:8px;height:8px;border-radius:50%;background:#ff453a"></div>
+        <span id="s2-ws-text">Connecting to NuPhoenix Server…</span>
+        <span style="margin-left:auto" id="s2-clock"></span>
+      </div>
+    </div>`;
+  // Mini clock for screen 2
+  setInterval(()=>{const c=document.getElementById('s2-clock');if(c)c.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});},10000);
+  document.getElementById('s2-clock').textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+}
+
+function updateKioskClock(){
+  const el=document.getElementById('kiosk-time');
+  if(el)el.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+  updateKioskShift();
+}
+
+function updateKioskShift(){
+  const badge=document.getElementById('kiosk-shift-badge');
+  const shiftInfo=document.getElementById('ws-shift-info');
+  if(!badge)return;
+  const hour=new Date().getHours();
+  const isDay=hour>=6&&hour<18;
+  badge.className='kiosk-shift-badge '+(isDay?'day':'night');
+  badge.textContent=isDay?'Day Shift':'Night Shift';
+  if(shiftInfo)shiftInfo.textContent=(isDay?'☀️ Day Shift (06:00–18:00)':'🌙 Night Shift (18:00–06:00)');
+}
+
+function openScreen2(machineId){
+  const url=`${location.pathname}?machine=${machineId||machineFilter||''}&screen=2${isKiosk?'&mode=kiosk':''}`;
+  window.open(url,'_blank','width=900,height=700');
+}
+
+// ══════════════════════════════════════════════════════════════
 //  MONITOR ANIMATION — animate pie charts
 // ══════════════════════════════════════════════════════════════
 let monitorInterval=null;
@@ -4324,11 +4836,59 @@ function startMonitorAnimation(){
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
-genJobs();
-renderSchedule();
-startMonitorAnimation();
-// Pre-scan warnings on load so count is ready
-setTimeout(()=>detectWarnings(),500);
+
+// ── Screen 2 mode: replace entire UI with setup sheet viewer ──
+if(isScreen2){
+  // Defer until DOM ready
+  window.addEventListener('DOMContentLoaded',applyScreen2Mode);
+  // Also fire now if DOM is already ready
+  if(document.readyState!=='loading')applyScreen2Mode();
+}else{
+  genJobs();
+
+  // ── Apply URL-based mode filters BEFORE first render ──
+  if(machineFilter){
+    applyMachineFilter();
+  }
+
+  renderSchedule();
+  startMonitorAnimation();
+
+  // ── Kiosk mode enhancements ──
+  if(isKiosk){
+    applyKioskMode();
+    // Start on Monitor tab for kiosk/Pi stations
+    if(machineFilter)setMode('monitor');
+  }
+
+  // ── Show Pi stations panel on Monitor if in main scheduler mode ──
+  if(!isPiMode){
+    // Show the Pi stations panel (hidden until WS connects / simulate pressed)
+    // It will be shown when piStations gets populated
+  }
+
+  // ── Start WebSocket connection (gracefully fails if no server) ──
+  connectWebSocket();
+
+  // ── Pre-scan warnings on load so count is ready ──
+  setTimeout(()=>detectWarnings(),500);
+
+  // ── Kiosk: Show "Screen 2" button in Monitor when in kiosk mode ──
+  if(isKiosk&&machineFilter){
+    // Inject Screen 2 button into the floor header
+    setTimeout(()=>{
+      const fh=document.querySelector('.floor-header>div:last-child');
+      if(fh&&!document.getElementById('screen2-btn')){
+        const btn=document.createElement('button');
+        btn.className='btn';btn.id='screen2-btn';
+        btn.innerHTML='🖥️ Screen 2';
+        btn.style.cssText='background:rgba(191,90,242,.15);color:var(--purple);border-color:rgba(191,90,242,.3)';
+        btn.onclick=()=>openScreen2(machineFilter);
+        fh.appendChild(btn);
+      }
+    },200);
+  }
+}
 </script>
 </body>
 </html>
