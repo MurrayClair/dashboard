@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nupress Scheduler — Live Gantt</title>
+<title>NuPhoenix Scheduler</title>
 <style>
 :root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--s3:#2a2a2a;--brd:#333;--brd2:#444;--txt:#e8e8e8;--dim:#888;--dim2:#666;--green:#34c759;--green-d:rgba(52,199,89,.15);--yellow:#ffd60a;--yellow-d:rgba(255,214,10,.15);--red:#ff453a;--red-d:rgba(255,69,58,.15);--blue:#5ac8fa;--blue-d:rgba(90,200,250,.15);--accent:#e07a3a;--purple:#bf5af2;--r:10px;--rs:6px;--orange:#ff9f0a;--orange-d:rgba(255,159,10,.15)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -326,13 +326,67 @@ table.dtbl select{width:auto;min-width:100px}
 .correction-row td{color:var(--yellow) !important}
 
 @media(max-width:900px){.g-label{width:100px}.g-label-header{width:100px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}.machine-grid{grid-template-columns:1fr}}
+
+/* ─── PRIORITY BADGES ─── */
+.prio-badge{font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;margin-left:4px;flex-shrink:0;line-height:1.3}
+.prio-1{background:rgba(255,69,58,.3);color:#ff453a;animation:prio-pulse 1.2s infinite}
+.prio-10{background:rgba(255,69,58,.2);color:#ff453a}
+.prio-20{background:rgba(255,159,10,.25);color:#ff9f0a}
+.prio-30{background:rgba(255,214,10,.2);color:#ffd60a}
+.prio-40{background:rgba(255,255,255,.08);color:#888}
+.prio-60{background:rgba(255,255,255,.04);color:#555}
+.subco-badge{font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(90,200,250,.15);color:var(--blue);margin-left:3px;flex-shrink:0}
+@keyframes prio-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.job.prio-crit{border-left:3px solid var(--red)!important}
+.job.prio-urg{border-left:3px solid #ff6b35!important}
+.job.prio-high{border-left:3px solid var(--orange)!important}
+.job.prio-elev{border-left:3px solid var(--yellow)!important}
+.job.prio-dim{opacity:.7}
+
+/* ─── SCRAP MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:center;justify-content:center}
+.modal-box{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:20px;width:480px;max-width:95vw;box-shadow:0 16px 64px rgba(0,0,0,.6)}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-row{margin-bottom:12px}
+.modal-row label{display:block;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+.modal-row input,.modal-row select,.modal-row textarea{width:100%;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:7px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit}
+.modal-row textarea{resize:vertical;min-height:60px}
+.modal-radios{display:flex;flex-wrap:wrap;gap:8px}
+.modal-radios label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;padding:4px 8px;border:1px solid var(--brd);border-radius:var(--rs);background:var(--s2)}
+.modal-radios input[type=radio]{accent-color:var(--accent)}
+.modal-radios label:has(input:checked){border-color:var(--accent);background:rgba(224,122,58,.15);color:var(--accent)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* ─── CHAT PANEL ─── */
+.chat-bubble-btn{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(224,122,58,.4);font-family:inherit;transition:.2s;display:flex;align-items:center;gap:6px}
+.chat-bubble-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.chat-panel{position:fixed;bottom:24px;right:24px;z-index:500;width:380px;height:500px;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.6);overflow:hidden;display:none}
+.chat-panel.open{display:flex}
+.chat-hd{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--brd);background:var(--s2);gap:8px;flex-shrink:0}
+.chat-hd-title{font-weight:700;font-size:13px;flex:1}
+.chat-mode-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;cursor:pointer;transition:.15s}
+.chat-mode-badge.confirm{background:rgba(52,199,89,.15);color:var(--green);border:1px solid rgba(52,199,89,.3)}
+.chat-mode-badge.auto{background:rgba(255,159,10,.15);color:var(--orange);border:1px solid rgba(255,159,10,.3)}
+.chat-hd-btn{background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;transition:.15s}
+.chat-hd-btn:hover{color:var(--txt)}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:85%;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.5;word-break:break-word}
+.chat-msg.user{align-self:flex-end;background:rgba(90,200,250,.2);color:var(--blue);border-bottom-right-radius:3px}
+.chat-msg.agent{align-self:flex-start;background:var(--s3);color:var(--txt);border-bottom-left-radius:3px}
+.chat-msg.agent.action{border-left:2px solid var(--accent)}
+.chat-msg.agent.warn{border-left:2px solid var(--yellow)}
+.chat-input-bar{display:flex;gap:6px;padding:10px;border-top:1px solid var(--brd);flex-shrink:0}
+.chat-input{flex:1;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:7px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit;outline:none}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.chat-send:hover{filter:brightness(1.1)}
 </style>
 </head>
 <body>
 <div class="app">
 <!-- ═══ HEADER ═══ -->
 <div class="app-header">
-  <div class="logo"><span>🏭</span> Nupress Scheduler</div>
+  <div class="logo"><span>🦅</span> NuPhoenix Scheduler</div>
   <div class="mode-nav">
     <button class="mode-btn active" onclick="setMode('schedule')">📋 Schedule</button>
     <button class="mode-btn" onclick="setMode('monitor')">📊 Monitor</button>
@@ -368,6 +422,7 @@ table.dtbl select{width:auto;min-width:100px}
   </div>
   <div class="ctrl-sep"></div>
   <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
+  <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
 </div>
 <!-- Search Results Panel -->
 <div id="search-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:12px 16px;max-height:60vh;overflow-y:auto">
@@ -485,6 +540,60 @@ table.dtbl select{width:auto;min-width:100px}
 <div class="kpi-wrap" id="kpi-body"></div>
 </div>
 </div><!-- /.app -->
+
+<!-- ═══ SCRAP/REWORK MODAL ═══ -->
+<div class="modal-overlay" id="scrap-modal" style="display:none" onclick="if(event.target===this)closeScrapModal()">
+  <div class="modal-box">
+    <div class="modal-title">🔧 Scrap / Rework Push-In</div>
+    <div class="modal-row">
+      <label>Job Number</label>
+      <select id="scrap-job-select" onchange="onScrapJobSelect()">
+        <option value="">— Select job —</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Part Number</label>
+      <input type="text" id="scrap-part" placeholder="Auto-filled from job" />
+    </div>
+    <div class="modal-row">
+      <label>Reason</label>
+      <div class="modal-radios" id="scrap-reason-group">
+        <label><input type="radio" name="scrap-reason" value="Scrap at CMM" checked> Scrap at CMM</label>
+        <label><input type="radio" name="scrap-reason" value="Rework Required"> Rework Required</label>
+        <label><input type="radio" name="scrap-reason" value="Customer Return"> Customer Return</label>
+        <label><input type="radio" name="scrap-reason" value="Other"> Other</label>
+      </div>
+    </div>
+    <div class="modal-row">
+      <label>Quantity</label>
+      <input type="number" id="scrap-qty" min="1" value="1" style="width:120px" />
+    </div>
+    <div class="modal-row">
+      <label>Notes</label>
+      <textarea id="scrap-notes" placeholder="Optional notes…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeScrapModal()">Cancel</button>
+      <button class="btn warn" onclick="submitScrapPushIn()">Submit Push-In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHAT PANEL ═══ -->
+<button class="chat-bubble-btn" id="chat-bubble" onclick="toggleChat()">💬 Ask NuPhoenix</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-hd">
+    <span style="font-size:16px">🦅</span>
+    <span class="chat-hd-title">NuPhoenix AI</span>
+    <span class="chat-mode-badge confirm" id="chat-mode-badge" onclick="toggleChatMode()" title="Click to toggle mode">CONFIRM MODE</span>
+    <button class="chat-hd-btn" onclick="toggleChat()" title="Minimise">—</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-input-bar">
+    <input class="chat-input" id="chat-input" placeholder="Ask NuPhoenix…" onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
 
 <div class="tip" id="tooltip" style="display:none"></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -693,24 +802,35 @@ function genJobs(){
       const opEnd=new Date(opStart.getTime()+opHours*3600000);
       return {opNum:opIdx+1,opType,process:opType==='cmm'?'INSPECT':opType==='lathe'?'TURN':opType==='millturn'?'MILL/TURN':opType==='vmc'?'MILL':opType==='hmc'?'HMC MILL':opType==='5axis'?'5AXIS MILL':'PROCESS',machine:opMachine,hours:opHours,start:opStart,end:opEnd,status:opEnd<TODAY?'complete':opStart<TODAY&&opEnd>TODAY?'in-progress':'queued'};
     });
-    jobs.push({id:`${jobIdCounter+i}-0001-001`,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY,customer,po,operations});
+    const hasSubco=Math.random()<0.3;
+    const value=Math.round((2000+Math.random()*48000)/100)*100;
+    const prioOverrides=lsGet('priorities',{});
+    const jobId=`${jobIdCounter+i}-0001-001`;
+    const priority=prioOverrides[jobId]!==undefined?prioOverrides[jobId]:50;
+    jobs.push({id:jobId,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY,customer,po,operations,priority,hasSubco,value});
     mq[machine.id]=offsetHours+totalHours+2;
   }
   const cmmJobs=jobs.filter(j=>j.needsCMM&&j.status==='in-progress');
   cmmJobs.forEach((j,i)=>{
     const cm=i%2===0?'CMM1':'CMM2';const cs=new Date(j.end.getTime()+i*4*3600000);
-    jobs.push({id:j.id+'-CMM',partId:j.partId,partDesc:j.partDesc+' (CMM)',machine:cm,qty:j.qty,totalHours:2+Math.random()*3,start:cs,end:new Date(cs.getTime()+(2+Math.random()*3)*3600000),originalEnd:new Date(cs.getTime()+2*3600000),due:j.due,delay:0,status:'queued',needsCMM:false,cmmDone:false,parentJob:j.id});
+    jobs.push({id:j.id+'-CMM',partId:j.partId,partDesc:j.partDesc+' (CMM)',machine:cm,qty:j.qty,totalHours:2+Math.random()*3,start:cs,end:new Date(cs.getTime()+(2+Math.random()*3)*3600000),originalEnd:new Date(cs.getTime()+2*3600000),due:j.due,delay:0,status:'queued',needsCMM:false,cmmDone:false,parentJob:j.id,priority:j.priority,hasSubco:j.hasSubco,value:j.value});
   });
   recalcCascade();
 }
+
+function prioBand(p){return p<=9?0:p<=19?1:p<=29?2:p<=39?3:p<=59?4:p<=79?5:6;}
+function prioSort(a,b){const ba=prioBand(a.priority||50),bb=prioBand(b.priority||50);if(ba!==bb)return ba-bb;if((a.priority||50)!==(b.priority||50))return (a.priority||50)-(b.priority||50);if(!!a.hasSubco!==!!b.hasSubco)return a.hasSubco?-1:1;return a.start-b.start;}
 
 function recalcCascade(){
   const bm={};MACHINES.forEach(m=>bm[m.id]=[]);
   jobs.forEach(j=>{if(bm[j.machine])bm[j.machine].push(j);});
   Object.keys(bm).forEach(mId=>{
-    const mj=bm[mId].sort((a,b)=>a.start-b.start);let cur=null;
-    mj.forEach(j=>{
-      if(j.status==='complete'){cur=j.end;return;}
+    // Separate complete from pending, sort pending by priority
+    const complete=bm[mId].filter(j=>j.status==='complete').sort((a,b)=>a.start-b.start);
+    const pending=bm[mId].filter(j=>j.status!=='complete').sort(prioSort);
+    // Cascade times for pending jobs
+    let cur=complete.length?complete[complete.length-1].end:null;
+    pending.forEach(j=>{
       if(cur&&j.start<cur){const sh=cur-j.start;j.start=new Date(j.start.getTime()+sh);j.end=new Date(j.end.getTime()+sh);}
       if(j.delay>0&&j.status==='in-progress')j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
       cur=j.end;
@@ -844,7 +964,11 @@ function renderGantt(fm,fj){
       const x=labelW+jStart*hpx,w=Math.max(jDur*hpx,20);
       const isLate=j.end>j.due,isAtRisk=!isLate&&(j.due-j.end)<24*3600000;
       const cls=j.machine.startsWith('CMM')?'cmm':isLate?'late':isAtRisk?'at-risk':'on-time';
-      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,15)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}</div>`;
+      const p=j.priority||50;
+      const prioCls=p<=9?'prio-crit':p<=19?'prio-urg':p<=29?'prio-high':p<=39?'prio-elev':p>=60?'prio-dim':'';
+      const prioBadgeCls=p<=9?'prio-1':p<=19?'prio-10':p<=29?'prio-20':p<=39?'prio-30':p>=60?'prio-60':'prio-40';
+      const subcoBadge=j.hasSubco?`<span class="subco-badge">SUBCO</span>`:'';
+      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
     });
   });
 
@@ -905,6 +1029,50 @@ function recoveryOvertime(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.t
 function recoverySplit(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const m=MACHINES.find(m=>m.id===j.machine);const alts=(COMPAT[m?.type]||[]).filter(m=>m!==j.machine);j.qty=Math.ceil(j.qty/2);j.totalHours=Math.ceil(j.totalHours/2);j.end=new Date(j.start.getTime()+j.totalHours*3600000);if(alts.length)jobs.push({...j,id:j.id+'-SPLIT',machine:alts[0],start:new Date(TODAY),end:new Date(TODAY.getTime()+j.totalHours*3600000),status:'queued',delay:0});recalcCascade();renderSchedule();toast(`✂️ Split ${jid}`);}
 function recoverySubco(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine='SUBCO';j.delay=0;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*1.5*3600000);recalcCascade();renderSchedule();toast(`📤 Subcontracted ${jid}`);}
 function recoveryPrioritize(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const mj=jobs.filter(jj=>jj.machine===j.machine&&jj.status==='queued').sort((a,b)=>a.start-b.start);if(mj.length>1){j.start=new Date(mj[0].start);j.end=new Date(mj[0].start.getTime()+j.totalHours*3600000);j.status='queued';}recalcCascade();renderSchedule();toast(`⬆️ Re-prioritized ${jid}`);}
+
+// ══════════════════════════════════════════════════════════════
+//  PRIORITY SYSTEM
+// ══════════════════════════════════════════════════════════════
+const MONTHLY_TARGET=500000;
+function getPriorityOverrides(){return lsGet('priorities',{});}
+function setPriorityOverrides(ov){lsSet('priorities',ov);}
+
+function setPriority(jobId,p){
+  const overrides=getPriorityOverrides();
+  overrides[jobId]=p;
+  setPriorityOverrides(overrides);
+  const j=jobs.find(j=>j.id===jobId);
+  if(j)j.priority=p;
+  recalcCascade();
+  renderSchedule();
+}
+
+function prioritiseJobs(query){
+  // Find jobs matching customer, PO, or job id (case-insensitive)
+  const q=query.toLowerCase();
+  const matched=jobs.filter(j=>j.status!=='complete'&&(j.id.toLowerCase().includes(q)||((j.customer||'').toLowerCase().includes(q))||((j.po||'').toLowerCase().includes(q))));
+  if(!matched.length)return{count:0,msg:`No active jobs found matching "${query}"`};
+  autoBookmark(`Before prioritise: ${query}`);
+  // Check financial impact — what jobs get pushed back?
+  const pushedJobs=jobs.filter(j=>j.status!=='complete'&&!matched.find(m=>m.id===j.id)&&(j.priority||50)>=40);
+  const pushedValue=pushedJobs.reduce((s,j)=>s+(j.value||0),0);
+  matched.forEach(j=>setPriority(j.id,10));
+  const warn=pushedValue>MONTHLY_TARGET*0.3?`⚠️ Warning: pushing back jobs worth $${(pushedValue/1000).toFixed(0)}K may risk monthly target ($${MONTHLY_TARGET/1000}K).`:'';
+  return{count:matched.length,ids:matched.map(j=>j.id),warn,msg:`Set ${matched.length} job(s) to priority 10 (Urgent).${warn?' '+warn:''}`};
+}
+
+function deprioritiseJob(query){
+  const q=query.toLowerCase();
+  const matched=jobs.filter(j=>j.status!=='complete'&&(j.id.toLowerCase().includes(q)||((j.customer||'').toLowerCase().includes(q))));
+  if(!matched.length)return{msg:`No active jobs found matching "${query}"`};
+  autoBookmark(`Before deprioritise: ${query}`);
+  matched.forEach(j=>setPriority(j.id,70));
+  return{count:matched.length,msg:`Moved ${matched.length} job(s) to priority 70 (Low).`};
+}
+
+function getPriorityJobs(){
+  return jobs.filter(j=>j.status!=='complete'&&(j.priority||50)<50).sort(prioSort);
+}
 
 // ══════════════════════════════════════════════════════════════
 //  DRAWING GENERATOR (kept from original)
@@ -2511,11 +2679,261 @@ function generateCorrectionReport(){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  SCRAP / REWORK PUSH-IN
+// ══════════════════════════════════════════════════════════════
+function openScrapModal(){
+  // Populate job dropdown
+  const sel=document.getElementById('scrap-job-select');
+  sel.innerHTML='<option value="">— Select job —</option>';
+  jobs.filter(j=>j.status!=='complete').sort(prioSort).forEach(j=>{
+    const opt=document.createElement('option');
+    opt.value=j.id;opt.textContent=`${j.id} — ${j.partDesc} (${j.customer||'?'})`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('scrap-part').value='';
+  document.getElementById('scrap-qty').value='1';
+  document.getElementById('scrap-notes').value='';
+  document.querySelectorAll('input[name="scrap-reason"]')[0].checked=true;
+  document.getElementById('scrap-modal').style.display='flex';
+}
+function closeScrapModal(){document.getElementById('scrap-modal').style.display='none';}
+function onScrapJobSelect(){
+  const id=document.getElementById('scrap-job-select').value;
+  const j=jobs.find(j=>j.id===id);
+  document.getElementById('scrap-part').value=j?j.partId:'';
+}
+function submitScrapPushIn(){
+  const jobId=document.getElementById('scrap-job-select').value;
+  if(!jobId){alert('Please select a job.');return;}
+  const orig=jobs.find(j=>j.id===jobId);
+  if(!orig){closeScrapModal();return;}
+  const reason=document.querySelector('input[name="scrap-reason"]:checked').value;
+  const qty=parseInt(document.getElementById('scrap-qty').value)||1;
+  const partNum=document.getElementById('scrap-part').value||orig.partId;
+  const notes=document.getElementById('scrap-notes').value;
+
+  autoBookmark(`Before scrap push-in: ${jobId}`);
+
+  // Create rework job
+  const rwId=jobId+'-R1';
+  const rwStart=new Date(TODAY);
+  const rwEnd=new Date(TODAY.getTime()+orig.totalHours*3600000);
+  const rwPriority=orig.hasSubco?4:5;
+  const rwJob={
+    id:rwId,partId:partNum,partDesc:orig.partDesc+' [REWORK]',
+    machine:orig.machine,qty,totalHours:orig.totalHours,
+    start:rwStart,end:rwEnd,originalEnd:rwEnd,due:orig.due,
+    delay:0,status:'queued',needsCMM:orig.needsCMM,cmmDone:false,
+    customer:orig.customer,po:orig.po,operations:orig.operations||[],
+    priority:rwPriority,hasSubco:orig.hasSubco,value:orig.value||0,
+    isRework:true,reworkReason:reason,reworkNotes:notes,parentJob:jobId
+  };
+  jobs.push(rwJob);
+  recalcCascade();
+
+  // Log to scrap history
+  const log=lsGet('scrap_log',[]);
+  log.unshift({timestamp:new Date().toISOString(),jobId,rwId,reason,qty,partNum,notes});
+  lsSet('scrap_log',log);
+
+  closeScrapModal();
+  renderSchedule();
+  toast(`🔧 Rework job ${rwId} created — Priority ${rwPriority} (${reason})`);
+}
+
+// ══════════════════════════════════════════════════════════════
 //  UTILITIES
 // ══════════════════════════════════════════════════════════════
 function fmtDate(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
 function fmtDateTime(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ══════════════════════════════════════════════════════════════
+//  STATE BOOKMARKING SYSTEM
+// ══════════════════════════════════════════════════════════════
+function getBookmarks(){return lsGet('bookmarks',{auto:[],named:{}});}
+function saveBookmarks(bm){lsSet('bookmarks',bm);}
+
+function captureState(){
+  return {
+    jobPriorities:jobs.map(j=>({id:j.id,priority:j.priority||50})),
+    machineAssignments:{...lsGet('floor_assign',{})},
+    breakdowns:{...getBreakdowns()},
+    floorAssign:{...lsGet('floor_assign',{})}
+  };
+}
+
+function autoBookmark(desc){
+  const bm=getBookmarks();
+  bm.auto.unshift({timestamp:new Date().toISOString(),description:desc||'Auto',state:captureState()});
+  if(bm.auto.length>50)bm.auto=bm.auto.slice(0,50);
+  saveBookmarks(bm);
+}
+
+function createNamedBookmark(name){
+  const bm=getBookmarks();
+  bm.named[name]={timestamp:new Date().toISOString(),state:captureState()};
+  saveBookmarks(bm);
+  toast(`🔖 Bookmark saved: "${name}"`);
+}
+
+function revertToLastBookmark(){
+  const bm=getBookmarks();
+  if(!bm.auto.length)return{msg:'No auto-bookmarks found.'};
+  return applyBookmarkState(bm.auto[0].state,`Reverted to last bookmark (${bm.auto[0].description})`);
+}
+
+function revertToBookmark(name){
+  const bm=getBookmarks();
+  const entry=bm.named[name];
+  if(!entry)return{msg:`No bookmark named "${name}" found. Available: ${Object.keys(bm.named).join(', ')||'none'}`};
+  return applyBookmarkState(entry.state,`Reverted to bookmark "${name}"`);
+}
+
+function applyBookmarkState(state,msg){
+  if(state.jobPriorities){
+    const ov={};state.jobPriorities.forEach(jp=>ov[jp.id]=jp.priority);
+    setPriorityOverrides(ov);
+    jobs.forEach(j=>{if(ov[j.id]!==undefined)j.priority=ov[j.id];});
+  }
+  if(state.breakdowns)setBreakdowns(state.breakdowns);
+  recalcCascade();
+  renderSchedule();
+  return{msg:msg||'State restored.'};
+}
+
+function listBookmarks(){
+  const bm=getBookmarks();
+  const named=Object.keys(bm.named);
+  const auto=bm.auto.slice(0,5);
+  let msg='';
+  if(named.length)msg+=`📌 Named bookmarks: ${named.join(', ')}\n`;
+  if(auto.length)msg+=`🕐 Recent auto-bookmarks:\n`+auto.map((b,i)=>`  ${i+1}. ${b.description} (${new Date(b.timestamp).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})})`).join('\n');
+  return msg||'No bookmarks saved yet.';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  CHAT AGENT PANEL
+// ══════════════════════════════════════════════════════════════
+let chatOpen=false;
+let chatAutoMode=false;
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open',chatOpen);
+  document.getElementById('chat-bubble').style.display=chatOpen?'none':'flex';
+  if(chatOpen){loadChatHistory();document.getElementById('chat-input').focus();}
+}
+
+function toggleChatMode(){
+  chatAutoMode=!chatAutoMode;
+  const badge=document.getElementById('chat-mode-badge');
+  badge.textContent=chatAutoMode?'AUTO MODE':'CONFIRM MODE';
+  badge.className='chat-mode-badge '+(chatAutoMode?'auto':'confirm');
+  addChatMsg('agent',`Mode switched to ${chatAutoMode?'AUTO (executes immediately)':'CONFIRM (asks before acting)'}.`);
+}
+
+function loadChatHistory(){
+  const msgs=document.getElementById('chat-msgs');
+  const history=lsGet('chat','[]');
+  const parsed=Array.isArray(history)?history:[];
+  if(!parsed.length){
+    msgs.innerHTML='';
+    addChatMsg('agent','👋 Hi! I\'m NuPhoenix AI. I can help with priorities, scrap push-ins, reports, bookmarks, and schedule questions. What do you need?',false);
+  }else{
+    msgs.innerHTML='';
+    parsed.forEach(m=>addChatMsg(m.role,m.text,false));
+    msgs.scrollTop=msgs.scrollHeight;
+  }
+}
+
+function saveChatHistory(){
+  const msgs=document.getElementById('chat-msgs');
+  const bubbles=msgs.querySelectorAll('.chat-msg');
+  const history=Array.from(bubbles).map(b=>({role:b.classList.contains('user')?'user':'agent',text:b.textContent}));
+  lsSet('chat',history.slice(-100));
+}
+
+function addChatMsg(role,text,save=true,type=''){
+  const msgs=document.getElementById('chat-msgs');
+  const div=document.createElement('div');
+  div.className=`chat-msg ${role}${type?' '+type:''}`;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  if(save)saveChatHistory();
+  return div;
+}
+
+function sendChat(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  addChatMsg('user',text);
+  const reply=parseCommand(text.toLowerCase(),text);
+  addChatMsg('agent',reply.msg,true,reply.type||'');
+}
+
+function parseCommand(cmd,raw){
+  // Prioritise
+  const prioMatch=cmd.match(/^prioriti[sz]e?\s+(.+)/);
+  if(prioMatch){
+    if(!chatAutoMode)return{msg:`Prioritise jobs matching "${prioMatch[1]}"? Send again to confirm, or switch to AUTO MODE.`,type:'warn',_pending:()=>prioritiseJobs(prioMatch[1])};
+    const r=prioritiseJobs(prioMatch[1]);
+    return{msg:r.msg,type:'action'};
+  }
+  // Deprioritise
+  const deprioMatch=cmd.match(/^de-?prioriti[sz]e?\s+(.+)/);
+  if(deprioMatch){
+    if(!chatAutoMode)return{msg:`Deprioritise jobs matching "${deprioMatch[1]}"? Switch to AUTO MODE to execute immediately.`,type:'warn'};
+    const r=deprioritiseJob(deprioMatch[1]);
+    return{msg:r.msg,type:'action'};
+  }
+  // Show priority jobs
+  if(cmd.includes('show priority')||cmd.includes('priority jobs')){
+    const pj=getPriorityJobs();
+    if(!pj.length)return{msg:'No jobs with priority above Normal (50).'};
+    return{msg:'Priority jobs:\n'+pj.slice(0,10).map(j=>`  P${j.priority} ${j.id} — ${j.partDesc} (${j.customer||'?'})${j.hasSubco?' 📦':''}`).join('\n')};
+  }
+  // Undo / revert last
+  if(cmd==='undo'||cmd.includes('revert last')||cmd.includes('undo last')){
+    const r=revertToLastBookmark();return{msg:r.msg,type:'action'};
+  }
+  // Bookmark this as [name]
+  const bmMatch=cmd.match(/bookmark this as (.+)/);
+  if(bmMatch){createNamedBookmark(bmMatch[1].trim());return{msg:`✅ Bookmark saved as "${bmMatch[1].trim()}".`,type:'action'};}
+  // Revert to [name]
+  const rvMatch=cmd.match(/revert to (.+)/);
+  if(rvMatch){const r=revertToBookmark(rvMatch[1].trim());return{msg:r.msg,type:'action'};}
+  // Show bookmarks
+  if(cmd.includes('show bookmark')||cmd.includes('list bookmark')){return{msg:listBookmarks()};}
+  // Push in scrap
+  const scrapMatch=cmd.match(/push.?in scrap for (.+)/);
+  if(scrapMatch){
+    const q=scrapMatch[1].trim();
+    const j=jobs.find(jj=>jj.id.toLowerCase().includes(q)||((jj.partDesc||'').toLowerCase().includes(q)));
+    if(j){document.getElementById('scrap-job-select').value=j.id;onScrapJobSelect();openScrapModal();return{msg:`Opening scrap push-in for ${j.id}.`,type:'action'};}
+    openScrapModal();return{msg:'Opening scrap push-in modal — please select the job.',type:'action'};
+  }
+  // Show schedule
+  if(cmd.includes('show schedule')||cmd.includes('switch to schedule')){setMode('schedule');return{msg:'Switched to Schedule view.',type:'action'};}
+  // Show m1 warnings
+  if(cmd.includes('m1 warning')||cmd.includes('show warning')){setMode('kpi');return{msg:'Switched to KPI view — see M1 Correction Report for warnings.',type:'action'};}
+  // Show time variances
+  if(cmd.includes('time variance')||cmd.includes('time review')){setMode('kpi');return{msg:'Switched to KPI view — see Per-Machine KPIs for time variances.',type:'action'};}
+  // Download report
+  const dlMatch=cmd.match(/download (.+?) as (pdf|excel)/);
+  if(dlMatch){generateCorrectionReport();return{msg:`Generating ${dlMatch[1]} report…`,type:'action'};}
+  // Scrap log
+  if(cmd.includes('scrap log')||cmd.includes('show scrap')){
+    const log=lsGet('scrap_log',[]);
+    if(!log.length)return{msg:'No scrap/rework entries logged yet.'};
+    return{msg:'Recent scrap/rework:\n'+log.slice(0,5).map(e=>`  ${e.rwId} — ${e.reason} (qty ${e.qty})`).join('\n')};
+  }
+  // Help / fallback
+  return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show schedule / m1 warnings / time variances"\n• "download [report] as pdf"'};
+}
 
 // ══════════════════════════════════════════════════════════════
 //  MONITOR ANIMATION — animate pie charts
