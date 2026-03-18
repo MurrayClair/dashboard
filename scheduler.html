@@ -204,6 +204,55 @@ table.dtbl select{width:auto;min-width:100px}
 .mcard-operator{font-size:10px;color:var(--dim);margin-bottom:2px}
 .mcard-cap{font-size:9px;color:var(--dim2);padding:2px 6px;background:var(--s3);border-radius:3px;display:inline-block;margin-top:2px}
 
+/* ─── SHOP FLOOR BOARD ─── */
+.floor-outer{display:flex;flex:1;overflow:hidden;height:100%}
+.floor-main{flex:1;overflow:auto;padding:16px;position:relative}
+.floor-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.floor-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(90px,auto);gap:10px;position:relative;padding-bottom:20px}
+.floor-card{background:var(--s2);border:2px solid var(--brd);border-radius:var(--r);padding:10px;position:relative;display:flex;flex-direction:column;min-height:90px;transition:border-color .2s,box-shadow .2s;cursor:default}
+.floor-card.drag-over{border-color:var(--blue)!important;box-shadow:0 0 12px rgba(90,200,250,.3)}
+.floor-card.rotated{grid-row:span 2;min-height:180px}
+.floor-card.wide{grid-column:span 3;min-height:100px}
+.floor-card.arriving{border-style:dashed;opacity:.45;pointer-events:none}
+.floor-card .fc-id{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.floor-card .fc-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.floor-card .fc-status.running{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-glow 2s infinite}
+.floor-card .fc-status.setup{background:var(--orange)}
+.floor-card .fc-status.idle{background:var(--dim2)}
+.floor-card .fc-status.down{background:var(--red)}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 4px var(--green)}50%{box-shadow:0 0 12px var(--green)}}
+.floor-card .fc-job{font-size:9px;color:var(--dim);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.floor-card .fc-worker-slot{margin-top:auto;padding-top:6px;display:flex;gap:4px;flex-wrap:wrap;min-height:28px}
+.worker-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;cursor:grab;user-select:none;transition:transform .15s,box-shadow .15s;position:relative;flex-shrink:0}
+.worker-avatar:active{cursor:grabbing;transform:scale(1.15)}
+.worker-avatar.assigned{background:var(--blue)}
+.worker-avatar.unassigned{background:var(--dim2);cursor:grab}
+.worker-avatar.dragging{opacity:.4}
+/* Unassigned pool sidebar */
+.floor-pool{width:200px;min-width:200px;background:var(--s1);border-left:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden}
+.floor-pool-hd{padding:10px 12px;border-bottom:1px solid var(--brd);font-weight:700;font-size:12px;display:flex;align-items:center;gap:6px}
+.floor-pool-filter{padding:6px 12px;border-bottom:1px solid var(--brd)}
+.floor-pool-filter select{width:100%;background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px}
+.floor-pool-body{flex:1;overflow-y:auto;padding:8px}
+.pool-worker{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:4px;background:var(--s2);cursor:grab;transition:.15s;user-select:none}
+.pool-worker:hover{border-color:var(--blue)}
+.pool-worker.assigned-elsewhere{opacity:.35;cursor:default}
+.pool-worker .pw-name{font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pool-worker .pw-shift{font-size:9px;color:var(--dim)}
+/* SVG tie lines overlay */
+.floor-svg-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5}
+/* Context menu */
+.floor-ctx{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--rs);padding:4px 0;z-index:200;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+.floor-ctx .ctx-item{padding:6px 14px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.1s}
+.floor-ctx .ctx-item:hover{background:var(--s2);color:var(--blue)}
+.floor-ctx .ctx-sep{height:1px;background:var(--brd);margin:4px 0}
+.floor-ctx .ctx-sub{padding:4px 14px}
+.floor-ctx .ctx-sub select{width:100%;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:3px 6px;border-radius:3px;font-size:10px}
+/* Floor toast */
+.floor-toast{position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--brd);padding:10px 16px;border-radius:var(--r);font-size:11px;z-index:200;opacity:0;transform:translateY(10px);transition:.3s;max-width:320px;pointer-events:none}
+.floor-toast.show{opacity:1;transform:translateY(0)}
+.floor-toast.impact{border-color:var(--orange);background:var(--orange-d)}
+
 /* ─── KPI MODE ─── */
 .kpi-wrap{flex:1;overflow-y:auto;padding:16px}
 .kpi-section{margin-bottom:24px}
@@ -342,10 +391,41 @@ table.dtbl select{width:auto;min-width:100px}
 
 <!-- ═══ MODE: MONITOR ═══ -->
 <div class="mode-content" id="mode-monitor">
-<div class="monitor-wrap">
-  <div class="section-title" style="margin-bottom:12px">🖥️ Shop Floor Monitor <span style="font-size:11px;color:var(--dim);font-weight:400">— Live machine status</span></div>
-  <div class="machine-grid" id="monitor-grid"></div>
+<div class="floor-outer">
+  <div class="floor-main" id="floor-main">
+    <div class="floor-header">
+      <div class="section-title" style="margin:0">🏭 Shop Floor Allocation Board <span style="font-size:11px;color:var(--dim);font-weight:400">— drag workers onto machines</span></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn success" onclick="floorAutoAssign()">🤖 Auto-Assign</button>
+        <button class="btn" onclick="floorClearAll()">🧹 Clear All</button>
+        <button class="btn" onclick="floorToggleLegacy()" id="floor-legacy-btn">📊 Card View</button>
+      </div>
+    </div>
+    <div id="floor-grid-wrap" style="position:relative">
+      <div class="floor-grid" id="floor-grid"></div>
+      <svg class="floor-svg-overlay" id="floor-svg"></svg>
+    </div>
+    <!-- Legacy card view (hidden by default) -->
+    <div id="monitor-legacy" style="display:none">
+      <div class="machine-grid" id="monitor-grid"></div>
+    </div>
+  </div>
+  <div class="floor-pool" id="floor-pool">
+    <div class="floor-pool-hd">👷 Unassigned</div>
+    <div class="floor-pool-filter">
+      <select id="floor-shift-filter" onchange="renderFloorPool()">
+        <option value="day">☀️ Day Shift</option>
+        <option value="night">🌙 Night Shift</option>
+        <option value="all">All Active</option>
+      </select>
+    </div>
+    <div class="floor-pool-body" id="floor-pool-body"></div>
+  </div>
 </div>
+<!-- Context Menu -->
+<div class="floor-ctx" id="floor-ctx"></div>
+<!-- Impact Toast -->
+<div class="floor-toast" id="floor-toast"></div>
 </div>
 
 <!-- ═══ MODE: SETUP ═══ -->
@@ -414,13 +494,14 @@ const MACHINES=[
   {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff',protocol:'MTConnect',ip:'192.168.1.116',port:5000},
   {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.117',port:19000},
   {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de',protocol:'Heidenhain',ip:'192.168.1.118',port:19000},
+  {id:'MV3000',name:'MV3000 — Mazak VMC',type:'vmc',color:'#ffd60a',protocol:'Mazak SmartM',ip:'192.168.1.119',port:19001},
   {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482',protocol:'FANUC FOCAS',ip:'192.168.1.119',port:8193},
   {id:'CMM1',name:'CMM1 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
   {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
   {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
   {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
 ];
-const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','MV3000'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
 const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.type));
 
 // ══════════════════════════════════════════════════════════════
@@ -1180,20 +1261,24 @@ function _renderEnquiry(j,el){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  MONITOR MODE RENDERING
+//  MONITOR MODE RENDERING (legacy card view preserved)
 // ══════════════════════════════════════════════════════════════
-function renderMonitor(){
+let floorLegacyMode=false;
+function floorToggleLegacy(){
+  floorLegacyMode=!floorLegacyMode;
+  document.getElementById('floor-grid-wrap').style.display=floorLegacyMode?'none':'block';
+  document.getElementById('monitor-legacy').style.display=floorLegacyMode?'block':'none';
+  document.getElementById('floor-legacy-btn').textContent=floorLegacyMode?'🏭 Floor View':'📊 Card View';
+  if(floorLegacyMode) renderMonitorLegacy();
+}
+function renderMonitorLegacy(){
   const data=genMonitorData();
   document.getElementById('monitor-grid').innerHTML=data.map(d=>{
     const m=d.machine, stCls=d.status;
     const stLabel=d.status.charAt(0).toUpperCase()+d.status.slice(1);
-    // Pie chart SVG
     const pie=genPieSVG(d);
-    // Operator capability
     const capStr=d.skill?fmtCapability(d.skill):'—';
-    // Progress
     const pctColor=d.pctDone>80?'var(--green)':d.pctDone>40?'var(--yellow)':'var(--blue)';
-    // Benchmark sparkline
     const maxBench=Math.max(...d.benchmark.map(b=>b.setupMins+b.cycleMins),1);
     const sparkBars=d.benchmark.map((b,i)=>{
       const h=((b.setupMins+b.cycleMins)/maxBench)*28;
@@ -1219,6 +1304,486 @@ function renderMonitor(){
     </div>`;
   }).join('');
 }
+
+// ══════════════════════════════════════════════════════════════
+//  SHOP FLOOR ALLOCATION BOARD
+// ══════════════════════════════════════════════════════════════
+
+// Floor assignments: machineId → [empId, ...] (supports multi-machine tie)
+let floorAssign = {};
+
+// Floor layout: grid positions for each machine
+const FLOOR_LAYOUT = [
+  // Row 1 — col 1..5
+  {id:'VTC530C', col:1,row:1, rotated:true},
+  {id:'ROBOCUT1',col:2,row:1},
+  {id:'VCS530C', col:3,row:1},
+  {id:'VRX730',  col:4,row:1},
+  {id:'FH4800',  col:5,row:1},
+  // Row 2 — col 1..7 (rotated integrex bank)
+  {id:'MV3000',  col:1,row:2},
+  {id:'HCN8800', col:2,row:2, rotated:true},
+  {id:'QTN350MY',col:3,row:2, rotated:true},
+  {id:'INTEJ400',col:4,row:2, rotated:true},
+  {id:'INTE4004S',col:5,row:2,rotated:true},
+  {id:'INTEi200',col:6,row:2, rotated:true},
+  // Row 2.5 — DMU75 below MV3000
+  {id:'DMU75',   col:1,row:3},
+  // Row 3 — main lathe / millturn row
+  {id:'QTN450M', col:1,row:4, rotated:true},
+  {id:'SQT10M',  col:2,row:4},
+  {id:'QT20',    col:3,row:4},
+  {id:'NTX2500', col:4,row:4},
+  {id:'NHX5000', col:6,row:4, rotated:true, label:'NHX5000 ×2'},
+  // Row 3.5 — sub-row
+  {id:'QT20HP',  col:2,row:5},
+  {id:'INTE2004S',col:3,row:5},
+  // Row 4 — inspection / assembly
+  {id:'CMM2',    col:1,row:6},
+  {id:'CMM1',    col:2,row:6},
+  {id:'NONCNC',  col:4,row:6, wide:true, label:'Assembly / Manual Ops'},
+];
+
+function getFloorMachineStatus(machineId){
+  const monData = genMonitorData();
+  const md = monData.find(d=>d.machine.id===machineId);
+  if(md) return md;
+  // Fallback for non-CNC machines
+  const ipJob = jobs.find(j=>j.machine===machineId&&j.status==='in-progress');
+  return {status: ipJob?'running':'idle', job:ipJob};
+}
+
+function getWorkerInitials(name){
+  const parts=name.trim().split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return name.substring(0,2).toUpperCase();
+}
+
+function getWorkerColor(empId){
+  // Deterministic color from id
+  let h=0; for(let i=0;i<empId.length;i++) h=(h*31+empId.charCodeAt(i))&0xffffff;
+  const hue = h % 360;
+  return `hsl(${hue},55%,50%)`;
+}
+
+function renderMonitor(){
+  if(floorLegacyMode){ renderMonitorLegacy(); return; }
+  renderFloorGrid();
+  renderFloorPool();
+  renderTieLines();
+}
+
+function renderFloorGrid(){
+  const grid = document.getElementById('floor-grid');
+  const isMobile = window.innerWidth < 768;
+
+  let html = '';
+  FLOOR_LAYOUT.forEach(pos => {
+    const m = MACHINES.find(mm=>mm.id===pos.id);
+    const md = pos.arriving ? null : getFloorMachineStatus(pos.id);
+    const status = md ? md.status : 'idle';
+    const statusLabel = status.charAt(0).toUpperCase()+status.slice(1);
+    const ipJob = md && md.job;
+
+    // Grid placement
+    let style = `grid-column:${pos.col}`;
+    if(pos.wide) style += `/span 3`;
+    style += `;grid-row:${pos.row}`;
+    if(pos.rotated) style += `/span 2`;
+
+    const cls = ['floor-card'];
+    if(pos.rotated) cls.push('rotated');
+    if(pos.wide) cls.push('wide');
+    if(pos.arriving) cls.push('arriving');
+
+    // Border color by status
+    let borderColor = 'var(--brd)';
+    if(!pos.arriving){
+      if(status==='running') borderColor='var(--green)';
+      else if(status==='setup') borderColor='var(--orange)';
+      else if(status==='down') borderColor='var(--red)';
+    }
+
+    // Workers assigned to this machine
+    const assignedEmps = (floorAssign[pos.id]||[]).map(eid=>getEmployees().find(e=>e.id===eid)).filter(Boolean);
+
+    html += `<div class="${cls.join(' ')}" id="fc-${pos.id}" style="${style};border-color:${borderColor}"
+      data-machine="${pos.id}"
+      ${pos.arriving?'':`ondragover="floorDragOver(event)" ondrop="floorDrop(event,'${pos.id}')" ondragleave="floorDragLeave(event)"`}
+      ${!pos.arriving && isMobile ? `onclick="floorMobileAssign('${pos.id}')"`:''}>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+        <span class="fc-status ${status}"></span>
+        <span class="fc-id">${pos.label||pos.id}</span>
+        ${!pos.arriving?`<span style="font-size:9px;color:var(--dim);margin-left:auto">${statusLabel}</span>`:''}
+      </div>
+      ${ipJob?`<div class="fc-job" title="${ipJob.partDesc}">📋 ${ipJob.id.substring(0,12)} — ${ipJob.partDesc.substring(0,18)}</div>`:(pos.arriving?'':'<div class="fc-job" style="color:var(--dim2)">No active job</div>')}
+      ${pos.arriving?'':
+        `<div class="fc-worker-slot" data-machine="${pos.id}">
+          ${assignedEmps.length ? assignedEmps.map(e=>{
+            const init=getWorkerInitials(e.name);
+            const col=getWorkerColor(e.id);
+            return `<div class="worker-avatar assigned" draggable="true" data-emp="${e.id}" data-from="${pos.id}"
+              style="background:${col}" title="${e.name}"
+              ondragstart="floorWorkerDragStart(event,'${e.id}','${pos.id}')"
+              oncontextmenu="floorWorkerContext(event,'${e.id}','${pos.id}')">${init}</div>`;
+          }).join('') : `<div style="width:26px;height:26px;border-radius:50%;border:2px dashed var(--brd);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--dim2)">+</div>`}
+        </div>`
+      }
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function renderFloorPool(){
+  const emps = getEmployees().filter(e=>e.active);
+  const shiftFilter = document.getElementById('floor-shift-filter')?.value || 'day';
+  const filtered = shiftFilter==='all' ? emps : emps.filter(e=>e.shift.toLowerCase()===shiftFilter || e.shift==='Rotating');
+
+  // Which employees are already assigned?
+  const assignedSet = new Set();
+  Object.values(floorAssign).forEach(arr=>arr.forEach(eid=>assignedSet.add(eid)));
+
+  const body = document.getElementById('floor-pool-body');
+  const isMobile = window.innerWidth < 768;
+
+  body.innerHTML = filtered.map(e=>{
+    const isAssigned = assignedSet.has(e.id);
+    const init = getWorkerInitials(e.name);
+    const col = getWorkerColor(e.id);
+    const assignedMachines = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(e.id)).map(([m])=>m);
+
+    return `<div class="pool-worker ${isAssigned?'assigned-elsewhere':''}"
+      ${!isAssigned?`draggable="true" ondragstart="floorPoolDragStart(event,'${e.id}')" ${isMobile?`onclick="floorMobilePickWorker('${e.id}')"`:''}`:''}>
+      <div class="worker-avatar ${isAssigned?'assigned':'unassigned'}" style="background:${isAssigned?col:'var(--dim2)'};width:22px;height:22px;font-size:8px">${init}</div>
+      <div class="pw-name">${e.name}</div>
+      <div class="pw-shift">${e.shift}</div>
+      ${isAssigned?`<div style="font-size:8px;color:var(--blue);margin-left:auto">→ ${assignedMachines.join(', ')}</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Update header count
+  const unassignedCount = filtered.filter(e=>!assignedSet.has(e.id)).length;
+  document.querySelector('.floor-pool-hd').innerHTML = `👷 Unassigned <span style="font-size:10px;background:var(--s3);padding:1px 8px;border-radius:10px;font-weight:700;margin-left:auto">${unassignedCount}</span>`;
+}
+
+// ── Tie Lines (SVG) ──
+function renderTieLines(){
+  const svg = document.getElementById('floor-svg');
+  const wrap = document.getElementById('floor-grid-wrap');
+  if(!svg||!wrap) return;
+  const wrapRect = wrap.getBoundingClientRect();
+  // Resize SVG to match grid
+  const grid = document.getElementById('floor-grid');
+  svg.style.width = grid.scrollWidth+'px';
+  svg.style.height = grid.scrollHeight+'px';
+  svg.setAttribute('viewBox',`0 0 ${grid.scrollWidth} ${grid.scrollHeight}`);
+
+  let lines = '';
+  // Find workers on multiple machines
+  const empMachines = {}; // empId → [machineId,...]
+  Object.entries(floorAssign).forEach(([mId,arr])=>{
+    arr.forEach(eid=>{
+      if(!empMachines[eid]) empMachines[eid]=[];
+      empMachines[eid].push(mId);
+    });
+  });
+
+  Object.entries(empMachines).forEach(([eid,machines])=>{
+    if(machines.length<2) return;
+    const col = getWorkerColor(eid);
+    // Draw lines between each pair of machine cards
+    for(let i=0;i<machines.length-1;i++){
+      for(let j=i+1;j<machines.length;j++){
+        const elA = document.getElementById('fc-'+machines[i]);
+        const elB = document.getElementById('fc-'+machines[j]);
+        if(!elA||!elB) continue;
+        const rA = elA.getBoundingClientRect();
+        const rB = elB.getBoundingClientRect();
+        // Positions relative to wrap
+        const x1 = rA.left - wrapRect.left + rA.width/2;
+        const y1 = rA.top - wrapRect.top + rA.height/2;
+        const x2 = rB.left - wrapRect.left + rB.width/2;
+        const y2 = rB.top - wrapRect.top + rB.height/2;
+        // Curved line with slight arc
+        const mx = (x1+x2)/2, my = (y1+y2)/2;
+        const dx = x2-x1, dy = y2-y1;
+        const cx = mx - dy*0.15, cy = my + dx*0.15;
+        lines += `<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" stroke="${col}" stroke-width="2.5" fill="none" stroke-dasharray="6,3" opacity="0.7"/>`;
+        // Small circles at endpoints
+        lines += `<circle cx="${x1}" cy="${y1}" r="4" fill="${col}" opacity="0.7"/>`;
+        lines += `<circle cx="${x2}" cy="${y2}" r="4" fill="${col}" opacity="0.7"/>`;
+      }
+    }
+  });
+  svg.innerHTML = lines;
+}
+
+// ── Drag & Drop ──
+let floorDragEmpId = null;
+let floorDragFrom = null; // machineId or 'pool'
+
+function floorPoolDragStart(e, empId){
+  floorDragEmpId = empId;
+  floorDragFrom = 'pool';
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', empId);
+  // Dim the source
+  setTimeout(()=>{ if(e.target) e.target.classList.add('dragging'); },0);
+}
+
+function floorWorkerDragStart(e, empId, fromMachine){
+  floorDragEmpId = empId;
+  floorDragFrom = fromMachine;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', empId);
+  e.stopPropagation();
+  setTimeout(()=>{ if(e.target) e.target.classList.add('dragging'); },0);
+}
+
+function floorDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.currentTarget;
+  card.classList.add('drag-over');
+}
+
+function floorDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function floorDrop(e, machineId){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const empId = floorDragEmpId;
+  if(!empId) return;
+
+  // If coming from another machine and dropped on a *different* machine:
+  // create a tie (worker serves both) — unless they're already there
+  if(floorDragFrom && floorDragFrom !== 'pool' && floorDragFrom !== machineId){
+    // Worker already on floorDragFrom; add to new machine too (tie)
+    if(!floorAssign[machineId]) floorAssign[machineId]=[];
+    if(!floorAssign[machineId].includes(empId)){
+      floorAssign[machineId].push(empId);
+      const emp = getEmployees().find(e=>e.id===empId);
+      floorShowToast(`🔗 ${emp?.name||empId} now serves ${floorDragFrom} + ${machineId}`);
+    }
+  } else {
+    // From pool — assign to this machine
+    // Remove from any previous assignment
+    Object.keys(floorAssign).forEach(mId=>{
+      floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
+      if(!floorAssign[mId].length) delete floorAssign[mId];
+    });
+    if(!floorAssign[machineId]) floorAssign[machineId]=[];
+    if(!floorAssign[machineId].includes(empId)){
+      floorAssign[machineId].push(empId);
+    }
+    const emp = getEmployees().find(e=>e.id===empId);
+    floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
+  }
+
+  floorDragEmpId = null;
+  floorDragFrom = null;
+  renderFloorGrid();
+  renderFloorPool();
+  // Need a short delay for DOM to settle before measuring tie lines
+  requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+}
+
+// ── Mobile fallback: click-to-assign ──
+let floorMobilePendingWorker = null;
+
+function floorMobilePickWorker(empId){
+  floorMobilePendingWorker = empId;
+  const emp = getEmployees().find(e=>e.id===empId);
+  floorShowToast(`👆 Tap a machine to assign ${emp?.name||empId}`, false);
+}
+
+function floorMobileAssign(machineId){
+  if(!floorMobilePendingWorker) return;
+  const empId = floorMobilePendingWorker;
+  floorMobilePendingWorker = null;
+  // Remove previous
+  Object.keys(floorAssign).forEach(mId=>{
+    floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
+    if(!floorAssign[mId].length) delete floorAssign[mId];
+  });
+  if(!floorAssign[machineId]) floorAssign[machineId]=[];
+  floorAssign[machineId].push(empId);
+  const emp = getEmployees().find(e=>e.id===empId);
+  floorShowToast(`✅ ${emp?.name||empId} → ${machineId}`);
+  renderFloorGrid();
+  renderFloorPool();
+  requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+}
+
+// ── Right-Click Context Menu ──
+function floorWorkerContext(e, empId, machineId){
+  e.preventDefault();
+  e.stopPropagation();
+  const ctx = document.getElementById('floor-ctx');
+  const emp = getEmployees().find(em=>em.id===empId);
+  const empMachines = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(empId)).map(([m])=>m);
+  // Build nearby machines (ones not already assigned)
+  const otherMachines = FLOOR_LAYOUT.filter(p=>!p.arriving && !empMachines.includes(p.id)).map(p=>p.id);
+
+  let html = `<div style="padding:6px 14px;font-weight:700;font-size:11px;color:var(--txt);border-bottom:1px solid var(--brd)">${emp?.name||empId}</div>`;
+  html += `<div class="ctx-item" onclick="floorCtxAddMachine('${empId}')">➕ Add Machine<span style="font-size:9px;color:var(--dim);margin-left:auto">(tie)</span></div>`;
+  html += `<div class="ctx-sub"><select id="ctx-add-machine-select" style="display:none">${otherMachines.map(m=>`<option value="${m}">${m}</option>`).join('')}</select></div>`;
+  if(empMachines.length>1){
+    html += `<div class="ctx-sep"></div>`;
+    empMachines.forEach(m=>{
+      html += `<div class="ctx-item" onclick="floorCtxRemoveMachine('${empId}','${m}')">➖ Remove from ${m}</div>`;
+    });
+  }
+  html += `<div class="ctx-sep"></div>`;
+  html += `<div class="ctx-item" style="color:var(--red)" onclick="floorCtxUnassign('${empId}')">🚫 Unassign (back to pool)</div>`;
+
+  ctx.innerHTML = html;
+  ctx.style.display = 'block';
+  ctx.style.left = Math.min(e.clientX, window.innerWidth-200)+'px';
+  ctx.style.top = Math.min(e.clientY, window.innerHeight-200)+'px';
+
+  // Close on outside click
+  setTimeout(()=>{
+    const closer = (ev)=>{
+      if(!ctx.contains(ev.target)){
+        ctx.style.display='none';
+        document.removeEventListener('click',closer);
+      }
+    };
+    document.addEventListener('click',closer);
+  },10);
+}
+
+function floorCtxAddMachine(empId){
+  const sel = document.getElementById('ctx-add-machine-select');
+  if(sel.style.display==='none'){
+    sel.style.display='block';
+    sel.onchange=function(){
+      const mId = sel.value;
+      if(!mId) return;
+      if(!floorAssign[mId]) floorAssign[mId]=[];
+      if(!floorAssign[mId].includes(empId)) floorAssign[mId].push(empId);
+      document.getElementById('floor-ctx').style.display='none';
+      const emp = getEmployees().find(e=>e.id===empId);
+      const allM = Object.entries(floorAssign).filter(([m,arr])=>arr.includes(empId)).map(([m])=>m);
+      floorShowToast(`🔗 ${emp?.name||empId} now serves ${allM.join(' + ')}`);
+      renderFloorGrid();renderFloorPool();
+      requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+    };
+  } else {
+    sel.style.display='none';
+  }
+}
+
+function floorCtxRemoveMachine(empId, machineId){
+  if(floorAssign[machineId]){
+    floorAssign[machineId] = floorAssign[machineId].filter(id=>id!==empId);
+    if(!floorAssign[machineId].length) delete floorAssign[machineId];
+  }
+  document.getElementById('floor-ctx').style.display='none';
+  const emp = getEmployees().find(e=>e.id===empId);
+  floorShowToast(`➖ ${emp?.name||empId} removed from ${machineId}`);
+  renderFloorGrid();renderFloorPool();
+  requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+}
+
+function floorCtxUnassign(empId){
+  Object.keys(floorAssign).forEach(mId=>{
+    floorAssign[mId] = floorAssign[mId].filter(id=>id!==empId);
+    if(!floorAssign[mId].length) delete floorAssign[mId];
+  });
+  document.getElementById('floor-ctx').style.display='none';
+  const emp = getEmployees().find(e=>e.id===empId);
+  floorShowToast(`🚫 ${emp?.name||empId} returned to pool`);
+  renderFloorGrid();renderFloorPool();
+  requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+}
+
+// ── Auto-Assign ──
+function floorAutoAssign(){
+  const emps = getEmployees().filter(e=>e.active);
+  const shiftFilter = document.getElementById('floor-shift-filter')?.value || 'day';
+  const shiftEmps = emps.filter(e=>e.shift.toLowerCase()===shiftFilter || e.shift==='Rotating');
+  const skills = getSkills();
+
+  // Reset assignments
+  floorAssign = {};
+  const assigned = new Set();
+
+  // Get machines with active jobs, sorted by priority (late first)
+  const activeJobs = jobs.filter(j=>j.status==='in-progress'||j.status==='queued');
+  const machinesPrioritized = FLOOR_LAYOUT.filter(p=>!p.arriving).map(p=>{
+    const mJobs = activeJobs.filter(j=>j.machine===p.id);
+    if(!mJobs.length) return {id:p.id, score:0};
+    const top = mJobs.sort((a,b)=>a.due-b.due)[0];
+    const isLate = top.end > top.due;
+    const isAtRisk = !isLate && (top.due-top.end) < 24*3600000;
+    return {id:p.id, score: isLate?3:isAtRisk?2:1, job:top};
+  }).sort((a,b)=>b.score-a.score);
+
+  machinesPrioritized.forEach(({id:mId})=>{
+    const candidates = shiftEmps.filter(e=>!assigned.has(e.id));
+    if(!candidates.length) return;
+    const scored = candidates.map(e=>{
+      let score=0;
+      if((e.preferred||[]).includes(mId)) score+=10;
+      const sk = skills[e.id]?.[mId];
+      if(sk?.operate) score+=5;
+      if(sk?.setup) score+=3;
+      return {emp:e,score};
+    }).sort((a,b)=>b.score-a.score);
+    const best = scored[0];
+    if(best){
+      floorAssign[mId] = [best.emp.id];
+      assigned.add(best.emp.id);
+    }
+  });
+
+  // Now handle tie lines: if an employee has 2 preferred machines, assign to both
+  shiftEmps.forEach(e=>{
+    if(!assigned.has(e.id)) return;
+    const prefs = e.preferred||[];
+    if(prefs.length>=2){
+      prefs.forEach(mId=>{
+        const pos = FLOOR_LAYOUT.find(p=>p.id===mId&&!p.arriving);
+        if(!pos) return;
+        if(!floorAssign[mId]) floorAssign[mId]=[];
+        if(!floorAssign[mId].includes(e.id)) floorAssign[mId].push(e.id);
+      });
+    }
+  });
+
+  renderFloorGrid();
+  renderFloorPool();
+  requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+  floorShowToast('🤖 Auto-assignment complete');
+}
+
+function floorClearAll(){
+  floorAssign = {};
+  renderFloorGrid();
+  renderFloorPool();
+  renderTieLines();
+  floorShowToast('🧹 All assignments cleared');
+}
+
+// ── Floor Toast ──
+let floorToastTimer=null;
+function floorShowToast(msg, autoHide=true){
+  const el = document.getElementById('floor-toast');
+  el.textContent = msg;
+  el.className = 'floor-toast show';
+  if(msg.includes('⚠️')||msg.includes('impact')) el.classList.add('impact');
+  if(floorToastTimer) clearTimeout(floorToastTimer);
+  if(autoHide) floorToastTimer = setTimeout(()=>{ el.classList.remove('show'); },3000);
+}
+
+// Recalc tie lines on resize
+window.addEventListener('resize',()=>{
+  if(currentMode==='monitor' && !floorLegacyMode) requestAnimationFrame(renderTieLines);
+});
 
 function fmtCapability(sk){
   if(!sk)return '—';
