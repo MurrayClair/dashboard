@@ -67,6 +67,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .impact-card{background:var(--orange-d);border:1px solid rgba(255,159,10,.3);border-radius:var(--r);padding:12px;margin-bottom:8px}
 .impact-card h4{font-size:13px;color:var(--orange);margin-bottom:6px}
 .impact-card .detail{font-size:11px;color:var(--dim)}
+/* Staffing analysis */
+.sa-panel{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:16px}
+.sa-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sa-header h3{font-size:15px;display:flex;align-items:center;gap:8px}
+.sa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:16px}
+.sa-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:12px}
+.sa-card .val{font-size:24px;font-weight:700;line-height:1.2}
+.sa-card .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.sa-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.sa-table th{background:var(--s2);padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);text-align:left}
+.sa-table td{padding:8px;border:1px solid var(--brd);font-size:12px}
+.sa-scenario{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.sa-scenario h4{font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sa-gain{color:var(--green);font-weight:700}
+.sa-loss{color:var(--red);font-weight:700}
 .btn.success{background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3)}
 .btn.primary{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .ctrl-label{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-right:4px}
@@ -398,6 +413,7 @@ table.dtbl select{width:auto;min-width:100px}
       <div style="display:flex;gap:6px;align-items:center">
         <button class="btn success" onclick="floorAutoAssign()">🤖 Auto-Assign</button>
         <button class="btn" onclick="floorClearAll()">🧹 Clear All</button>
+        <button class="btn" onclick="toggleStaffingAnalysis()" id="staffing-btn" style="background:var(--purple);background:rgba(191,90,242,.15);color:var(--purple);border-color:rgba(191,90,242,.3)">📉 Staffing Impact</button>
         <button class="btn" onclick="floorToggleLegacy()" id="floor-legacy-btn">📊 Card View</button>
       </div>
     </div>
@@ -405,6 +421,8 @@ table.dtbl select{width:auto;min-width:100px}
       <div class="floor-grid" id="floor-grid"></div>
       <svg class="floor-svg-overlay" id="floor-svg"></svg>
     </div>
+    <!-- Staffing Impact Analysis -->
+    <div id="staffing-panel" style="display:none;margin-top:12px"></div>
     <!-- Legacy card view (hidden by default) -->
     <div id="monitor-legacy" style="display:none">
       <div class="machine-grid" id="monitor-grid"></div>
@@ -1755,6 +1773,171 @@ function floorClearAll(){
 
 // ── Floor Toast ──
 let floorToastTimer=null;
+// ══════════════════════════════════════════════════════════════
+//  STAFFING IMPACT ANALYSIS
+// ══════════════════════════════════════════════════════════════
+const MACHINE_HOURLY_RATE = 120; // $/hr average machine contribution rate
+const SHIFT_HOURS = 10;
+const DAYS_PER_WEEK = 5;
+const WEEKS_PER_MONTH = 4.33;
+
+let staffingPanelOpen = false;
+function toggleStaffingAnalysis(){
+  staffingPanelOpen = !staffingPanelOpen;
+  const panel = document.getElementById('staffing-panel');
+  if(staffingPanelOpen){ renderStaffingAnalysis(); panel.style.display='block'; }
+  else panel.style.display='none';
+}
+
+function renderStaffingAnalysis(){
+  const activeJobs = jobs.filter(j=>j.status==='in-progress'||j.status==='queued');
+  const allMachineIds = FLOOR_LAYOUT.filter(p=>!p.arriving).map(p=>p.id);
+  const assignedMachines = new Set(Object.keys(floorAssign).filter(m=>floorAssign[m]?.length>0));
+  
+  // Unstaffed machines with active work
+  const unstaffed = allMachineIds.filter(mId=>{
+    if(assignedMachines.has(mId)) return false;
+    return activeJobs.some(j=>j.machine===mId);
+  });
+  
+  // Calculate what each unstaffed machine is losing
+  const losses = unstaffed.map(mId=>{
+    const mJobs = activeJobs.filter(j=>j.machine===mId).sort((a,b)=>a.due-b.due);
+    const topJob = mJobs[0];
+    const isLate = topJob && topJob.end > topJob.due;
+    const hoursWaiting = topJob ? topJob.totalHours : 0;
+    const machine = MACHINES.find(m=>m.id===mId);
+    return {
+      machine: mId,
+      type: machine?.type||'unknown',
+      jobCount: mJobs.length,
+      topJob,
+      hoursWaiting,
+      isLate,
+      lostPerShift: Math.min(SHIFT_HOURS, hoursWaiting),
+      lostRevenuePerShift: Math.min(SHIFT_HOURS, hoursWaiting) * MACHINE_HOURLY_RATE,
+    };
+  }).sort((a,b)=>b.lostRevenuePerShift-a.lostRevenuePerShift);
+  
+  const totalUnstaffed = unstaffed.length;
+  const totalStaffed = assignedMachines.size;
+  const totalWithWork = allMachineIds.filter(mId=>activeJobs.some(j=>j.machine===mId)).length;
+  const coveragePct = totalWithWork>0 ? Math.round(totalStaffed/totalWithWork*100) : 100;
+  const totalLostPerShift = losses.reduce((s,l)=>s+l.lostPerShift,0);
+  const totalLostRevPerShift = losses.reduce((s,l)=>s+l.lostRevenuePerShift,0);
+  const totalLostRevPerDay = totalLostRevPerShift * 2; // day + night
+  const totalLostRevPerWeek = totalLostRevPerDay * DAYS_PER_WEEK;
+  const totalLostRevPerMonth = totalLostRevPerWeek * WEEKS_PER_MONTH;
+  
+  // +1 employee scenarios
+  const bestSetupRun = losses[0]; // highest impact machine
+  const bestRunOnly = losses.find(l=>l.topJob && !l.isLate) || losses[0]; // non-late preferred for run-only
+  
+  // Calculate gain from +1 employee
+  const gain1Shift = bestSetupRun ? bestSetupRun.lostPerShift : 0;
+  const gain1Revenue = gain1Shift * MACHINE_HOURLY_RATE;
+  const gain1Day = gain1Revenue * 1; // 1 shift per day for new hire
+  const gain1Week = gain1Day * DAYS_PER_WEEK;
+  const gain1Month = gain1Week * WEEKS_PER_MONTH;
+  
+  let html = `<div class="sa-panel">
+    <div class="sa-header">
+      <h3>📉 Staffing Impact Analysis</h3>
+      <button class="btn" onclick="toggleStaffingAnalysis()">✕ Close</button>
+    </div>
+    
+    <div class="sa-grid">
+      <div class="sa-card"><div class="val" style="color:var(--green)">${totalStaffed}</div><div class="lbl">Machines Staffed</div></div>
+      <div class="sa-card"><div class="val" style="color:var(--red)">${totalUnstaffed}</div><div class="lbl">Unstaffed (with work)</div></div>
+      <div class="sa-card"><div class="val" style="color:${coveragePct>=80?'var(--green)':coveragePct>=60?'var(--yellow)':'var(--red)'}">${coveragePct}%</div><div class="lbl">Coverage Rate</div></div>
+      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerShift).toLocaleString()}</div><div class="lbl">Lost per Shift</div></div>
+      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerDay).toLocaleString()}</div><div class="lbl">Lost per Day</div></div>
+      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerWeek).toLocaleString()}</div><div class="lbl">Lost per Week</div></div>
+      <div class="sa-card"><div class="val sa-loss">$${Math.round(totalLostRevPerMonth).toLocaleString()}</div><div class="lbl">Lost per Month</div></div>
+      <div class="sa-card"><div class="val">${totalLostPerShift.toFixed(1)}h</div><div class="lbl">Machine Hours Lost / Shift</div></div>
+    </div>`;
+  
+  // Unstaffed machines breakdown
+  if(losses.length){
+    html += `<div style="font-weight:700;font-size:13px;margin-bottom:8px">🔴 Unstaffed Machines — Lost Production</div>
+    <table class="sa-table"><thead><tr>
+      <th>Machine</th><th>Type</th><th>Jobs Waiting</th><th>Top Job</th><th>Status</th><th>Hours Lost/Shift</th><th>Revenue Lost/Shift</th>
+    </tr></thead><tbody>`;
+    losses.forEach(l=>{
+      html += `<tr>
+        <td style="font-weight:700">${l.machine}</td>
+        <td>${l.type}</td>
+        <td>${l.jobCount}</td>
+        <td style="font-size:11px">${l.topJob?l.topJob.id.substring(0,12)+' — '+l.topJob.partDesc.substring(0,18):'—'}</td>
+        <td style="color:${l.isLate?'var(--red)':'var(--yellow)'}; font-weight:600">${l.isLate?'LATE':'WAITING'}</td>
+        <td>${l.lostPerShift.toFixed(1)}h</td>
+        <td class="sa-loss">$${Math.round(l.lostRevenuePerShift).toLocaleString()}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+  
+  // +1 Employee Scenarios
+  html += `<div style="font-weight:700;font-size:13px;margin:16px 0 8px">💡 What If We Hire +1 Employee?</div>`;
+  
+  if(bestSetupRun){
+    html += `<div class="sa-scenario">
+      <h4>🟢 Scenario A: +1 High-Skill (Setup & Run)</h4>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:8px">
+        Best deployed on: <strong>${bestSetupRun.machine}</strong> 
+        (${bestSetupRun.jobCount} jobs waiting, ${bestSetupRun.isLate?'<span style="color:var(--red)">LATE</span>':'queued'})
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div><div class="sa-gain" style="font-size:18px">+${gain1Shift.toFixed(1)}h</div><div style="font-size:10px;color:var(--dim)">Per Shift</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Day).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Day</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Week).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Week</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(gain1Month).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Month</div></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--dim)">
+        Can set up and run independently. Covers the highest-impact unstaffed machine.
+        ${bestSetupRun.topJob?`Top job: ${bestSetupRun.topJob.partDesc} (due ${fmtDate(bestSetupRun.topJob.due)})`:''} 
+      </div>
+    </div>`;
+  }
+  
+  // Run-only scenario (cheaper hire)
+  const runOnlyGain = bestRunOnly ? bestRunOnly.lostPerShift * 0.7 : 0; // 70% efficiency (needs someone to set up)
+  const runOnlyRev = runOnlyGain * MACHINE_HOURLY_RATE;
+  if(bestRunOnly){
+    html += `<div class="sa-scenario">
+      <h4>🟡 Scenario B: +1 Run-Only Operator</h4>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:8px">
+        Best deployed on: <strong>${bestRunOnly.machine}</strong> 
+        (requires someone else to set up first — 70% efficiency estimate)
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div><div class="sa-gain" style="font-size:18px">+${runOnlyGain.toFixed(1)}h</div><div style="font-size:10px;color:var(--dim)">Per Shift</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Day</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev*DAYS_PER_WEEK).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Week</div></div>
+        <div><div class="sa-gain" style="font-size:18px">+$${Math.round(runOnlyRev*DAYS_PER_WEEK*WEEKS_PER_MONTH).toLocaleString()}</div><div style="font-size:10px;color:var(--dim)">Per Month</div></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--dim)">
+        Can run parts but needs setup assistance. Lower cost hire, ~70% of full-skill output.
+      </div>
+    </div>`;
+  }
+  
+  // Summary recommendation
+  const annualLoss = totalLostRevPerMonth * 12;
+  html += `<div style="background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.3);border-radius:var(--r);padding:14px;margin-top:12px">
+    <div style="font-weight:700;font-size:13px;color:var(--purple);margin-bottom:6px">📊 HR Decision Summary</div>
+    <div style="font-size:12px">
+      <div>Current annual lost production estimate: <strong class="sa-loss">$${Math.round(annualLoss).toLocaleString()}</strong></div>
+      <div style="margin-top:4px">+1 high-skill employee would recover: <strong class="sa-gain">~$${Math.round(gain1Month*12).toLocaleString()}/year</strong></div>
+      <div style="margin-top:4px">+1 run-only operator would recover: <strong class="sa-gain">~$${Math.round(runOnlyRev*DAYS_PER_WEEK*WEEKS_PER_MONTH*12).toLocaleString()}/year</strong></div>
+      <div style="margin-top:8px;color:var(--dim);font-size:11px">Based on $${MACHINE_HOURLY_RATE}/hr machine rate × ${SHIFT_HOURS}hr shifts × current unstaffed machine count (${totalUnstaffed}). Adjust machine rate in config for accurate figures.</div>
+    </div>
+  </div>`;
+  
+  html += `</div>`;
+  document.getElementById('staffing-panel').innerHTML = html;
+}
+
 function floorShowToast(msg, autoHide=true){
   const el = document.getElementById('floor-toast');
   el.textContent = msg;
