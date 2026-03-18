@@ -200,6 +200,19 @@ table.dtbl select{width:auto;min-width:100px}
 .mcard-status.setup{background:var(--orange-d);color:var(--orange)}
 .mcard-status.idle{background:var(--s3);color:var(--dim)}
 .mcard-status.down{background:var(--red-d);color:var(--red)}
+.mcard-status.breakdown{background:var(--red-d);color:var(--red);border:2px dashed var(--red)}
+.mcard.breakdown{border:3px solid var(--red)!important;background:rgba(255,69,58,.05)}
+.floor-card.breakdown{border:3px solid var(--red)!important;background:rgba(255,69,58,.05)}
+.breakdown-btn{padding:4px 8px;font-size:10px;border:1px solid var(--red);background:var(--red-d);color:var(--red);border-radius:4px;cursor:pointer;margin:4px 0}
+.breakdown-btn:hover{background:var(--red);color:#fff}
+.breakdown-restore{background:var(--green-d);color:var(--green);border-color:var(--green)}
+.breakdown-restore:hover{background:var(--green);color:#fff}
+.breakdown-date{margin:6px 0;font-size:10px}
+.breakdown-date input[type="date"]{padding:3px 6px;border:1px solid var(--brd);border-radius:4px;font-size:10px;background:var(--s3);color:var(--txt);width:100%;font-family:inherit}
+.fc-status.breakdown{background:var(--red);border:2px solid #fff;box-shadow:0 0 0 2px var(--red)}
+.g-row.breakdown{background:rgba(255,69,58,.1)!important}
+.g-label.breakdown{background:rgba(255,69,58,.15);color:var(--red)}
+.breakdown-bar{background:rgba(255,69,58,.3);border:2px dashed var(--red);color:var(--red);font-weight:700;text-align:center;font-size:11px}
 .mcard-pie-wrap{display:flex;align-items:center;gap:14px;margin:10px 0}
 .mcard-pie{width:90px;height:90px;flex-shrink:0}
 .mcard-info{flex:1;font-size:11px}
@@ -584,6 +597,32 @@ function getM1Config(){return lsGet('m1config',{server:'NP-SQL01\\M1PROD',databa
   {name:'PO Receipts',path:'dbo.porect'},{name:'Shop Floor Txn',path:'dbo.sftran'},
 ]});}
 function getMachineSetup(){return lsGet('machine_setup',MACHINES.map(m=>({id:m.id,name:m.name,type:m.type,protocol:m.protocol,ip:m.ip,port:m.port,status:'Online'})));}
+function getBreakdowns(){return lsGet('breakdowns',{});}
+function setBreakdowns(bd){lsSet('breakdowns',bd);}
+function toggleBreakdown(machineId){
+  const breakdowns=getBreakdowns();
+  if(breakdowns[machineId]&&breakdowns[machineId].active){
+    // Restore from breakdown
+    delete breakdowns[machineId];
+    setBreakdowns(breakdowns);
+    toast(`✅ ${machineId} restored from breakdown maintenance`);
+  }else{
+    // Set to breakdown
+    const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+    breakdowns[machineId]={active:true,expectedAvailable:tomorrow.toISOString().split('T')[0],timestamp:new Date().toISOString()};
+    setBreakdowns(breakdowns);
+    toast(`🔧 ${machineId} set to breakdown maintenance`);
+  }
+  // Refresh views
+  if(currentMode==='monitor')renderMonitor();
+  if(currentMode==='schedule')renderSchedule();
+}
+function setBreakdownDate(machineId,date){
+  const breakdowns=getBreakdowns();
+  if(breakdowns[machineId])breakdowns[machineId].expectedAvailable=date;
+  setBreakdowns(breakdowns);
+  if(currentMode==='schedule')renderSchedule();
+}
 
 // ══════════════════════════════════════════════════════════════
 //  PARTS & JOBS (same as original)
@@ -684,9 +723,14 @@ function recalcCascade(){
 function genMonitorData(){
   const emps=getEmployees().filter(e=>e.active);
   const skills=getSkills();
+  const breakdowns=getBreakdowns();
   const states=['running','running','running','setup','setup','idle','down'];
   return CNC_MACHINES.map((m,i)=>{
-    const st=states[i%states.length];
+    // Check if machine is in breakdown first
+    let st=states[i%states.length];
+    if(breakdowns[m.id]&&breakdowns[m.id].active){
+      st='breakdown';
+    }
     const emp=emps[i%emps.length];
     const ipJob=jobs.find(j=>j.machine===m.id&&j.status==='in-progress');
     const stdSetup=10+Math.floor(Math.random()*40);
@@ -703,7 +747,8 @@ function genMonitorData(){
       bench.push({who:be?be.name.split(' ')[0]:'—',setupMins:Math.floor(stdSetup*(0.7+Math.random()*0.6)),cycleMins:+(stdRun*(0.8+Math.random()*0.4)).toFixed(1)});
     }
     const isAtRisk=st==='running'&&actualMins>stdRun*1.1;
-    return {machine:m,status:st,operator:emp,skill:empSkill,job:ipJob,stdSetup,stdRun,elapsed,pctDone,qtyDone,qtyTotal,actualMins:+actualMins.toFixed(1),benchmark:bench,atRisk:isAtRisk};
+    const breakdown=breakdowns[m.id]&&breakdowns[m.id].active?breakdowns[m.id]:null;
+    return {machine:m,status:st,operator:emp,skill:empSkill,job:ipJob,stdSetup,stdRun,elapsed,pctDone,qtyDone,qtyTotal,actualMins:+actualMins.toFixed(1),benchmark:bench,atRisk:isAtRisk,breakdown};
   });
 }
 
@@ -744,12 +789,15 @@ function renderStats(){
   const atRisk=active.filter(j=>!late.includes(j)&&(j.due-j.end)<24*3600000);
   const onTime=active.length-late.length-atRisk.length;
   const cmmQ=jobs.filter(j=>j.machine.startsWith('CMM')&&j.status!=='complete').length;
+  const breakdowns=getBreakdowns();
+  const breakdownCount=Object.keys(breakdowns).filter(mId=>breakdowns[mId].active).length;
   document.getElementById('stats-bar').innerHTML=`
     <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
     <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
     <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
     <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
-    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>`;
+    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
+    <div class="st"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
 }
 
 function renderGantt(fm,fj){
@@ -775,17 +823,27 @@ function renderGantt(fm,fj){
   fm.forEach((m,mi)=>{
     const y=headerH+mi*rowH;
     const cnt=fj.filter(j=>j.machine===m.id&&j.status!=='complete').length;
-    // Row background (full width)
-    html+=`<div class="g-row" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalW-labelW}px;height:${rowH}px"></div>`;
+    const breakdowns=getBreakdowns();
+    const isBreakdown=breakdowns[m.id]&&breakdowns[m.id].active;
+    
+    // Row background (full width) - red tint for breakdown machines
+    html+=`<div class="g-row ${isBreakdown?'breakdown':''}" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalW-labelW}px;height:${rowH}px"></div>`;
     // Sticky machine label
-    html+=`<div class="g-label ${selectedMachine===m.id?'active':''}" style="position:absolute;top:${y}px;left:0" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
+    html+=`<div class="g-label ${selectedMachine===m.id?'active':''} ${isBreakdown?'breakdown':''}" style="position:absolute;top:${y}px;left:0" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${isBreakdown?'var(--red)':m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
+    
+    // Breakdown bar if machine is in breakdown
+    if(isBreakdown&&breakdowns[m.id].expectedAvailable){
+      const bdStart=((TODAY-startTime)/3600000),bdEnd=((new Date(breakdowns[m.id].expectedAvailable+'T23:59:59')-startTime)/3600000);
+      const bdX=labelW+bdStart*hpx,bdW=Math.max((bdEnd-bdStart)*hpx,60);
+      html+=`<div class="breakdown-bar" style="position:absolute;top:${y+8}px;left:${bdX}px;width:${bdW}px;height:28px;line-height:28px">🔧 BREAKDOWN</div>`;
+    }
     // Job blocks
     fj.filter(j=>j.machine===m.id&&j.status!=='complete').forEach(j=>{
       const jStart=(j.start-startTime)/3600000,jDur=(j.end-j.start)/3600000;
       const x=labelW+jStart*hpx,w=Math.max(jDur*hpx,20);
       const isLate=j.end>j.due,isAtRisk=!isLate&&(j.due-j.end)<24*3600000;
       const cls=j.machine.startsWith('CMM')?'cmm':isLate?'late':isAtRisk?'at-risk':'on-time';
-      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,15)}${j.delay>0?' +'+j.delay+'h':''}</div>`;
+      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,15)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}</div>`;
     });
   });
 
@@ -1304,9 +1362,9 @@ function renderMonitorLegacy(){
       const col=i===d.benchmark.length-1?'var(--accent)':'var(--blue)';
       return `<div class="sparkline-bar" style="height:${h}px;background:${col}"><div class="sp-tip">${b.who}: S${b.setupMins}m R${b.cycleMins}m</div></div>`;
     }).join('');
-    return `<div class="mcard">
+    return `<div class="mcard ${stCls==='breakdown'?'breakdown':''}">
       ${d.atRisk?'<div class="mcard-risk" title="At Risk — cycle time exceeding standard">⚠️</div>':''}
-      <div class="mcard-header"><div class="mcard-name">${m.id}</div><div class="mcard-status ${stCls}">${stLabel}</div></div>
+      <div class="mcard-header"><div class="mcard-name">${m.id}</div><div class="mcard-status ${stCls}">${stLabel==='Breakdown'?'BREAKDOWN':stLabel}</div></div>
       ${d.operator?`<div class="mcard-operator">👷 ${d.operator.name} <span class="mcard-cap">${capStr}</span></div>`:'<div class="mcard-operator" style="color:var(--dim2)">No operator assigned</div>'}
       <div class="mcard-pie-wrap">
         <div class="mcard-pie">${pie}</div>
@@ -1319,7 +1377,17 @@ function renderMonitorLegacy(){
       </div>
       ${d.status==='running'?`<div class="mcard-progress"><div class="mcard-progress-bar" style="width:${d.pctDone}%;background:${pctColor}"></div></div>
       <div class="mcard-minspart"><span>${d.qtyDone}/${d.qtyTotal} pcs</span><span>Act: ${d.actualMins}m/pc | Std: ${d.stdRun.toFixed(1)}m/pc</span></div>`:''}
+      ${d.status==='breakdown'?
+        `<div class="breakdown-date">
+          <div style="font-size:10px;color:var(--red);margin-bottom:4px">Expected Available:</div>
+          <input type="date" value="${d.breakdown?d.breakdown.expectedAvailable:''}" onchange="setBreakdownDate('${m.id}',this.value)"/>
+        </div>`:''}
       <div class="mcard-benchmark"><div class="mcard-benchmark-title">Last 6 runs (setup+cycle)</div><div class="sparkline-row">${sparkBars}</div></div>
+      <div style="margin-top:8px;border-top:1px solid var(--brd);padding-top:8px">
+        <button class="breakdown-btn ${d.status==='breakdown'?'breakdown-restore':''}" onclick="toggleBreakdown('${m.id}')">
+          ${d.status==='breakdown'?'✓ Restore':'🔧 Breakdown'}
+        </button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1365,6 +1433,12 @@ const FLOOR_LAYOUT = [
 ];
 
 function getFloorMachineStatus(machineId){
+  const breakdowns=getBreakdowns();
+  // Check breakdown status first
+  if(breakdowns[machineId]&&breakdowns[machineId].active){
+    const ipJob = jobs.find(j=>j.machine===machineId&&j.status==='in-progress');
+    return {status:'breakdown',job:ipJob,breakdown:breakdowns[machineId]};
+  }
   const monData = genMonitorData();
   const md = monData.find(d=>d.machine.id===machineId);
   if(md) return md;
@@ -1419,13 +1493,15 @@ function renderFloorGrid(){
     if(pos.wide) cls.push('wide');
     if(pos.arriving) cls.push('arriving');
 
-    // Border color by status
+    // Border color by status and breakdown class
     let borderColor = 'var(--brd)';
     if(!pos.arriving){
-      if(status==='running') borderColor='var(--green)';
+      if(status==='breakdown') borderColor='var(--red)';
+      else if(status==='running') borderColor='var(--green)';
       else if(status==='setup') borderColor='var(--orange)';
       else if(status==='down') borderColor='var(--red)';
     }
+    if(status==='breakdown') cls.push('breakdown');
 
     // Workers assigned to this machine
     const assignedEmps = (floorAssign[pos.id]||[]).map(eid=>getEmployees().find(e=>e.id===eid)).filter(Boolean);
@@ -1437,9 +1513,20 @@ function renderFloorGrid(){
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
         <span class="fc-status ${status}"></span>
         <span class="fc-id">${pos.label||pos.id}</span>
-        ${!pos.arriving?`<span style="font-size:9px;color:var(--dim);margin-left:auto">${statusLabel}</span>`:''}
+        ${!pos.arriving?`<span style="font-size:9px;color:var(--dim);margin-left:auto">${statusLabel==='Breakdown'?'BREAKDOWN':statusLabel}</span>`:''}
       </div>
       ${ipJob?`<div class="fc-job" title="${ipJob.partDesc}">📋 ${ipJob.id.substring(0,12)} — ${ipJob.partDesc.substring(0,18)}</div>`:(pos.arriving?'':'<div class="fc-job" style="color:var(--dim2)">No active job</div>')}
+      ${pos.arriving?'':status==='breakdown'?
+        `<div class="breakdown-date">
+          <div style="font-size:9px;color:var(--red);margin-bottom:2px">Expected Available:</div>
+          <input type="date" value="${md&&md.breakdown?md.breakdown.expectedAvailable:''}" onclick="event.stopPropagation()" onchange="event.stopPropagation();setBreakdownDate('${pos.id}',this.value)"/>
+        </div>`:''}
+      ${pos.arriving?'':
+        `<div style="margin-top:auto;padding-top:4px">
+          <button class="breakdown-btn ${status==='breakdown'?'breakdown-restore':''}" onclick="event.stopPropagation();toggleBreakdown('${pos.id}')">
+            ${status==='breakdown'?'✓ Restore':'🔧 Breakdown'}
+          </button>
+        </div>`}
       ${pos.arriving?'':
         `<div class="fc-worker-slot" data-machine="${pos.id}">
           ${assignedEmps.length ? assignedEmps.map(e=>{
