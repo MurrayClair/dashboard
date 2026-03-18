@@ -5,31 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nupress Scheduler — Live Gantt</title>
 <style>
-:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--s3:#2a2a2a;--brd:#333;--brd2:#444;--txt:#e8e8e8;--dim:#888;--dim2:#666;--green:#34c759;--green-d:rgba(52,199,89,.15);--yellow:#ffd60a;--yellow-d:rgba(255,214,10,.15);--red:#ff453a;--red-d:rgba(255,69,58,.15);--blue:#5ac8fa;--blue-d:rgba(90,200,250,.15);--accent:#e07a3a;--purple:#bf5af2;--r:10px;--rs:6px}
+:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--s3:#2a2a2a;--brd:#333;--brd2:#444;--txt:#e8e8e8;--dim:#888;--dim2:#666;--green:#34c759;--green-d:rgba(52,199,89,.15);--yellow:#ffd60a;--yellow-d:rgba(255,214,10,.15);--red:#ff453a;--red-d:rgba(255,69,58,.15);--blue:#5ac8fa;--blue-d:rgba(90,200,250,.15);--accent:#e07a3a;--purple:#bf5af2;--r:10px;--rs:6px;--orange:#ff9f0a;--orange-d:rgba(255,159,10,.15)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);font-size:13px;line-height:1.4;overflow-x:hidden}
 .app{display:flex;height:100vh;flex-direction:column}
 /* Header bar */
-.app-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--s1);border-bottom:1px solid var(--brd)}
-.app-header .logo{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.app-header{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--brd);flex-wrap:wrap}
+.app-header .logo{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;margin-right:8px}
 .app-header .logo span{font-size:18px}
-/* Stats */
-.stats{display:flex;gap:12px;padding:16px;border-bottom:1px solid var(--brd);background:var(--s1);flex-wrap:wrap}
-.st{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px 16px;min-width:120px;flex:1}
-.st-v{font-size:24px;font-weight:700;line-height:1}
-.st-l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:600}
+.mode-nav{display:flex;gap:4px;flex:1}
+.mode-btn{padding:6px 14px;border-radius:var(--rs);font-size:12px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
+.mode-btn:hover{color:var(--txt);border-color:var(--brd2)}
+.mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Stats — compact */
+.stats{display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--brd);background:var(--s1);flex-wrap:wrap}
+.st{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:6px 12px;min-width:90px;flex:1;display:flex;align-items:center;gap:8px}
+.st-v{font-size:18px;font-weight:700;line-height:1}
+.st-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 /* Controls */
-.ctrls{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--brd);background:var(--s1);align-items:center;flex-wrap:wrap}
+.ctrls{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--brd);background:var(--s1);align-items:center;flex-wrap:wrap}
 .btn{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
 .btn:hover{color:var(--txt);border-color:var(--brd2)}
 .btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn.danger{background:var(--red-d);color:var(--red);border-color:rgba(255,69,58,.3)}
 .btn.success{background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3)}
+.btn.primary{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .ctrl-label{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-right:4px}
 .ctrl-sep{width:1px;height:20px;background:var(--brd);margin:0 4px}
+/* Mode containers */
+.mode-content{flex:1;overflow:hidden;display:none}
+.mode-content.active{display:flex;flex-direction:column}
 /* Gantt layout: labels + timeline + late panel */
 .gantt-wrap{flex:1;display:flex;overflow:hidden;position:relative}
-/* Machine labels column — scrolls vertically in sync with timeline */
 .gantt-labels{width:170px;min-width:170px;background:var(--s1);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;user-select:none}
 .gl-header{height:32px;min-height:32px;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:700;color:var(--dim2);text-transform:uppercase;letter-spacing:.5px}
 .gl-body{flex:1;overflow:hidden}
@@ -38,14 +45,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .gl-row.active{background:var(--blue-d);color:var(--blue)}
 .gl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .gl-name{flex:1;overflow:hidden;text-overflow:ellipsis}
-.gl-cnt{font-size:10px;background:var(--s3);padding:1px 6px;border-radius:10px;font-weight:700}
+.gl-cnt{font-size:10px;background:var(--s3);padding:1px 6px;border-radius:10px;font-:700}
 /* Timeline area */
 .gantt-area{flex:1;overflow:auto;position:relative}
 .gantt{position:relative;min-width:100%}
-/* Timeline header */
 .g-header{height:32px;border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:4;background:var(--s1);display:flex}
 .g-hcell{border-right:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim);font-weight:600}
-/* Rows */
 .g-row{height:44px;border-bottom:1px solid var(--brd);position:relative}
 .g-row:hover{background:rgba(255,255,255,.02)}
 /* Job blocks */
@@ -56,13 +61,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .job.late{background:rgba(255,69,58,.2);color:var(--red);border-color:rgba(255,69,58,.3)}
 .job.in-progress{border-left:3px solid var(--accent)}
 .job.cmm{background:rgba(191,90,242,.2);color:var(--purple);border-color:rgba(191,90,242,.3)}
-/* Today line */
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:3;pointer-events:none}
 .today-label{position:absolute;top:-28px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;z-index:6}
 /* Late panel */
 .late-panel{width:340px;min-width:340px;background:var(--s1);border-left:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
 .late-panel.collapsed{width:0;min-width:0;border:none}
-.lp-hd{padding:12px 16px;border-bottom:1px solid var(--brd);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between}
+.lp-hd{padding:10px 16px;border-bottom:1px solid var(--brd);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between}
 .lp-cnt{font-size:11px;background:var(--red-d);color:var(--red);padding:2px 8px;border-radius:10px;font-weight:700}
 .lp-body{flex:1;overflow-y:auto;padding:8px}
 .lj{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:8px}
@@ -75,7 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rc{font-size:10px;padding:4px 8px;border-radius:4px;background:var(--s3);border:1px solid var(--brd);cursor:pointer;color:var(--dim);transition:.15s;display:flex;align-items:center;gap:6px}
 .rc:hover{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .rc-icon{font-size:12px}
-/* Job info card — click to open, X to close */
+/* Job info card */
 .tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:auto;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .tip-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .tip-title{font-weight:700;font-size:13px}
@@ -88,7 +92,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tip-drawing svg{display:block;width:100%;height:auto}
 .tip-drawing-label{position:absolute;bottom:4px;right:6px;font-size:8px;color:var(--dim2);background:rgba(26,26,26,.8);padding:1px 6px;border-radius:3px}
 .tip-dblclick{margin-top:6px;text-align:center;font-size:9px;color:var(--dim2);font-style:italic}
-/* Late panel drawing thumbnail */
 .lj-drawing{margin-top:8px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;cursor:pointer;transition:border-color .15s;position:relative}
 .lj-drawing:hover{border-color:var(--blue)}
 .lj-drawing svg{display:block;width:100%;height:auto}
@@ -104,15 +107,128 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* Toast */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s1);border:1px solid var(--brd);padding:10px 20px;border-radius:var(--r);font-size:12px;font-weight:600;z-index:200;opacity:0;transition:.3s}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-@media(max-width:900px){.gantt-labels{width:120px;min-width:120px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}}
+
+/* ─── SETUP MODE ─── */
+.setup-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.setup-tabs{display:flex;gap:4px;padding:10px 16px;border-bottom:1px solid var(--brd);background:var(--s1);flex-wrap:wrap}
+.setup-tab{padding:6px 14px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
+.setup-tab:hover{color:var(--txt);border-color:var(--brd2)}
+.setup-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.setup-body{flex:1;overflow-y:auto;padding:16px}
+.setup-page{display:none}
+.setup-page.active{display:block}
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+table.dtbl{width:100%;border-collapse:collapse;font-size:12px}
+table.dtbl th{background:var(--s2);border:1px solid var(--brd);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);font-weight:700;position:sticky;top:0;z-index:2}
+table.dtbl td{border:1px solid var(--brd);padding:6px 10px;vertical-align:middle}
+table.dtbl tr:hover td{background:var(--s3)}
+table.dtbl input,table.dtbl select{background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 6px;border-radius:4px;font-size:11px;font-family:inherit;width:100%}
+table.dtbl select{width:auto;min-width:100px}
+.form-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:10px;color:var(--dim);text-transform:uppercase;font-weight:700;letter-spacing:.5px}
+.form-group input,.form-group select{background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:6px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit;min-width:140px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-desc{font-size:11px;color:var(--dim);margin-bottom:16px}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.status-online{background:var(--green)}
+.status-offline{background:var(--red)}
+.action-bar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+
+/* ─── MONITOR MODE ─── */
+.monitor-wrap{flex:1;overflow-y:auto;padding:16px}
+.machine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.mcard{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;position:relative;transition:.2s}
+.mcard:hover{border-color:var(--brd2)}
+.mcard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mcard-name{font-weight:700;font-size:13px}
+.mcard-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.mcard-status.running{background:var(--green-d);color:var(--green)}
+.mcard-status.setup{background:var(--orange-d);color:var(--orange)}
+.mcard-status.idle{background:var(--s3);color:var(--dim)}
+.mcard-status.down{background:var(--red-d);color:var(--red)}
+.mcard-pie-wrap{display:flex;align-items:center;gap:14px;margin:10px 0}
+.mcard-pie{width:90px;height:90px;flex-shrink:0}
+.mcard-info{flex:1;font-size:11px}
+.mcard-info div{margin-bottom:3px}
+.mcard-info .label{color:var(--dim);font-size:10px}
+.mcard-info .val{font-weight:600}
+.mcard-progress{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.mcard-progress-bar{height:100%;border-radius:3px;transition:width .5s}
+.mcard-minspart{font-size:10px;color:var(--dim);display:flex;justify-content:space-between}
+.mcard-benchmark{margin-top:8px;border-top:1px solid var(--brd);padding-top:8px}
+.mcard-benchmark-title{font-size:9px;color:var(--dim2);text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.sparkline-row{display:flex;gap:3px;align-items:flex-end;height:30px}
+.sparkline-bar{flex:1;border-radius:2px 2px 0 0;min-width:8px;position:relative;cursor:default}
+.sparkline-bar .sp-tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--brd);padding:4px 6px;border-radius:4px;font-size:9px;white-space:nowrap;z-index:10}
+.sparkline-bar:hover .sp-tip{display:block}
+.mcard-risk{position:absolute;top:8px;right:8px;font-size:14px}
+.mcard-operator{font-size:10px;color:var(--dim);margin-bottom:2px}
+.mcard-cap{font-size:9px;color:var(--dim2);padding:2px 6px;background:var(--s3);border-radius:3px;display:inline-block;margin-top:2px}
+
+/* ─── KPI MODE ─── */
+.kpi-wrap{flex:1;overflow-y:auto;padding:16px}
+.kpi-section{margin-bottom:24px}
+.kpi-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;text-align:center}
+.kpi-big{font-size:28px;font-weight:700;line-height:1.2}
+.kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.kpi-trend{font-size:10px;margin-top:4px}
+.kpi-trend.up{color:var(--green)}
+.kpi-trend.down{color:var(--red)}
+.chart-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 0}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;min-width:20px;position:relative;transition:height .4s}
+.chart-bar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--dim2);white-space:nowrap}
+.chart-bar-val{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700}
+
+/* Skills matrix */
+.skills-grid{overflow-x:auto;max-height:70vh}
+.skills-grid table{border-collapse:collapse;font-size:10px}
+.skills-grid th,.skills-grid td{border:1px solid var(--brd);padding:4px 6px;text-align:center;white-space:nowrap}
+.skills-grid th{background:var(--s2);position:sticky;top:0;z-index:3;font-weight:700;color:var(--dim)}
+.skills-grid th.machine-hdr{writing-mode:vertical-lr;text-orientation:mixed;height:100px;font-size:9px;padding:6px 3px}
+.skills-grid td.emp-name{text-align:left;font-weight:600;position:sticky;left:0;background:var(--s1);z-index:2;min-width:100px}
+.skills-grid th.corner{position:sticky;left:0;z-index:4;background:var(--s2)}
+.skill-cell{display:flex;flex-direction:column;gap:2px;align-items:center;min-width:70px}
+.skill-cell label{font-size:9px;color:var(--dim);display:flex;align-items:center;gap:3px;cursor:pointer}
+.skill-cell input[type=checkbox]{width:13px;height:13px;accent-color:var(--accent);cursor:pointer}
+.skill-cell select{font-size:9px;padding:1px 2px;background:var(--s3);border:1px solid var(--brd);color:var(--txt);border-radius:3px;width:65px}
+
+/* Shift visual */
+.shift-timeline{height:40px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);position:relative;margin:12px 0;overflow:hidden}
+.shift-block{position:absolute;top:0;height:100%;opacity:.6;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.shift-hour-marks{position:absolute;top:0;left:0;right:0;bottom:0;display:flex}
+.shift-hour-mark{flex:1;border-right:1px solid var(--brd);display:flex;align-items:flex-end;justify-content:center;font-size:7px;color:var(--dim2);padding-bottom:2px}
+
+/* M1 connection */
+.conn-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--rs);font-size:11px;font-weight:600;margin-bottom:12px}
+.conn-status.connected{background:var(--green-d);color:var(--green)}
+.conn-status.disconnected{background:var(--red-d);color:var(--red)}
+
+/* Correction report */
+.correction-row{background:var(--yellow-d);border-left:3px solid var(--yellow)}
+.correction-row td{color:var(--yellow) !important}
+
+@media(max-width:900px){.gantt-labels{width:120px;min-width:120px}.late-panel{width:100%;position:fixed;bottom:0;height:50vh;border-left:none;border-top:1px solid var(--brd)}.machine-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
+<!-- ═══ HEADER ═══ -->
 <div class="app-header">
   <div class="logo"><span>🏭</span> Nupress Scheduler</div>
+  <div class="mode-nav">
+    <button class="mode-btn active" onclick="setMode('schedule')">📋 Schedule</button>
+    <button class="mode-btn" onclick="setMode('monitor')">📊 Monitor</button>
+    <button class="mode-btn" onclick="setMode('setup')">⚙️ Setup</button>
+    <button class="mode-btn" onclick="setMode('kpi')">📈 KPI</button>
+  </div>
 </div>
 <div class="stats" id="stats-bar"></div>
+
+<!-- ═══ MODE: SCHEDULE ═══ -->
+<div class="mode-content active" id="mode-schedule">
 <div class="ctrls">
   <span class="ctrl-label">View</span>
   <button class="btn active" onclick="setScale('day')">Day</button>
@@ -142,6 +258,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 </div>
 </div>
+
+<!-- ═══ MODE: MONITOR ═══ -->
+<div class="mode-content" id="mode-monitor">
+<div class="monitor-wrap">
+  <div class="section-title" style="margin-bottom:12px">🖥️ Shop Floor Monitor <span style="font-size:11px;color:var(--dim);font-weight:400">— Live machine status</span></div>
+  <div class="machine-grid" id="monitor-grid"></div>
+</div>
+</div>
+
+<!-- ═══ MODE: SETUP ═══ -->
+<div class="mode-content" id="mode-setup">
+<div class="setup-wrap">
+  <div class="setup-tabs" id="setup-tabs">
+    <button class="setup-tab active" onclick="setSetupTab('machines')">🔧 Machine Tools</button>
+    <button class="setup-tab" onclick="setSetupTab('m1conn')">🔌 M1 Connection</button>
+    <button class="setup-tab" onclick="setSetupTab('employees')">👷 Employees</button>
+    <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
+    <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
+  </div>
+  <div class="setup-body" id="setup-body">
+    <div class="setup-page active" id="sp-machines"></div>
+    <div class="setup-page" id="sp-m1conn"></div>
+    <div class="setup-page" id="sp-employees"></div>
+    <div class="setup-page" id="sp-shifts"></div>
+    <div class="setup-page" id="sp-skills"></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ MODE: KPI ═══ -->
+<div class="mode-content" id="mode-kpi">
+<div class="kpi-wrap" id="kpi-body"></div>
+</div>
+</div><!-- /.app -->
+
 <div class="tip" id="tooltip" style="display:none"></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <div class="lightbox-inner" onclick="event.stopPropagation()">
@@ -153,45 +304,110 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ──
-const TODAY = new Date();
-TODAY.setHours(6,0,0,0);
+// ══════════════════════════════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════════════════════════════
+const TODAY = new Date(); TODAY.setHours(6,0,0,0);
 const HOUR_PX = {day:12,week:4,month:1.2};
-let scale = 'day';
-let filter = 'all';
-let selectedMachine = null;
+let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 const SHIFT_HOURS = 10;
 
-// ── MACHINES ──
-const MACHINES = [
-  {id:'QTN450M',name:'QTN450M — Mazak Lathe',type:'lathe',color:'#34c759'},
-  {id:'QTN350MY',name:'QTN350MY — Mazak Y-Axis',type:'lathe',color:'#30d158'},
-  {id:'INTE2004S',name:'INTE2004S — Integrex',type:'millturn',color:'#5ac8fa'},
-  {id:'INTE4004S',name:'INTE4004S — Integrex',type:'millturn',color:'#64d2ff'},
-  {id:'INTEJ400',name:'INTEJ400 — Integrex J400',type:'millturn',color:'#0a84ff'},
-  {id:'SQT10M',name:'SQT10M — Mazak Lathe',type:'lathe',color:'#34c759'},
-  {id:'QT20',name:'QT20 — Quick Turn',type:'lathe',color:'#30d158'},
-  {id:'QT20HP',name:'QT20HP — Quick Turn HP',type:'lathe',color:'#32d74b'},
-  {id:'VCS530C',name:'VCS530C — VMC',type:'vmc',color:'#ffd60a'},
-  {id:'VTC530C',name:'VTC530C — VMC',type:'vmc',color:'#ffc800'},
-  {id:'HCN8800',name:'HCN8800 — HMC',type:'hmc',color:'#ff9f0a'},
-  {id:'FH4800',name:'FH4800 — HMC',type:'hmc',color:'#ff9500'},
-  {id:'VRX730',name:'VRX730 — 5-Axis',type:'5axis',color:'#bf5af2'},
-  {id:'NTX2500',name:'NTX2500 — NTX Mill-Turn',type:'millturn',color:'#5e5ce6'},
-  {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff'},
-  {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a'},
-  {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de'},
-  {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482'},
-  {id:'CMM1',name:'CMM1 — Inspection',type:'cmm',color:'#bf5af2'},
-  {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2'},
-  {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93'},
-  {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93'},
+// ══════════════════════════════════════════════════════════════
+//  MACHINES
+// ══════════════════════════════════════════════════════════════
+const MACHINES=[
+  {id:'QTN450M',name:'QTN450M — Mazak Lathe',type:'lathe',color:'#34c759',protocol:'MTConnect',ip:'192.168.1.101',port:5000},
+  {id:'QTN350MY',name:'QTN350MY — Mazak Y-Axis',type:'lathe',color:'#30d158',protocol:'Mazak SmartM',ip:'192.168.1.102',port:5000},
+  {id:'INTE2004S',name:'INTE2004S — Integrex',type:'millturn',color:'#5ac8fa',protocol:'MTConnect',ip:'192.168.1.103',port:5000},
+  {id:'INTE4004S',name:'INTE4004S — Integrex',type:'millturn',color:'#64d2ff',protocol:'MTConnect',ip:'192.168.1.104',port:5000},
+  {id:'INTEJ400',name:'INTEJ400 — Integrex J400',type:'millturn',color:'#0a84ff',protocol:'MTConnect',ip:'192.168.1.105',port:5000},
+  {id:'SQT10M',name:'SQT10M — Mazak Lathe',type:'lathe',color:'#34c759',protocol:'Mazak SmartM',ip:'192.168.1.106',port:5000},
+  {id:'QT20',name:'QT20 — Quick Turn',type:'lathe',color:'#30d158',protocol:'FANUC FOCAS',ip:'192.168.1.107',port:8193},
+  {id:'QT20HP',name:'QT20HP — Quick Turn HP',type:'lathe',color:'#32d74b',protocol:'FANUC FOCAS',ip:'192.168.1.108',port:8193},
+  {id:'VCS530C',name:'VCS530C — VMC',type:'vmc',color:'#ffd60a',protocol:'MTConnect',ip:'192.168.1.110',port:5000},
+  {id:'VTC530C',name:'VTC530C — VMC',type:'vmc',color:'#ffc800',protocol:'MTConnect',ip:'192.168.1.111',port:5000},
+  {id:'HCN8800',name:'HCN8800 — HMC',type:'hmc',color:'#ff9f0a',protocol:'MTConnect',ip:'192.168.1.112',port:5000},
+  {id:'FH4800',name:'FH4800 — HMC',type:'hmc',color:'#ff9500',protocol:'FANUC FOCAS',ip:'192.168.1.113',port:8193},
+  {id:'VRX730',name:'VRX730 — 5-Axis',type:'5axis',color:'#bf5af2',protocol:'MTConnect',ip:'192.168.1.114',port:5000},
+  {id:'NTX2500',name:'NTX2500 — NTX Mill-Turn',type:'millturn',color:'#5e5ce6',protocol:'MTConnect',ip:'192.168.1.115',port:5000},
+  {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff',protocol:'MTConnect',ip:'192.168.1.116',port:5000},
+  {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.117',port:19000},
+  {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de',protocol:'Heidenhain',ip:'192.168.1.118',port:19000},
+  {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482',protocol:'FANUC FOCAS',ip:'192.168.1.119',port:8193},
+  {id:'CMM1',name:'CMM1 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
+  {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
+  {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
+  {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
+];
+const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.type));
+
+// ══════════════════════════════════════════════════════════════
+//  EMPLOYEES
+// ══════════════════════════════════════════════════════════════
+const DEFAULT_EMPLOYEES=[
+  {id:'E001',name:'Dale Robinson',shift:'Day',active:true,notes:'Lead machinist, 15yr exp'},
+  {id:'E002',name:'Steve Kovacs',shift:'Day',active:true,notes:'Mill-turn specialist'},
+  {id:'E003',name:'Jason Tran',shift:'Day',active:true,notes:'5-axis certified'},
+  {id:'E004',name:'Mark Sullivan',shift:'Day',active:true,notes:'Apprentice — Year 3'},
+  {id:'E005',name:'Chris Hartley',shift:'Night',active:true,notes:'Night lead'},
+  {id:'E006',name:'Ben O\'Reilly',shift:'Night',active:true,notes:'HMC specialist'},
+  {id:'E007',name:'Ryan Mitchell',shift:'Night',active:true,notes:''},
+  {id:'E008',name:'Tom Nguyen',shift:'Rotating',active:true,notes:'CMM inspector'},
+  {id:'E009',name:'Paul Whitmore',shift:'Day',active:false,notes:'On leave'},
+  {id:'E010',name:'Sam Patel',shift:'Rotating',active:true,notes:'Wire EDM / CMM'},
 ];
 
-const COMPAT = {lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+// ══════════════════════════════════════════════════════════════
+//  SHIFTS
+// ══════════════════════════════════════════════════════════════
+const DEFAULT_SHIFTS=[
+  {name:'Day',start:'06:00',end:'16:30',days:[1,2,3,4,5],weight:100,color:'#5ac8fa'},
+  {name:'Night',start:'16:30',end:'02:30',days:[1,2,3,4],weight:90,color:'#bf5af2'},
+  {name:'Saturday OT',start:'06:00',end:'12:00',days:[6],weight:150,color:'#ff9f0a'},
+];
 
-// ── GENERATE REALISTIC JOBS ──
-const PARTS = [
+// ══════════════════════════════════════════════════════════════
+//  SKILLS MATRIX — per employee×machine: {setup:bool, operate:bool, complexity:'none'|'easy'|'medium'|'complex'}
+// ══════════════════════════════════════════════════════════════
+function genDefaultSkills(){
+  const sk={};
+  const emps=getEmployees();
+  const seed=k=>{let s=0;for(let i=0;i<k.length;i++)s=((s<<5)-s+k.charCodeAt(i))|0;return((s&0x7fffffff)%100)/100;};
+  emps.forEach(e=>{
+    sk[e.id]={};
+    CNC_MACHINES.forEach(m=>{
+      const r=seed(e.id+m.id);
+      if(r<0.2){sk[e.id][m.id]={setup:false,operate:false,setupLvl:'none',operateLvl:'none'};}
+      else if(r<0.45){sk[e.id][m.id]={setup:false,operate:true,setupLvl:'none',operateLvl:'easy'};}
+      else if(r<0.65){sk[e.id][m.id]={setup:true,operate:true,setupLvl:'easy',operateLvl:'medium'};}
+      else if(r<0.85){sk[e.id][m.id]={setup:true,operate:true,setupLvl:'medium',operateLvl:'complex'};}
+      else{sk[e.id][m.id]={setup:true,operate:true,setupLvl:'complex',operateLvl:'complex'};}
+    });
+  });
+  return sk;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LOCALSTORAGE HELPERS
+// ══════════════════════════════════════════════════════════════
+function lsGet(k,def){try{const v=localStorage.getItem('nupress_'+k);return v?JSON.parse(v):def;}catch(e){return def;}}
+function lsSet(k,v){try{localStorage.setItem('nupress_'+k,JSON.stringify(v));}catch(e){}}
+function getEmployees(){return lsGet('employees',DEFAULT_EMPLOYEES);}
+function getShifts(){return lsGet('shifts',DEFAULT_SHIFTS);}
+function getSkills(){return lsGet('skills',null)||genDefaultSkills();}
+function getM1Config(){return lsGet('m1config',{server:'NP-SQL01\\M1PROD',database:'M1_Nupress',user:'m1_reader',password:'',schema:'dbo',tables:[
+  {name:'Job Master',path:'dbo.jomast'},{name:'Job Operations',path:'dbo.jooper'},
+  {name:'Job Routing',path:'dbo.jorout'},{name:'Part Master',path:'dbo.inmast'},
+  {name:'Work Centre',path:'dbo.wkcntr'},{name:'Employee',path:'dbo.empmst'},
+  {name:'PO Receipts',path:'dbo.porect'},{name:'Shop Floor Txn',path:'dbo.sftran'},
+]});}
+function getMachineSetup(){return lsGet('machine_setup',MACHINES.map(m=>({id:m.id,name:m.name,type:m.type,protocol:m.protocol,ip:m.ip,port:m.port,status:'Online'})));}
+
+// ══════════════════════════════════════════════════════════════
+//  PARTS & JOBS (same as original)
+// ══════════════════════════════════════════════════════════════
+const PARTS=[
   {p:'570-10-0402C1-04',d:'Y ROTATION POWER SCREW',h:18},{p:'2012691',d:'RING GEAR HOUSING',h:12},
   {p:'505327',d:'SPROCKET 16 TOOTH',h:6},{p:'AU07595',d:'SPLIT SPROCKET 14T DUAL',h:8},
   {p:'T45H36FLKIN',d:'KINLOC SPANNER T45',h:10},{p:'SR29015',d:'LOOPER TABLE FEED ROLLER',h:14},
@@ -208,663 +424,711 @@ const PARTS = [
   {p:'DE-6-S',d:'SANDVIK #6 DRIVE END',h:8},{p:'SCK-17-S',d:'SCK-17-S',h:7},
   {p:'410-A40-345',d:'FTG EXCLUDER NUT MLG',h:3},{p:'3442-005',d:'PIN 155MM REV G',h:9},
 ];
-
-let jobs = [];
-let jobIdCounter = 26900;
+let jobs=[], jobIdCounter=26900;
 
 function genJobs(){
-  jobs = [];
-  const machineQueues = {};
-  MACHINES.forEach(m => machineQueues[m.id] = 0);
-
-  for(let i = 0; i < 38; i++){
-    const part = PARTS[i % PARTS.length];
-    const mIdx = i % MACHINES.length;
-    const machine = MACHINES[mIdx];
-    const baseHours = part.h * (0.8 + Math.random()*0.4);
-    const qty = Math.floor(1 + Math.random()*30);
-    const totalHours = Math.max(2, Math.round(baseHours * (1 + qty/50)));
-
-    const offsetHours = machineQueues[machine.id];
-    const startDate = new Date(TODAY.getTime() + (offsetHours - 24 - Math.random()*48) * 3600000);
-    const endDate = new Date(startDate.getTime() + totalHours * 3600000);
-    const dueDate = new Date(startDate.getTime() + (totalHours + (Math.random()*72 - 24)) * 3600000);
-
-    const isInProgress = startDate < TODAY && endDate > TODAY;
-    const delayHours = isInProgress ? Math.max(0, Math.round((Math.random()-0.3)*16)) : 0;
-
-    const actualEnd = new Date(endDate.getTime() + delayHours * 3600000);
-
-    jobs.push({
-      id: `${jobIdCounter + i}-0001-001`,
-      partId: part.p,
-      partDesc: part.d,
-      machine: machine.id,
-      qty,
-      totalHours,
-      start: startDate,
-      end: actualEnd,
-      originalEnd: endDate,
-      due: dueDate,
-      delay: delayHours,
-      status: endDate < TODAY ? 'complete' : isInProgress ? 'in-progress' : 'queued',
-      needsCMM: Math.random() > 0.3,
-      cmmDone: endDate < TODAY,
-    });
-
-    machineQueues[machine.id] = offsetHours + totalHours + 2;
+  jobs=[];
+  const mq={};MACHINES.forEach(m=>mq[m.id]=0);
+  for(let i=0;i<38;i++){
+    const part=PARTS[i%PARTS.length], mIdx=i%MACHINES.length, machine=MACHINES[mIdx];
+    const baseHours=part.h*(0.8+Math.random()*0.4), qty=Math.floor(1+Math.random()*30);
+    const totalHours=Math.max(2,Math.round(baseHours*(1+qty/50)));
+    const offsetHours=mq[machine.id];
+    const startDate=new Date(TODAY.getTime()+(offsetHours-24-Math.random()*48)*3600000);
+    const endDate=new Date(startDate.getTime()+totalHours*3600000);
+    const dueDate=new Date(startDate.getTime()+(totalHours+(Math.random()*72-24))*3600000);
+    const isInProgress=startDate<TODAY&&endDate>TODAY;
+    const delayHours=isInProgress?Math.max(0,Math.round((Math.random()-0.3)*16)):0;
+    const actualEnd=new Date(endDate.getTime()+delayHours*3600000);
+    jobs.push({id:`${jobIdCounter+i}-0001-001`,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY});
+    mq[machine.id]=offsetHours+totalHours+2;
   }
-
-  // CMM queue jobs
-  const cmmJobs = jobs.filter(j => j.needsCMM && j.status === 'in-progress');
-  cmmJobs.forEach((j, i) => {
-    const cmmMachine = i % 2 === 0 ? 'CMM1' : 'CMM2';
-    const cmmStart = new Date(j.end.getTime() + i * 4 * 3600000);
-    jobs.push({
-      id: j.id + '-CMM',
-      partId: j.partId,
-      partDesc: j.partDesc + ' (CMM)',
-      machine: cmmMachine,
-      qty: j.qty,
-      totalHours: 2 + Math.random()*3,
-      start: cmmStart,
-      end: new Date(cmmStart.getTime() + (2+Math.random()*3)*3600000),
-      originalEnd: new Date(cmmStart.getTime() + 2*3600000),
-      due: j.due,
-      delay: 0,
-      status: 'queued',
-      needsCMM: false,
-      cmmDone: false,
-      parentJob: j.id,
-    });
+  const cmmJobs=jobs.filter(j=>j.needsCMM&&j.status==='in-progress');
+  cmmJobs.forEach((j,i)=>{
+    const cm=i%2===0?'CMM1':'CMM2';const cs=new Date(j.end.getTime()+i*4*3600000);
+    jobs.push({id:j.id+'-CMM',partId:j.partId,partDesc:j.partDesc+' (CMM)',machine:cm,qty:j.qty,totalHours:2+Math.random()*3,start:cs,end:new Date(cs.getTime()+(2+Math.random()*3)*3600000),originalEnd:new Date(cs.getTime()+2*3600000),due:j.due,delay:0,status:'queued',needsCMM:false,cmmDone:false,parentJob:j.id});
   });
-
   recalcCascade();
 }
 
-// ── FORWARD-PUSH CASCADE ──
 function recalcCascade(){
-  const byMachine = {};
-  MACHINES.forEach(m => byMachine[m.id] = []);
-  jobs.forEach(j => { if(byMachine[j.machine]) byMachine[j.machine].push(j); });
-
-  Object.keys(byMachine).forEach(mId => {
-    const mJobs = byMachine[mId].sort((a,b) => a.start - b.start);
-    let cursor = null;
-    mJobs.forEach(j => {
-      if(j.status === 'complete') { cursor = j.end; return; }
-      if(cursor && j.start < cursor){
-        const shift = cursor - j.start;
-        j.start = new Date(j.start.getTime() + shift);
-        j.end = new Date(j.end.getTime() + shift);
-      }
-      if(j.delay > 0 && j.status === 'in-progress'){
-        j.end = new Date(j.originalEnd.getTime() + j.delay * 3600000);
-      }
-      cursor = j.end;
+  const bm={};MACHINES.forEach(m=>bm[m.id]=[]);
+  jobs.forEach(j=>{if(bm[j.machine])bm[j.machine].push(j);});
+  Object.keys(bm).forEach(mId=>{
+    const mj=bm[mId].sort((a,b)=>a.start-b.start);let cur=null;
+    mj.forEach(j=>{
+      if(j.status==='complete'){cur=j.end;return;}
+      if(cur&&j.start<cur){const sh=cur-j.start;j.start=new Date(j.start.getTime()+sh);j.end=new Date(j.end.getTime()+sh);}
+      if(j.delay>0&&j.status==='in-progress')j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
+      cur=j.end;
     });
   });
 }
 
-// ── RENDER ──
-function getFilteredMachines(){
-  let fm = MACHINES;
-  if(filter === 'cmm') fm = MACHINES.filter(m => m.type === 'cmm');
-  if(selectedMachine) fm = MACHINES.filter(m => m.id === selectedMachine);
-  return fm;
+// ══════════════════════════════════════════════════════════════
+//  MONITOR DATA — simulated machine states
+// ══════════════════════════════════════════════════════════════
+function genMonitorData(){
+  const emps=getEmployees().filter(e=>e.active);
+  const skills=getSkills();
+  const states=['running','running','running','setup','setup','idle','down'];
+  return CNC_MACHINES.map((m,i)=>{
+    const st=states[i%states.length];
+    const emp=emps[i%emps.length];
+    const ipJob=jobs.find(j=>j.machine===m.id&&j.status==='in-progress');
+    const stdSetup=10+Math.floor(Math.random()*40);
+    const stdRun=2+Math.random()*8;
+    const elapsed=st==='setup'?Math.floor(stdSetup*(0.3+Math.random()*0.9)):st==='running'?Math.floor(stdRun*(0.2+Math.random()*1.2)):0;
+    const pctDone=st==='running'?Math.floor(20+Math.random()*70):0;
+    const qtyDone=ipJob?Math.floor(ipJob.qty*pctDone/100):0;
+    const qtyTotal=ipJob?ipJob.qty:0;
+    const actualMins=stdRun*(0.85+Math.random()*0.35);
+    const empSkill=emp&&skills[emp.id]?skills[emp.id][m.id]:null;
+    // Benchmark: last 6 runs
+    const bench=[];for(let b=0;b<6;b++){
+      const be=emps[(i+b+1)%emps.length];
+      bench.push({who:be?be.name.split(' ')[0]:'—',setupMins:Math.floor(stdSetup*(0.7+Math.random()*0.6)),cycleMins:+(stdRun*(0.8+Math.random()*0.4)).toFixed(1)});
+    }
+    const isAtRisk=st==='running'&&actualMins>stdRun*1.1;
+    return {machine:m,status:st,operator:emp,skill:empSkill,job:ipJob,stdSetup,stdRun,elapsed,pctDone,qtyDone,qtyTotal,actualMins:+actualMins.toFixed(1),benchmark:bench,atRisk:isAtRisk};
+  });
 }
 
-function getFilteredJobs(){
-  let fj = jobs;
-  if(filter === 'late') fj = jobs.filter(j => j.end > j.due && j.status !== 'complete');
-  else if(filter === 'at-risk') fj = jobs.filter(j => j.status !== 'complete' && !(j.end > j.due) && (j.due - j.end) < 24*3600000);
-  else if(filter === 'cmm') fj = jobs.filter(j => j.machine.startsWith('CMM'));
-  return fj;
+// ══════════════════════════════════════════════════════════════
+//  MODE SWITCHING
+// ══════════════════════════════════════════════════════════════
+function setMode(m){
+  currentMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes(m.charAt(0).toUpperCase()+m.slice(1))||
+    (m==='schedule'&&b.textContent.includes('Schedule'))||(m==='monitor'&&b.textContent.includes('Monitor'))||
+    (m==='setup'&&b.textContent.includes('Setup'))||(m==='kpi'&&b.textContent.includes('KPI'))));
+  document.querySelectorAll('.mode-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  if(m==='monitor')renderMonitor();
+  if(m==='setup')renderSetupTab();
+  if(m==='kpi')renderKPI();
+  if(m==='schedule')renderSchedule();
+}
+function setSetupTab(t){
+  currentSetupTab=t;
+  document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t))b.classList.add('active');});
+  document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sp-'+t).classList.add('active');
+  renderSetupTab();
 }
 
-function render(){
-  renderStats();
-  const filteredMachines = getFilteredMachines();
-  const filteredJobs = getFilteredJobs();
-  renderMachineLabels(filteredMachines, filteredJobs);
-  renderGantt(filteredMachines, filteredJobs);
-  renderLatePanel();
-}
+// ══════════════════════════════════════════════════════════════
+//  SCHEDULE RENDERING (kept from original)
+// ══════════════════════════════════════════════════════════════
+function getFilteredMachines(){let fm=MACHINES;if(filter==='cmm')fm=MACHINES.filter(m=>m.type==='cmm');if(selectedMachine)fm=MACHINES.filter(m=>m.id===selectedMachine);return fm;}
+function getFilteredJobs(){let fj=jobs;if(filter==='late')fj=jobs.filter(j=>j.end>j.due&&j.status!=='complete');else if(filter==='at-risk')fj=jobs.filter(j=>j.status!=='complete'&&!(j.end>j.due)&&(j.due-j.end)<24*3600000);else if(filter==='cmm')fj=jobs.filter(j=>j.machine.startsWith('CMM'));return fj;}
+
+function renderSchedule(){renderStats();const fm=getFilteredMachines(),fj=getFilteredJobs();renderMachineLabels(fm,fj);renderGantt(fm,fj);renderLatePanel();}
 
 function renderStats(){
-  const active = jobs.filter(j => j.status !== 'complete');
-  const late = active.filter(j => j.end > j.due);
-  const atRisk = active.filter(j => !late.includes(j) && (j.due - j.end) < 24*3600000);
-  const onTime = active.length - late.length - atRisk.length;
-  const cmmQ = jobs.filter(j => j.machine.startsWith('CMM') && j.status !== 'complete').length;
-
-  document.getElementById('stats-bar').innerHTML = `
+  const active=jobs.filter(j=>j.status!=='complete'),late=active.filter(j=>j.end>j.due);
+  const atRisk=active.filter(j=>!late.includes(j)&&(j.due-j.end)<24*3600000);
+  const onTime=active.length-late.length-atRisk.length;
+  const cmmQ=jobs.filter(j=>j.machine.startsWith('CMM')&&j.status!=='complete').length;
+  document.getElementById('stats-bar').innerHTML=`
     <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
     <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
     <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
     <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
-    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
-  `;
+    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>`;
 }
 
-function renderMachineLabels(filteredMachines, filteredJobs){
-  const el = document.getElementById('gl-body');
-  el.innerHTML = filteredMachines.map(m => {
-    const cnt = filteredJobs.filter(j => j.machine === m.id && j.status !== 'complete').length;
-    const isActive = selectedMachine === m.id;
-    return `<div class="gl-row ${isActive?'active':''}" onclick="selectMachine('${m.id}')">
-      <div class="gl-dot" style="background:${m.color}"></div>
-      <span class="gl-name">${m.id}</span>
-      <span class="gl-cnt">${cnt}</span>
-    </div>`;
+function renderMachineLabels(fm,fj){
+  document.getElementById('gl-body').innerHTML=fm.map(m=>{
+    const cnt=fj.filter(j=>j.machine===m.id&&j.status!=='complete').length;
+    return `<div class="gl-row ${selectedMachine===m.id?'active':''}" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
   }).join('');
 }
 
-function renderGantt(filteredMachines, filteredJobs){
-  const area = document.getElementById('gantt-area');
-  const gantt = document.getElementById('gantt');
-  const hpx = HOUR_PX[scale];
-  const totalDays = scale === 'day' ? 14 : scale === 'week' ? 42 : 90;
-  const totalHours = totalDays * 24;
-  const startTime = new Date(TODAY.getTime() - 5 * 24 * 3600000);
-  const totalW = totalHours * hpx;
-
-  const rowH = 44;
-  const headerH = 32;
-
-  let html = '';
-  // Header
-  html += `<div class="g-header" style="width:${totalW}px">`;
-  for(let d = 0; d < totalDays; d++){
-    const date = new Date(startTime.getTime() + d * 24*3600000);
-    const dayW = 24 * hpx;
-    const isToday = date.toDateString() === TODAY.toDateString();
-    const bg = isToday ? 'rgba(255,69,58,.1)' : 'transparent';
-    const label = date.toLocaleDateString('en-AU',{day:'numeric',month:'short',weekday:'short'});
-    html += `<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${scale==='month' && d%7!==0 ? '' : label}</div>`;
+function renderGantt(fm,fj){
+  const gantt=document.getElementById('gantt'),hpx=HOUR_PX[scale];
+  const totalDays=scale==='day'?14:scale==='week'?42:90,totalHours=totalDays*24;
+  const startTime=new Date(TODAY.getTime()-5*24*3600000),totalW=totalHours*hpx,rowH=44,headerH=32;
+  let html=`<div class="g-header" style="width:${totalW}px">`;
+  for(let d=0;d<totalDays;d++){
+    const date=new Date(startTime.getTime()+d*24*3600000),dayW=24*hpx;
+    const isToday=date.toDateString()===TODAY.toDateString(),bg=isToday?'rgba(255,69,58,.1)':'transparent';
+    const label=date.toLocaleDateString('en-AU',{day:'numeric',month:'short',weekday:'short'});
+    html+=`<div class="g-hcell" style="width:${dayW}px;min-width:${dayW}px;background:${bg}">${scale==='month'&&d%7!==0?'':label}</div>`;
   }
-  html += '</div>';
-
-  // Rows + Jobs
-  filteredMachines.forEach((m, mi) => {
-    const y = headerH + mi * rowH;
-    const mJobs = filteredJobs.filter(j => j.machine === m.id && j.status !== 'complete');
-
-    // Row background
-    html += `<div class="g-row" style="position:absolute;top:${y}px;left:0;width:${totalW}px;height:${rowH}px"></div>`;
-
-    // Jobs
-    mJobs.forEach(j => {
-      const jStart = (j.start - startTime) / 3600000;
-      const jDur = (j.end - j.start) / 3600000;
-      const x = jStart * hpx;
-      const w = Math.max(jDur * hpx, 20);
-      const isLate = j.end > j.due;
-      const isAtRisk = !isLate && (j.due - j.end) < 24*3600000;
-      const cls = j.machine.startsWith('CMM') ? 'cmm' : isLate ? 'late' : isAtRisk ? 'at-risk' : 'on-time';
-      const prog = j.status === 'in-progress' ? ' in-progress' : '';
-      html += `<div class="job ${cls}${prog}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">
-        ${j.partId.substring(0,15)}${j.delay > 0 ? ' +'+j.delay+'h':''}
-      </div>`;
+  html+='</div>';
+  fm.forEach((m,mi)=>{
+    const y=headerH+mi*rowH;
+    html+=`<div class="g-row" style="position:absolute;top:${y}px;left:0;width:${totalW}px;height:${rowH}px"></div>`;
+    fj.filter(j=>j.machine===m.id&&j.status!=='complete').forEach(j=>{
+      const jStart=(j.start-startTime)/3600000,jDur=(j.end-j.start)/3600000;
+      const x=jStart*hpx,w=Math.max(jDur*hpx,20);
+      const isLate=j.end>j.due,isAtRisk=!isLate&&(j.due-j.end)<24*3600000;
+      const cls=j.machine.startsWith('CMM')?'cmm':isLate?'late':isAtRisk?'at-risk':'on-time';
+      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,15)}${j.delay>0?' +'+j.delay+'h':''}</div>`;
     });
   });
-
-  // Today line
-  const todayX = ((TODAY - startTime) / 3600000) * hpx;
-  html += `<div class="today-line" style="left:${todayX}px;top:0;height:${headerH + filteredMachines.length * rowH}px">
-    <div class="today-label">TODAY</div>
-  </div>`;
-
-  gantt.style.width = totalW + 'px';
-  gantt.style.height = (headerH + filteredMachines.length * rowH) + 'px';
-  gantt.innerHTML = html;
-
-  // Scroll to today
-  area.scrollLeft = Math.max(0, todayX - area.clientWidth / 3);
+  const todayX=((TODAY-startTime)/3600000)*hpx;
+  html+=`<div class="today-line" style="left:${todayX}px;top:0;height:${headerH+fm.length*rowH}px"><div class="today-label">TODAY</div></div>`;
+  gantt.style.width=totalW+'px';gantt.style.height=(headerH+fm.length*rowH)+'px';gantt.innerHTML=html;
+  document.getElementById('gantt-area').scrollLeft=Math.max(0,todayX-document.getElementById('gantt-area').clientWidth/3);
 }
 
 function renderLatePanel(){
-  const lateJobs = jobs.filter(j => j.end > j.due && j.status !== 'complete')
-    .sort((a,b) => ((b.end - b.due) - (a.end - a.due)));
-
-  document.getElementById('late-count').textContent = lateJobs.length;
-  const el = document.getElementById('late-list');
-
-  if(!lateJobs.length){
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--dim2)">🎉 No late jobs!</div>';
-    return;
-  }
-
-  el.innerHTML = lateJobs.map(j => {
-    const daysLate = Math.round((j.end - j.due) / (24*3600000) * 10) / 10;
-    const machine = MACHINES.find(m => m.id === j.machine);
-    const mType = machine ? machine.type : '';
-    const altMachines = (COMPAT[mType]||[]).filter(m => m !== j.machine);
-
-    const thumbSVG = genDrawingSVG(j.partId, j.partDesc, 300, 200);
-    return `<div class="lj">
-      <div class="lj-head">
-        <div class="lj-id">${j.id}</div>
-        <div class="lj-days">${daysLate}d late</div>
-      </div>
+  const lateJobs=jobs.filter(j=>j.end>j.due&&j.status!=='complete').sort((a,b)=>(b.end-b.due)-(a.end-a.due));
+  document.getElementById('late-count').textContent=lateJobs.length;
+  const el=document.getElementById('late-list');
+  if(!lateJobs.length){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--dim2)">🎉 No late jobs!</div>';return;}
+  el.innerHTML=lateJobs.map(j=>{
+    const daysLate=Math.round((j.end-j.due)/(24*3600000)*10)/10;
+    const machine=MACHINES.find(m=>m.id===j.machine),mType=machine?machine.type:'';
+    const altMachines=(COMPAT[mType]||[]).filter(m=>m!==j.machine);
+    const thumbSVG=genDrawingSVG(j.partId,j.partDesc,300,200);
+    return `<div class="lj"><div class="lj-head"><div class="lj-id">${j.id}</div><div class="lj-days">${daysLate}d late</div></div>
       <div class="lj-part">${j.partDesc} — Qty: ${j.qty}</div>
-      <div class="lj-dates">
-        <span>Due: ${fmtDate(j.due)}</span>
-        <span>Est: ${fmtDate(j.end)}</span>
-      </div>
+      <div class="lj-dates"><span>Due: ${fmtDate(j.due)}</span><span>Est: ${fmtDate(j.end)}</span></div>
       <div class="lj-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}</div>
       <div class="lj-drawing-hint">Double-click drawing to enlarge</div>
       <div class="lj-recovery">
-        ${altMachines.length ? `<div class="rc" onclick="recoveryMove('${j.id}','${altMachines[0]}')"><span class="rc-icon">🔄</span> Move to ${altMachines[0]}</div>` : ''}
+        ${altMachines.length?`<div class="rc" onclick="recoveryMove('${j.id}','${altMachines[0]}')"><span class="rc-icon">🔄</span> Move to ${altMachines[0]}</div>`:''}
         <div class="rc" onclick="recoveryOvertime('${j.id}')"><span class="rc-icon">⏰</span> Add overtime (+${SHIFT_HOURS}h shift)</div>
         <div class="rc" onclick="recoverySplit('${j.id}')"><span class="rc-icon">✂️</span> Split batch (50/50)</div>
         <div class="rc" onclick="recoverySubco('${j.id}')"><span class="rc-icon">📤</span> Subcontract this op</div>
         <div class="rc" onclick="recoveryPrioritize('${j.id}')"><span class="rc-icon">⬆️</span> Re-prioritize (move to front)</div>
+      </div></div>`;
+  }).join('');
+}
+
+// ── Scroll sync ──
+(function(){
+  const area=document.getElementById('gantt-area'),glBody=document.getElementById('gl-body');
+  let syncing=false;
+  area.addEventListener('scroll',()=>{if(syncing)return;syncing=true;glBody.scrollTop=area.scrollTop<=32?0:area.scrollTop-32;syncing=false;});
+  glBody.addEventListener('scroll',()=>{if(syncing)return;syncing=true;area.scrollTop=glBody.scrollTop+32;syncing=false;});
+  glBody.style.overflowY='auto';glBody.style.scrollbarWidth='none';glBody.style.msOverflowStyle='none';
+})();
+
+// ── Schedule actions ──
+function selectMachine(id){selectedMachine=selectedMachine===id?null:id;renderSchedule();}
+function setScale(s){scale=s;document.querySelectorAll('.ctrls .btn').forEach(b=>{if(['Day','Week','Month'].includes(b.textContent))b.classList.toggle('active',b.textContent.toLowerCase()===s);});renderSchedule();}
+function setFilter(f){filter=f;document.querySelectorAll('.ctrls .btn').forEach(b=>{const map={'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};if(map[b.textContent]!==undefined)b.classList.toggle('active',map[b.textContent]===f);});renderSchedule();}
+function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
+function addGlobalDelay(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.delay+=4;c.end=new Date(c.originalEnd.getTime()+c.delay*3600000);recalcCascade();renderSchedule();toast(`⚠️ Added 4h delay to ${c.id}`);}
+function recoveryMove(jid,tm){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine=tm;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*3600000);j.delay=0;j.status='queued';recalcCascade();renderSchedule();toast(`🔄 Moved ${jid} to ${tm}`);}
+function recoveryOvertime(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.totalHours=Math.max(2,j.totalHours-SHIFT_HOURS);j.end=new Date(j.start.getTime()+j.totalHours*3600000);j.delay=Math.max(0,j.delay-SHIFT_HOURS);recalcCascade();renderSchedule();toast(`⏰ Overtime added to ${jid}`);}
+function recoverySplit(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const m=MACHINES.find(m=>m.id===j.machine);const alts=(COMPAT[m?.type]||[]).filter(m=>m!==j.machine);j.qty=Math.ceil(j.qty/2);j.totalHours=Math.ceil(j.totalHours/2);j.end=new Date(j.start.getTime()+j.totalHours*3600000);if(alts.length)jobs.push({...j,id:j.id+'-SPLIT',machine:alts[0],start:new Date(TODAY),end:new Date(TODAY.getTime()+j.totalHours*3600000),status:'queued',delay:0});recalcCascade();renderSchedule();toast(`✂️ Split ${jid}`);}
+function recoverySubco(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine='SUBCO';j.delay=0;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*1.5*3600000);recalcCascade();renderSchedule();toast(`📤 Subcontracted ${jid}`);}
+function recoveryPrioritize(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const mj=jobs.filter(jj=>jj.machine===j.machine&&jj.status==='queued').sort((a,b)=>a.start-b.start);if(mj.length>1){j.start=new Date(mj[0].start);j.end=new Date(mj[0].start.getTime()+j.totalHours*3600000);j.status='queued';}recalcCascade();renderSchedule();toast(`⬆️ Re-prioritized ${jid}`);}
+
+// ══════════════════════════════════════════════════════════════
+//  DRAWING GENERATOR (kept from original)
+// ══════════════════════════════════════════════════════════════
+const drawingCache={};
+function genDrawingSVG(partId,partDesc,w,h){
+  const key=partId+w+h;if(drawingCache[key])return drawingCache[key];
+  let seed=0;for(let i=0;i<partId.length;i++)seed=((seed<<5)-seed+partId.charCodeAt(i))|0;
+  const r=()=>{seed=(seed*16807+0)%2147483647;return(seed&0x7fffffff)/2147483647;};
+  const cx=w/2,cy=h/2,partW=w*0.35+r()*w*0.2,partH=h*0.25+r()*h*0.2,px=cx-partW/2,py=cy-partH/2;
+  const tbH=h*0.12,tbY=h-tbH;
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+  svg+=`<rect width="${w}" height="${h}" fill="#fff"/><rect x="1" y="1" width="${w-2}" height="${h-2}" fill="none" stroke="#333" stroke-width="2"/><rect x="8" y="8" width="${w-16}" height="${h-16}" fill="none" stroke="#999" stroke-width="0.5"/>`;
+  svg+=`<line x1="${w*0.15}" y1="${cy}" x2="${w*0.85}" y2="${cy}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/><line x1="${cx}" y1="${h*0.1}" x2="${cx}" y2="${h*0.78}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/>`;
+  const st=Math.floor(r()*5);svg+=`<g stroke="#333" stroke-width="1.2" fill="none">`;
+  if(st===0){svg+=`<rect x="${px}" y="${py}" width="${partW}" height="${partH}" rx="2"/><line x1="${px+partW*0.15}" y1="${py}" x2="${px+partW*0.15}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/><line x1="${px+partW*0.85}" y1="${py}" x2="${px+partW*0.85}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/><ellipse cx="${px}" cy="${cy}" rx="${partH*0.15}" ry="${partH/2}" stroke-width="0.6"/>`;}
+  else if(st===1){const rad=Math.min(partW,partH)*0.45;svg+=`<circle cx="${cx}" cy="${cy}" r="${rad}"/><circle cx="${cx}" cy="${cy}" r="${rad*0.3}" stroke-dasharray="3,2"/>`;const teeth=6+Math.floor(r()*8);for(let t=0;t<teeth;t++){const a=(t/teeth)*Math.PI*2;svg+=`<line x1="${cx+Math.cos(a)*rad*0.85}" y1="${cy+Math.sin(a)*rad*0.85}" x2="${cx+Math.cos(a)*rad}" y2="${cy+Math.sin(a)*rad}" stroke-width="1.5"/>`;}}
+  else if(st===2){const pts=[];const segs=6+Math.floor(r()*4);for(let s=0;s<segs;s++)pts.push(`${px+(s/(segs-1))*partW},${py+r()*partH*0.3}`);for(let s=segs-1;s>=0;s--)pts.push(`${px+(s/(segs-1))*partW},${py+partH-r()*partH*0.3}`);svg+=`<polygon points="${pts.join(' ')}"/><circle cx="${cx}" cy="${cy}" r="${Math.min(partW,partH)*0.12}" stroke-dasharray="3,2"/>`;}
+  else if(st===3){svg+=`<path d="M${px},${py} h${partW} v${partH*0.4} h${-partW*0.6} v${partH*0.6} h${-partW*0.4} Z"/><circle cx="${px+partW*0.2}" cy="${py+partH*0.2}" r="${partH*0.06}"/><circle cx="${px+partW*0.8}" cy="${py+partH*0.2}" r="${partH*0.06}"/>`;}
+  else{const steps=3+Math.floor(r()*2);let sx=px;for(let s=0;s<steps;s++){const sw=partW/steps,sh=partH*(0.4+r()*0.6),sy=cy-sh/2;svg+=`<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}"/>`;sx+=sw;}}
+  svg+=`</g>`;
+  const dims=2+Math.floor(r()*3);svg+=`<g stroke="#333" stroke-width="0.4" fill="#333" font-size="${h*0.035}" font-family="Arial">`;
+  for(let d=0;d<dims;d++){const dimY=py+partH+12+d*14;if(dimY>tbY-10)break;const x1=px+r()*partW*0.3,x2=px+partW*0.5+r()*partW*0.5,val=(5+r()*200).toFixed(1);svg+=`<line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}"/><polygon points="${x1},${dimY} ${x1+4},${dimY-1.5} ${x1+4},${dimY+1.5}" fill="#333"/><polygon points="${x2},${dimY} ${x2-4},${dimY-1.5} ${x2-4},${dimY+1.5}" fill="#333"/><line x1="${x1}" y1="${py+partH}" x2="${x1}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/><line x1="${x2}" y1="${py+partH}" x2="${x2}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/><text x="${(x1+x2)/2}" y="${dimY-3}" text-anchor="middle">${val}</text>`;}
+  svg+=`</g>`;
+  const balloons=3+Math.floor(r()*4);svg+=`<g stroke="#cc0000" stroke-width="0.6" fill="none" font-size="${h*0.032}" font-family="Arial">`;
+  for(let b=1;b<=balloons;b++){const bx=px+r()*partW,by=py+r()*partH,lx=bx+(r()>0.5?1:-1)*(partW*0.35+r()*30),ly=by+(r()>0.5?1:-1)*(partH*0.3+r()*20);if(ly>tbY-5||ly<12||lx<12||lx>w-12)continue;svg+=`<line x1="${bx}" y1="${by}" x2="${lx}" y2="${ly}"/><circle cx="${lx}" cy="${ly}" r="${h*0.035}" fill="#fff" stroke="#cc0000"/><text x="${lx}" y="${ly+h*0.012}" text-anchor="middle" fill="#cc0000" font-weight="700">${b}</text><circle cx="${bx}" cy="${by}" r="2" fill="#cc0000"/>`;}
+  svg+=`</g>`;
+  svg+=`<rect x="8" y="${tbY}" width="${w-16}" height="${tbH}" fill="#f5f5f5" stroke="#333" stroke-width="0.8"/><line x1="${w*0.5}" y1="${tbY}" x2="${w*0.5}" y2="${h-8}" stroke="#999" stroke-width="0.4"/>`;
+  svg+=`<text x="${w*0.25}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.03}" font-family="Arial" font-weight="700" fill="#333">${partId}</text>`;
+  svg+=`<text x="${w*0.25}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">${partDesc}</text>`;
+  svg+=`<text x="${w*0.75}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">NUPRESS GROUP</text>`;
+  svg+=`<text x="${w*0.75}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.022}" font-family="Arial" fill="#999">BALLOONED DRAWING — REV ${String.fromCharCode(65+Math.floor(r()*6))}</text></svg>`;
+  drawingCache[key]=svg;return svg;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  JOB CLICK / LIGHTBOX (kept from original)
+// ══════════════════════════════════════════════════════════════
+let openCardJobId=null,clickTimer=null,lastClickJobId=null,lastClickTime=0;
+document.addEventListener('click',(e)=>{
+  const jobEl=e.target.closest('.job[data-job]');if(!jobEl)return;e.stopPropagation();
+  const jobId=jobEl.getAttribute('data-job'),now=Date.now();
+  if(jobId===lastClickJobId&&(now-lastClickTime)<400){lastClickJobId=null;lastClickTime=0;if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}openLightbox(jobId);return;}
+  lastClickJobId=jobId;lastClickTime=now;
+  if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}
+  clickTimer=setTimeout(()=>{clickTimer=null;_openInfoCard(e,jobId);},350);
+},true);
+function _openInfoCard(e,jobId){
+  if(openCardJobId===jobId){closeInfoCard();return;}openCardJobId=jobId;
+  const j=jobs.find(j=>j.id===jobId);if(!j)return;const tip=document.getElementById('tooltip');
+  const isLate=j.end>j.due,daysLate=isLate?Math.round((j.end-j.due)/(24*3600000)*10)/10:0;
+  const thumbSVG=genDrawingSVG(j.partId,j.partDesc,320,220);
+  tip.innerHTML=`<div class="tip-header"><div class="tip-title">${j.id}</div><button class="tip-close" onclick="closeInfoCard()">&times;</button></div>
+    <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div><div class="tip-row"><span>Machine</span><span>${j.machine}</span></div>
+    <div class="tip-row"><span>Qty</span><span>${j.qty}</span></div><div class="tip-row"><span>Hours</span><span>${j.totalHours}h${j.delay?' (+'+j.delay+'h delay)':''}</span></div>
+    <div class="tip-row"><span>Start</span><span>${fmtDateTime(j.start)}</span></div><div class="tip-row"><span>Est End</span><span>${fmtDateTime(j.end)}</span></div>
+    <div class="tip-row"><span>Due</span><span style="color:${isLate?'var(--red)':'var(--green)'}">${fmtDateTime(j.due)}</span></div>
+    ${isLate?`<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>`:''}
+    <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
+    ${j.needsCMM?'<div class="tip-row"><span>CMM</span><span>Required</span></div>':''}
+    <div class="tip-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
+    <div class="tip-dblclick">Double-click drawing to view full size</div>`;
+  tip.style.display='block';
+  tip.style.left=Math.min(e.clientX+10,window.innerWidth-370)+'px';
+  tip.style.top=Math.max(10,Math.min(e.clientY-60,window.innerHeight-520))+'px';
+}
+function closeInfoCard(){document.getElementById('tooltip').style.display='none';openCardJobId=null;}
+document.addEventListener('click',(e)=>{const tip=document.getElementById('tooltip');if(tip.style.display!=='none'&&!tip.contains(e.target)&&!e.target.closest('.job[data-job]'))closeInfoCard();});
+function openLightbox(jobId){if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}const j=jobs.find(j=>j.id===jobId);if(!j)return;closeInfoCard();document.getElementById('lb-title').textContent=`${j.partId} — ${j.partDesc}`;document.getElementById('lb-drawing').innerHTML=genDrawingSVG(j.partId,j.partDesc,800,560);document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(e){if(e&&e.type==='click'&&e.target!==document.getElementById('lightbox'))return;document.getElementById('lightbox').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open');});
+
+// ══════════════════════════════════════════════════════════════
+//  MONITOR MODE RENDERING
+// ══════════════════════════════════════════════════════════════
+function renderMonitor(){
+  const data=genMonitorData();
+  document.getElementById('monitor-grid').innerHTML=data.map(d=>{
+    const m=d.machine, stCls=d.status;
+    const stLabel=d.status.charAt(0).toUpperCase()+d.status.slice(1);
+    // Pie chart SVG
+    const pie=genPieSVG(d);
+    // Operator capability
+    const capStr=d.skill?fmtCapability(d.skill):'—';
+    // Progress
+    const pctColor=d.pctDone>80?'var(--green)':d.pctDone>40?'var(--yellow)':'var(--blue)';
+    // Benchmark sparkline
+    const maxBench=Math.max(...d.benchmark.map(b=>b.setupMins+b.cycleMins),1);
+    const sparkBars=d.benchmark.map((b,i)=>{
+      const h=((b.setupMins+b.cycleMins)/maxBench)*28;
+      const col=i===d.benchmark.length-1?'var(--accent)':'var(--blue)';
+      return `<div class="sparkline-bar" style="height:${h}px;background:${col}"><div class="sp-tip">${b.who}: S${b.setupMins}m R${b.cycleMins}m</div></div>`;
+    }).join('');
+    return `<div class="mcard">
+      ${d.atRisk?'<div class="mcard-risk" title="At Risk — cycle time exceeding standard">⚠️</div>':''}
+      <div class="mcard-header"><div class="mcard-name">${m.id}</div><div class="mcard-status ${stCls}">${stLabel}</div></div>
+      ${d.operator?`<div class="mcard-operator">👷 ${d.operator.name} <span class="mcard-cap">${capStr}</span></div>`:'<div class="mcard-operator" style="color:var(--dim2)">No operator assigned</div>'}
+      <div class="mcard-pie-wrap">
+        <div class="mcard-pie">${pie}</div>
+        <div class="mcard-info">
+          ${d.job?`<div><span class="label">Job: </span><span class="val">${d.job.id.substring(0,12)}</span></div><div><span class="label">Part: </span><span class="val">${d.job.partDesc.substring(0,20)}</span></div>`:'<div style="color:var(--dim2)">No active job</div>'}
+          <div><span class="label">Op: </span><span class="val">${d.status==='setup'?'SETUP':'RUN'}</span></div>
+          <div><span class="label">Std: </span><span class="val">${d.status==='setup'?d.stdSetup+'m':d.stdRun.toFixed(1)+'m/pc'}</span></div>
+          <div><span class="label">Elapsed: </span><span class="val">${d.elapsed}m</span></div>
+        </div>
       </div>
+      ${d.status==='running'?`<div class="mcard-progress"><div class="mcard-progress-bar" style="width:${d.pctDone}%;background:${pctColor}"></div></div>
+      <div class="mcard-minspart"><span>${d.qtyDone}/${d.qtyTotal} pcs</span><span>Act: ${d.actualMins}m/pc | Std: ${d.stdRun.toFixed(1)}m/pc</span></div>`:''}
+      <div class="mcard-benchmark"><div class="mcard-benchmark-title">Last 6 runs (setup+cycle)</div><div class="sparkline-row">${sparkBars}</div></div>
     </div>`;
   }).join('');
 }
 
-// ── SCROLL SYNC ──
-// Sync vertical scroll: when Gantt scrolls, move machine labels to match
-(function(){
-  const area = document.getElementById('gantt-area');
-  const glBody = document.getElementById('gl-body');
-  let syncing = false;
-  area.addEventListener('scroll', () => {
-    if(syncing) return;
-    syncing = true;
-    // Offset by header height (32px) — labels have no header row in scroll area
-    glBody.scrollTop = area.scrollTop - 32;
-    // If scrollTop < 32 (header still visible), labels at top
-    if(area.scrollTop <= 32) glBody.scrollTop = 0;
-    else glBody.scrollTop = area.scrollTop - 32;
-    syncing = false;
-  });
-  // Also enable label scroll to drive gantt scroll
-  glBody.addEventListener('scroll', () => {
-    if(syncing) return;
-    syncing = true;
-    area.scrollTop = glBody.scrollTop + 32;
-    syncing = false;
-  });
-  // Make gl-body scrollable
-  glBody.style.overflowY = 'auto';
-  // Hide scrollbar on labels (scroll driven by gantt)
-  glBody.style.scrollbarWidth = 'none';
-  glBody.style.msOverflowStyle = 'none';
-})();
-
-// ── ACTIONS ──
-function selectMachine(id){
-  selectedMachine = selectedMachine === id ? null : id;
-  render();
+function fmtCapability(sk){
+  if(!sk)return '—';
+  const lvlShort={none:'—',easy:'E',medium:'M',complex:'C'};
+  const sLvls=[],oLvls=[];
+  if(sk.setup){if(sk.setupLvl&&sk.setupLvl!=='none')sLvls.push(lvlShort[sk.setupLvl]);}
+  if(sk.operate){if(sk.operateLvl&&sk.operateLvl!=='none')oLvls.push(lvlShort[sk.operateLvl]);}
+  // Show cumulative (E implies E, M implies E+M, C implies all)
+  const expand=l=>{if(l==='C')return 'E/M/C';if(l==='M')return 'E/M';if(l==='E')return 'E';return '—';};
+  const sPart=sLvls.length?'Setup:'+expand(sLvls[0]):'';
+  const oPart=oLvls.length?'Run:'+expand(oLvls[0]):'';
+  return [sPart,oPart].filter(Boolean).join(' | ')||'Not certified';
 }
 
-
-function setScale(s){
-  scale = s;
-  document.querySelectorAll('.ctrls .btn').forEach(b => {
-    if(['Day','Week','Month'].includes(b.textContent)) b.classList.toggle('active', b.textContent.toLowerCase() === s);
-  });
-  render();
-}
-
-function setFilter(f){
-  filter = f;
-  document.querySelectorAll('.ctrls .btn').forEach(b => {
-    const map = {'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};
-    if(map[b.textContent] !== undefined) b.classList.toggle('active', map[b.textContent] === f);
-  });
-  render();
-}
-
-function completeCurrentJob(){
-  const target = selectedMachine || MACHINES[0].id;
-  const current = jobs.find(j => j.machine === target && j.status === 'in-progress');
-  if(!current){toast('No in-progress job on ' + target);return;}
-  current.status = 'complete';
-  current.end = new Date(TODAY);
-  current.delay = 0;
-  recalcCascade();
-  render();
-  toast(`✅ Completed ${current.id} on ${target} — queue collapsed forward`);
-}
-
-function addGlobalDelay(){
-  const target = selectedMachine || MACHINES[0].id;
-  const current = jobs.find(j => j.machine === target && j.status === 'in-progress');
-  if(!current){toast('No in-progress job on ' + target);return;}
-  current.delay += 4;
-  current.end = new Date(current.originalEnd.getTime() + current.delay * 3600000);
-  recalcCascade();
-  render();
-  toast(`⚠️ Added 4h delay to ${current.id} — cascade updated`);
-}
-
-// ── RECOVERY ACTIONS ──
-function recoveryMove(jobId, targetMachine){
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  j.machine = targetMachine;
-  j.start = new Date(TODAY);
-  j.end = new Date(TODAY.getTime() + j.totalHours * 3600000);
-  j.delay = 0;
-  j.status = 'queued';
-  recalcCascade();
-  render();
-  toast(`🔄 Moved ${jobId} to ${targetMachine}`);
-}
-
-function recoveryOvertime(jobId){
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  j.totalHours = Math.max(2, j.totalHours - SHIFT_HOURS);
-  j.end = new Date(j.start.getTime() + j.totalHours * 3600000);
-  j.delay = Math.max(0, j.delay - SHIFT_HOURS);
-  recalcCascade();
-  render();
-  toast(`⏰ Added overtime to ${jobId} — ${SHIFT_HOURS}h saved`);
-}
-
-function recoverySplit(jobId){
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  const machine = MACHINES.find(m => m.id === j.machine);
-  const alts = (COMPAT[machine?.type]||[]).filter(m => m !== j.machine);
-  j.qty = Math.ceil(j.qty / 2);
-  j.totalHours = Math.ceil(j.totalHours / 2);
-  j.end = new Date(j.start.getTime() + j.totalHours * 3600000);
-
-  if(alts.length){
-    jobs.push({...j, id: j.id + '-SPLIT', machine: alts[0], start: new Date(TODAY), end: new Date(TODAY.getTime() + j.totalHours*3600000), status:'queued', delay:0});
+function genPieSVG(d){
+  const size=90,cx=size/2,cy=size/2,radius=38;
+  if(d.status==='idle'||d.status==='down'){
+    const col=d.status==='idle'?'var(--dim2)':'var(--red)';
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="6"/><text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" font-weight="700" fill="${col}">${d.status.toUpperCase()}</text></svg>`;
   }
-  recalcCascade();
-  render();
-  toast(`✂️ Split ${jobId} — half moved to ${alts[0]||'same machine'}`);
+  const total=d.status==='setup'?d.stdSetup:d.stdRun;
+  const pct=Math.min(d.elapsed/total,1.5);// can overshoot
+  const clampPct=Math.min(pct,1);
+  const overTime=pct>1;
+  const warnZone=pct>0.75&&!overTime;
+  let col=overTime?'var(--red)':warnZone?'var(--orange)':'var(--green)';
+  // SVG arc
+  const angle=clampPct*360;const rad=angle*Math.PI/180;
+  const largeArc=angle>180?1:0;
+  const ex=cx+radius*Math.sin(rad),ey=cy-radius*Math.cos(rad);
+  let arc='';
+  if(angle>=360){arc=`<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${col}" stroke-width="6"/>`;}
+  else{arc=`<path d="M${cx},${cy-radius} A${radius},${radius} 0 ${largeArc},1 ${ex},${ey}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round"/>`;}
+  // Overtime ring
+  let otRing='';
+  if(overTime){
+    const otPct=Math.min(pct-1,1);const otAngle=otPct*360;const otRad=otAngle*Math.PI/180;
+    const otLarge=otAngle>180?1:0;const otEx=cx+(radius-8)*Math.sin(otRad),otEy=cy-(radius-8)*Math.cos(otRad);
+    if(otAngle>=360)otRing=`<circle cx="${cx}" cy="${cy}" r="${radius-8}" fill="none" stroke="var(--red)" stroke-width="3" opacity=".5"/>`;
+    else otRing=`<path d="M${cx},${cy-radius+8} A${radius-8},${radius-8} 0 ${otLarge},1 ${otEx},${otEy}" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round" opacity=".5"/>`;
+  }
+  const label=d.status==='setup'?`${d.elapsed}m`:`${Math.round(pct*100)}%`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="6"/>${arc}${otRing}<text x="${cx}" y="${cy+1}" text-anchor="middle" font-size="13" font-weight="700" fill="${col}">${label}</text><text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="8" fill="var(--dim)">${d.status.toUpperCase()}</text></svg>`;
 }
 
-function recoverySubco(jobId){
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  j.machine = 'SUBCO';
-  j.delay = 0;
-  j.start = new Date(TODAY);
-  j.end = new Date(TODAY.getTime() + j.totalHours * 1.5 * 3600000);
-  recalcCascade();
-  render();
-  toast(`📤 Subcontracted ${jobId}`);
+// ══════════════════════════════════════════════════════════════
+//  SETUP MODE RENDERING
+// ══════════════════════════════════════════════════════════════
+function renderSetupTab(){
+  const tab=currentSetupTab;
+  if(tab==='machines')renderSetupMachines();
+  else if(tab==='m1conn')renderSetupM1();
+  else if(tab==='employees')renderSetupEmployees();
+  else if(tab==='shifts')renderSetupShifts();
+  else if(tab==='skills')renderSetupSkills();
 }
 
-function recoveryPrioritize(jobId){
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  const mJobs = jobs.filter(jj => jj.machine === j.machine && jj.status === 'queued').sort((a,b) => a.start - b.start);
-  if(mJobs.length > 1){
-    const earliest = mJobs[0].start;
-    j.start = new Date(earliest);
-    j.end = new Date(earliest.getTime() + j.totalHours * 3600000);
-    j.status = 'queued';
-  }
-  recalcCascade();
-  render();
-  toast(`⬆️ Re-prioritized ${jobId} to front of queue`);
+// ── Machine Tools ──
+function renderSetupMachines(){
+  const ms=getMachineSetup();
+  const protocols=['MTConnect','Mazak SmartM','FANUC FOCAS','Heidenhain','Manual'];
+  document.getElementById('sp-machines').innerHTML=`
+    <div class="section-title">🔧 Machine Tool Configuration</div>
+    <div class="section-desc">Define CNC machines, protocols, and network addresses. Data persists in localStorage.</div>
+    <div class="action-bar"><button class="btn primary" onclick="addMachineRow()">＋ Add Machine</button><button class="btn success" onclick="saveMachines()">💾 Save Changes</button></div>
+    <div class="tbl-wrap"><table class="dtbl" id="machine-table">
+      <tr><th>ID</th><th>Name</th><th>Type</th><th>Protocol</th><th>IP Address</th><th>Port</th><th>Status</th><th></th></tr>
+      ${ms.map((m,i)=>`<tr data-idx="${i}">
+        <td><input value="${m.id}" data-f="id"/></td>
+        <td><input value="${m.name}" data-f="name"/></td>
+        <td><input value="${m.type}" data-f="type"/></td>
+        <td><select data-f="protocol">${protocols.map(p=>`<option${p===m.protocol?' selected':''}>${p}</option>`).join('')}</select></td>
+        <td><input value="${m.ip}" data-f="ip" style="width:120px"/></td>
+        <td><input value="${m.port}" data-f="port" type="number" style="width:60px"/></td>
+        <td><span class="status-dot ${m.status==='Online'?'status-online':'status-offline'}"></span> ${m.status}</td>
+        <td><button class="btn danger" onclick="deleteMachineRow(${i})" style="padding:2px 8px;font-size:10px">✕</button></td>
+      </tr>`).join('')}
+    </table></div>`;
+}
+function addMachineRow(){
+  const ms=getMachineSetup();ms.push({id:'NEW'+ms.length,name:'New Machine',type:'vmc',protocol:'MTConnect',ip:'192.168.1.200',port:5000,status:'Offline'});
+  lsSet('machine_setup',ms);renderSetupMachines();toast('Added new machine row');
+}
+function deleteMachineRow(i){if(!confirm('Delete this machine?'))return;const ms=getMachineSetup();ms.splice(i,1);lsSet('machine_setup',ms);renderSetupMachines();toast('Machine deleted');}
+function saveMachines(){
+  const rows=document.querySelectorAll('#machine-table tr[data-idx]');const ms=[];
+  rows.forEach(r=>{const o={};r.querySelectorAll('[data-f]').forEach(el=>o[el.dataset.f]=el.value);o.port=parseInt(o.port)||0;o.status='Online';ms.push(o);});
+  lsSet('machine_setup',ms);toast('✅ Machines saved');
 }
 
-// ── DRAWING GENERATOR ──
-// Generates a procedural SVG "ballooned technical drawing" per part.
-// When connected to M1, replace with actual drawing file lookups.
-const drawingCache = {};
-function genDrawingSVG(partId, partDesc, w, h){
-  const key = partId + w + h;
-  if(drawingCache[key]) return drawingCache[key];
-  // Deterministic seed from partId
-  let seed = 0;
-  for(let i = 0; i < partId.length; i++) seed = ((seed << 5) - seed + partId.charCodeAt(i)) | 0;
-  const r = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
-
-  const cx = w/2, cy = h/2;
-  const partW = w*0.35 + r()*w*0.2;
-  const partH = h*0.25 + r()*h*0.2;
-  const px = cx - partW/2, py = cy - partH/2;
-
-  // Title block
-  const tbH = h*0.12;
-  const tbY = h - tbH;
-
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
-  // Background + border
-  svg += `<rect width="${w}" height="${h}" fill="#fff"/>`;
-  svg += `<rect x="1" y="1" width="${w-2}" height="${h-2}" fill="none" stroke="#333" stroke-width="2"/>`;
-  // Inner border
-  svg += `<rect x="8" y="8" width="${w-16}" height="${h-16}" fill="none" stroke="#999" stroke-width="0.5"/>`;
-
-  // Center lines
-  svg += `<line x1="${w*0.15}" y1="${cy}" x2="${w*0.85}" y2="${cy}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/>`;
-  svg += `<line x1="${cx}" y1="${h*0.1}" x2="${cx}" y2="${h*0.78}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/>`;
-
-  // Main part outline — varies by part type
-  const shapeType = Math.floor(r()*5);
-  svg += `<g stroke="#333" stroke-width="1.2" fill="none">`;
-  if(shapeType === 0){
-    // Cylindrical (shaft/screw)
-    svg += `<rect x="${px}" y="${py}" width="${partW}" height="${partH}" rx="2"/>`;
-    svg += `<line x1="${px+partW*0.15}" y1="${py}" x2="${px+partW*0.15}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/>`;
-    svg += `<line x1="${px+partW*0.85}" y1="${py}" x2="${px+partW*0.85}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/>`;
-    svg += `<ellipse cx="${px}" cy="${cy}" rx="${partH*0.15}" ry="${partH/2}" stroke-width="0.6"/>`;
-  } else if(shapeType === 1){
-    // Circular (sprocket/gear)
-    const rad = Math.min(partW, partH)*0.45;
-    svg += `<circle cx="${cx}" cy="${cy}" r="${rad}"/>`;
-    svg += `<circle cx="${cx}" cy="${cy}" r="${rad*0.3}" stroke-dasharray="3,2"/>`;
-    const teeth = 6 + Math.floor(r()*8);
-    for(let t=0;t<teeth;t++){
-      const a = (t/teeth)*Math.PI*2;
-      svg += `<line x1="${cx+Math.cos(a)*rad*0.85}" y1="${cy+Math.sin(a)*rad*0.85}" x2="${cx+Math.cos(a)*rad}" y2="${cy+Math.sin(a)*rad}" stroke-width="1.5"/>`;
-    }
-  } else if(shapeType === 2){
-    // Complex profile (manifold/housing)
-    const pts = [];
-    const segs = 6 + Math.floor(r()*4);
-    for(let s=0;s<segs;s++){
-      pts.push(`${px + (s/(segs-1))*partW},${py + r()*partH*0.3}`);
-    }
-    for(let s=segs-1;s>=0;s--){
-      pts.push(`${px + (s/(segs-1))*partW},${py + partH - r()*partH*0.3}`);
-    }
-    svg += `<polygon points="${pts.join(' ')}"/>`;
-    // Internal feature
-    svg += `<circle cx="${cx}" cy="${cy}" r="${Math.min(partW,partH)*0.12}" stroke-dasharray="3,2"/>`;
-  } else if(shapeType === 3){
-    // L-bracket/plate
-    svg += `<path d="M${px},${py} h${partW} v${partH*0.4} h${-partW*0.6} v${partH*0.6} h${-partW*0.4} Z"/>`;
-    // Holes
-    svg += `<circle cx="${px+partW*0.2}" cy="${py+partH*0.2}" r="${partH*0.06}"/>`;
-    svg += `<circle cx="${px+partW*0.8}" cy="${py+partH*0.2}" r="${partH*0.06}"/>`;
-  } else {
-    // Stepped shaft
-    const steps = 3 + Math.floor(r()*2);
-    let sx = px;
-    for(let s=0;s<steps;s++){
-      const sw = partW/steps;
-      const sh = partH*(0.4+r()*0.6);
-      const sy = cy - sh/2;
-      svg += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}"/>`;
-      sx += sw;
-    }
-  }
-  svg += `</g>`;
-
-  // Dimension lines
-  const dims = 2 + Math.floor(r()*3);
-  svg += `<g stroke="#333" stroke-width="0.4" fill="#333" font-size="${h*0.035}" font-family="Arial">`;
-  for(let d=0;d<dims;d++){
-    const dimY = py + partH + 12 + d*14;
-    if(dimY > tbY - 10) break;
-    const x1 = px + r()*partW*0.3;
-    const x2 = px + partW*0.5 + r()*partW*0.5;
-    const val = (5 + r()*200).toFixed(1);
-    // Arrows
-    svg += `<line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}"/>`;
-    svg += `<polygon points="${x1},${dimY} ${x1+4},${dimY-1.5} ${x1+4},${dimY+1.5}" fill="#333"/>`;
-    svg += `<polygon points="${x2},${dimY} ${x2-4},${dimY-1.5} ${x2-4},${dimY+1.5}" fill="#333"/>`;
-    // Extension lines
-    svg += `<line x1="${x1}" y1="${py+partH}" x2="${x1}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/>`;
-    svg += `<line x1="${x2}" y1="${py+partH}" x2="${x2}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/>`;
-    svg += `<text x="${(x1+x2)/2}" y="${dimY-3}" text-anchor="middle">${val}</text>`;
-  }
-  svg += `</g>`;
-
-  // Balloon callouts
-  const balloons = 3 + Math.floor(r()*4);
-  svg += `<g stroke="#cc0000" stroke-width="0.6" fill="none" font-size="${h*0.032}" font-family="Arial">`;
-  for(let b=1;b<=balloons;b++){
-    const bx = px + r()*partW;
-    const by = py + r()*partH;
-    const lx = bx + (r()>0.5?1:-1)*(partW*0.35+r()*30);
-    const ly = by + (r()>0.5?1:-1)*(partH*0.3+r()*20);
-    if(ly > tbY - 5 || ly < 12 || lx < 12 || lx > w-12) continue;
-    svg += `<line x1="${bx}" y1="${by}" x2="${lx}" y2="${ly}"/>`;
-    svg += `<circle cx="${lx}" cy="${ly}" r="${h*0.035}" fill="#fff" stroke="#cc0000"/>`;
-    svg += `<text x="${lx}" y="${ly+h*0.012}" text-anchor="middle" fill="#cc0000" font-weight="700">${b}</text>`;
-    // Dot at part
-    svg += `<circle cx="${bx}" cy="${by}" r="2" fill="#cc0000"/>`;
-  }
-  svg += `</g>`;
-
-  // Title block
-  svg += `<rect x="8" y="${tbY}" width="${w-16}" height="${tbH}" fill="#f5f5f5" stroke="#333" stroke-width="0.8"/>`;
-  svg += `<line x1="${w*0.5}" y1="${tbY}" x2="${w*0.5}" y2="${h-8}" stroke="#999" stroke-width="0.4"/>`;
-  svg += `<text x="${w*0.25}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.03}" font-family="Arial" font-weight="700" fill="#333">${partId}</text>`;
-  svg += `<text x="${w*0.25}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">${partDesc}</text>`;
-  svg += `<text x="${w*0.75}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">NUPRESS GROUP</text>`;
-  svg += `<text x="${w*0.75}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.022}" font-family="Arial" fill="#999">BALLOONED DRAWING — REV ${String.fromCharCode(65+Math.floor(r()*6))}</text>`;
-  svg += `</svg>`;
-
-  drawingCache[key] = svg;
-  return svg;
-}
-
-// ── JOB CLICK HANDLER (single = info card, double = lightbox) ──
-let openCardJobId = null;
-let clickTimer = null;
-let lastClickJobId = null;
-let lastClickTime = 0;
-
-// Unified click handler on gantt area — detects single vs double click
-document.addEventListener('click', (e) => {
-  const jobEl = e.target.closest('.job[data-job]');
-  if(!jobEl) return;
-  e.stopPropagation();
-  const jobId = jobEl.getAttribute('data-job');
-  const now = Date.now();
-
-  // Double-click detection: same job within 400ms
-  if(jobId === lastClickJobId && (now - lastClickTime) < 400){
-    // It's a double click
-    lastClickJobId = null;
-    lastClickTime = 0;
-    if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
-    openLightbox(jobId);
-    return;
-  }
-
-  lastClickJobId = jobId;
-  lastClickTime = now;
-
-  // Delay single click
-  if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
-  clickTimer = setTimeout(() => {
-    clickTimer = null;
-    _openInfoCard(e, jobId);
-  }, 350);
-}, true); // capture phase
-
-function _openInfoCard(e, jobId){
-  // Toggle off if same job clicked again
-  if(openCardJobId === jobId){
-    closeInfoCard();
-    return;
-  }
-  openCardJobId = jobId;
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  const tip = document.getElementById('tooltip');
-  const isLate = j.end > j.due;
-  const daysLate = isLate ? Math.round((j.end - j.due)/(24*3600000)*10)/10 : 0;
-  const thumbSVG = genDrawingSVG(j.partId, j.partDesc, 320, 220);
-  tip.innerHTML = `
-    <div class="tip-header">
-      <div class="tip-title">${j.id}</div>
-      <button class="tip-close" onclick="closeInfoCard()">&times;</button>
+// ── M1 Connection ──
+function renderSetupM1(){
+  const cfg=getM1Config();
+  document.getElementById('sp-m1conn').innerHTML=`
+    <div class="section-title">🔌 M1 ERP Connection</div>
+    <div class="section-desc">Configure SQL Server connection to ECi M1 database.</div>
+    <div class="conn-status disconnected">● Disconnected (simulated)</div>
+    <div class="form-row">
+      <div class="form-group"><label>SQL Server</label><input id="m1-server" value="${cfg.server}"/></div>
+      <div class="form-group"><label>Database</label><input id="m1-db" value="${cfg.database}"/></div>
+      <div class="form-group"><label>Username</label><input id="m1-user" value="${cfg.user}"/></div>
+      <div class="form-group"><label>Password</label><input id="m1-pass" type="password" value="${cfg.password}" placeholder="••••••"/></div>
+      <div class="form-group"><label>Schema</label><input id="m1-schema" value="${cfg.schema}"/></div>
     </div>
-    <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div>
-    <div class="tip-row"><span>Machine</span><span>${j.machine}</span></div>
-    <div class="tip-row"><span>Qty</span><span>${j.qty}</span></div>
-    <div class="tip-row"><span>Hours</span><span>${j.totalHours}h${j.delay?` (+${j.delay}h delay)`:''}</span></div>
-    <div class="tip-row"><span>Start</span><span>${fmtDateTime(j.start)}</span></div>
-    <div class="tip-row"><span>Est End</span><span>${fmtDateTime(j.end)}</span></div>
-    <div class="tip-row"><span>Due</span><span style="color:${isLate?'var(--red)':'var(--green)'}">${fmtDateTime(j.due)}</span></div>
-    ${isLate ? `<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>` : ''}
-    <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
-    ${j.needsCMM ? '<div class="tip-row"><span>CMM</span><span>Required</span></div>' : ''}
-    <div class="tip-drawing" ondblclick="openLightbox('${j.id}')">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
-    <div class="tip-dblclick">Double-click drawing to view full size</div>
-  `;
-  tip.style.display = 'block';
-  // Position near click
-  const tipW = 370, tipH = 520;
-  tip.style.left = Math.min(e.clientX + 10, window.innerWidth - tipW) + 'px';
-  tip.style.top = Math.min(e.clientY - 60, window.innerHeight - tipH) + 'px';
-  // Clamp top
-  if(parseInt(tip.style.top) < 10) tip.style.top = '10px';
+    <div class="action-bar"><button class="btn primary" onclick="testM1Connection()">🔌 Test Connection</button><button class="btn success" onclick="saveM1Config()">💾 Save</button></div>
+    <div class="section-title" style="margin-top:20px">📋 Table Mappings</div>
+    <div class="section-desc">Map logical table names to actual M1 table paths. Update if your M1 schema differs.</div>
+    <div class="tbl-wrap"><table class="dtbl" id="m1-tables">
+      <tr><th>Logical Name</th><th>M1 Table Path</th></tr>
+      ${cfg.tables.map((t,i)=>`<tr><td>${t.name}</td><td><input value="${t.path}" data-tidx="${i}"/></td></tr>`).join('')}
+    </table></div>`;
+}
+function testM1Connection(){toast('🔌 Testing connection… (simulated)');setTimeout(()=>toast('❌ Connection failed — this is a simulation'),1500);}
+function saveM1Config(){
+  const cfg={server:document.getElementById('m1-server').value,database:document.getElementById('m1-db').value,user:document.getElementById('m1-user').value,password:document.getElementById('m1-pass').value,schema:document.getElementById('m1-schema').value,tables:[]};
+  document.querySelectorAll('#m1-tables input[data-tidx]').forEach(el=>{const i=parseInt(el.dataset.tidx);const oldCfg=getM1Config();cfg.tables.push({name:oldCfg.tables[i]?.name||'Table '+i,path:el.value});});
+  lsSet('m1config',cfg);toast('✅ M1 config saved');
 }
 
-function closeInfoCard(){
-  document.getElementById('tooltip').style.display = 'none';
-  openCardJobId = null;
+// ── Employees ──
+function renderSetupEmployees(){
+  const emps=getEmployees();const shiftFilter=document.getElementById('emp-shift-filter')?.value||'all';
+  const filtered=shiftFilter==='all'?emps:emps.filter(e=>e.shift===shiftFilter);
+  document.getElementById('sp-employees').innerHTML=`
+    <div class="section-title">👷 Employee Management</div>
+    <div class="action-bar">
+      <button class="btn primary" onclick="addEmployee()">＋ Add Employee</button>
+      <button class="btn success" onclick="saveEmployees()">💾 Save Changes</button>
+      <div class="ctrl-sep"></div>
+      <span class="ctrl-label">Shift</span>
+      <select id="emp-shift-filter" onchange="renderSetupEmployees()" style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:4px;font-size:11px">
+        <option value="all"${shiftFilter==='all'?' selected':''}>All</option>
+        <option value="Day"${shiftFilter==='Day'?' selected':''}>Day</option>
+        <option value="Night"${shiftFilter==='Night'?' selected':''}>Night</option>
+        <option value="Rotating"${shiftFilter==='Rotating'?' selected':''}>Rotating</option>
+      </select>
+    </div>
+    <div class="tbl-wrap"><table class="dtbl" id="emp-table">
+      <tr><th>ID</th><th>Name</th><th>Shift</th><th>Active</th><th>Notes</th><th></th></tr>
+      ${filtered.map((e,i)=>{const ri=emps.indexOf(e);return `<tr data-eidx="${ri}">
+        <td><input value="${e.id}" data-f="id" style="width:50px"/></td>
+        <td><input value="${e.name}" data-f="name"/></td>
+        <td><select data-f="shift"><option${e.shift==='Day'?' selected':''}>Day</option><option${e.shift==='Night'?' selected':''}>Night</option><option${e.shift==='Rotating'?' selected':''}>Rotating</option></select></td>
+        <td><input type="checkbox" data-f="active" ${e.active?'checked':''} style="width:auto"/></td>
+        <td><input value="${e.notes}" data-f="notes"/></td>
+        <td><button class="btn danger" onclick="deleteEmployee(${ri})" style="padding:2px 8px;font-size:10px">✕</button></td>
+      </tr>`;}).join('')}
+    </table></div>`;
+}
+function addEmployee(){const emps=getEmployees();emps.push({id:'E'+String(emps.length+1).padStart(3,'0'),name:'New Employee',shift:'Day',active:true,notes:''});lsSet('employees',emps);renderSetupEmployees();toast('Added new employee');}
+function deleteEmployee(i){if(!confirm('Delete this employee?'))return;const emps=getEmployees();emps.splice(i,1);lsSet('employees',emps);renderSetupEmployees();toast('Employee deleted');}
+function saveEmployees(){
+  const emps=getEmployees();
+  document.querySelectorAll('#emp-table tr[data-eidx]').forEach(r=>{
+    const i=parseInt(r.dataset.eidx);
+    r.querySelectorAll('[data-f]').forEach(el=>{
+      if(el.dataset.f==='active')emps[i].active=el.checked;
+      else emps[i][el.dataset.f]=el.value;
+    });
+  });
+  lsSet('employees',emps);toast('✅ Employees saved');
 }
 
-// Close info card when clicking outside (not on a job block or the card itself)
-document.addEventListener('click', (e) => {
-  const tip = document.getElementById('tooltip');
-  if(tip.style.display !== 'none' && !tip.contains(e.target) && !e.target.closest('.job[data-job]')){
-    closeInfoCard();
-  }
-});
+// ── Shift Patterns ──
+function renderSetupShifts(){
+  const shifts=getShifts();const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  // 24h timeline
+  let timeline='<div class="shift-timeline"><div class="shift-hour-marks">';
+  for(let h=0;h<24;h++)timeline+=`<div class="shift-hour-mark">${String(h).padStart(2,'0')}</div>`;
+  timeline+='</div>';
+  shifts.forEach(s=>{
+    const [sh,sm]=s.start.split(':').map(Number),[eh,em]=s.end.split(':').map(Number);
+    let startPct=(sh+sm/60)/24*100,endPct=(eh+em/60)/24*100;
+    if(endPct<startPct){// overnight
+      timeline+=`<div class="shift-block" style="left:${startPct}%;width:${100-startPct}%;background:${s.color}">${s.name}</div>`;
+      timeline+=`<div class="shift-block" style="left:0%;width:${endPct}%;background:${s.color}"></div>`;
+    }else{
+      timeline+=`<div class="shift-block" style="left:${startPct}%;width:${endPct-startPct}%;background:${s.color}">${s.name}</div>`;
+    }
+  });
+  timeline+='</div>';
 
-// ── LIGHTBOX (double-click to open full drawing) ──
-function openLightbox(jobId){
-  // Cancel any pending single-click info card
-  if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
-  const j = jobs.find(j => j.id === jobId);
-  if(!j) return;
-  closeInfoCard();
-  const lb = document.getElementById('lightbox');
-  document.getElementById('lb-title').textContent = `${j.partId} — ${j.partDesc}`;
-  document.getElementById('lb-drawing').innerHTML = genDrawingSVG(j.partId, j.partDesc, 800, 560);
-  lb.classList.add('open');
+  document.getElementById('sp-shifts').innerHTML=`
+    <div class="section-title">🕐 Shift Patterns</div>
+    <div class="section-desc">Define shift schedules and weighting percentages for M1 standard time adjustments.</div>
+    <div class="action-bar"><button class="btn primary" onclick="addShift()">＋ Add Shift</button><button class="btn success" onclick="saveShifts()">💾 Save</button></div>
+    <div style="margin-bottom:16px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">24-Hour Coverage</div>${timeline}</div>
+    <div class="tbl-wrap"><table class="dtbl" id="shift-table">
+      <tr><th>Name</th><th>Start</th><th>End</th><th>Days</th><th>Weight %</th><th>Color</th><th></th></tr>
+      ${shifts.map((s,i)=>`<tr data-sidx="${i}">
+        <td><input value="${s.name}" data-f="name" style="width:100px"/></td>
+        <td><input type="time" value="${s.start}" data-f="start"/></td>
+        <td><input type="time" value="${s.end}" data-f="end"/></td>
+        <td>${[1,2,3,4,5,6,0].map(d=>`<label style="font-size:10px;margin-right:4px"><input type="checkbox" data-day="${d}" ${s.days.includes(d)?'checked':''} style="width:auto"/> ${dayNames[d===0?6:d-1]}</label>`).join('')}</td>
+        <td><input type="number" value="${s.weight}" data-f="weight" style="width:60px"/></td>
+        <td><input type="color" value="${s.color}" data-f="color" style="width:40px;height:26px;padding:0;border:none;cursor:pointer"/></td>
+        <td><button class="btn danger" onclick="deleteShift(${i})" style="padding:2px 8px;font-size:10px">✕</button></td>
+      </tr>`).join('')}
+    </table></div>`;
 }
-function closeLightbox(e){
-  // Close if called from X button (no event), backdrop click, or Escape
-  if(e && e.type === 'click' && e.target !== document.getElementById('lightbox')) return;
-  document.getElementById('lightbox').classList.remove('open');
+function addShift(){const s=getShifts();s.push({name:'New Shift',start:'08:00',end:'16:00',days:[1,2,3,4,5],weight:100,color:'#5ac8fa'});lsSet('shifts',s);renderSetupShifts();toast('Added shift');}
+function deleteShift(i){const s=getShifts();s.splice(i,1);lsSet('shifts',s);renderSetupShifts();toast('Shift deleted');}
+function saveShifts(){
+  const shifts=[];
+  document.querySelectorAll('#shift-table tr[data-sidx]').forEach(r=>{
+    const s={days:[]};
+    r.querySelectorAll('[data-f]').forEach(el=>{if(el.dataset.f==='weight')s.weight=parseInt(el.value)||100;else s[el.dataset.f]=el.value;});
+    r.querySelectorAll('[data-day]').forEach(el=>{if(el.checked)s.days.push(parseInt(el.dataset.day));});
+    shifts.push(s);
+  });
+  lsSet('shifts',shifts);renderSetupShifts();toast('✅ Shifts saved');
 }
-document.addEventListener('keydown', e => { if(e.key === 'Escape') document.getElementById('lightbox').classList.remove('open'); });
 
-// ── UTILS ──
+// ── Skills Matrix (granular) ──
+function renderSetupSkills(){
+  const emps=getEmployees().filter(e=>e.active);
+  const skills=getSkills();
+  const lvls=['none','easy','medium','complex'];
+  const lvlLabels={none:'—',easy:'Easy',medium:'Med',complex:'Complex'};
+
+  let html=`<div class="section-title">📊 Skills Matrix</div>
+    <div class="section-desc">For each employee × machine: tick <b>Setup</b> / <b>Operate</b> and select the max complexity level they're certified for. Complexity is cumulative — "Medium" means they can handle Easy + Medium jobs.</div>
+    <div class="action-bar"><button class="btn success" onclick="saveSkills()">💾 Save Skills Matrix</button></div>
+    <div class="skills-grid"><table>
+      <tr><th class="corner">Employee</th>${CNC_MACHINES.map(m=>`<th class="machine-hdr"><div>${m.id}</div></th>`).join('')}</tr>`;
+
+  emps.forEach(e=>{
+    html+=`<tr><td class="emp-name">${e.name}<br><span style="font-size:9px;color:var(--dim)">${e.id} · ${e.shift}</span></td>`;
+    CNC_MACHINES.forEach(m=>{
+      const sk=skills[e.id]?.[m.id]||{setup:false,operate:false,setupLvl:'none',operateLvl:'none'};
+      html+=`<td><div class="skill-cell">
+        <label><input type="checkbox" data-emp="${e.id}" data-mch="${m.id}" data-role="setup" ${sk.setup?'checked':''}/> Setup</label>
+        <select data-emp="${e.id}" data-mch="${m.id}" data-lvl="setupLvl">${lvls.map(l=>`<option value="${l}"${sk.setupLvl===l?' selected':''}>${lvlLabels[l]}</option>`).join('')}</select>
+        <label><input type="checkbox" data-emp="${e.id}" data-mch="${m.id}" data-role="operate" ${sk.operate?'checked':''}/> Operate</label>
+        <select data-emp="${e.id}" data-mch="${m.id}" data-lvl="operateLvl">${lvls.map(l=>`<option value="${l}"${sk.operateLvl===l?' selected':''}>${lvlLabels[l]}</option>`).join('')}</select>
+      </div></td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</table></div>`;
+  document.getElementById('sp-skills').innerHTML=html;
+}
+function saveSkills(){
+  const skills=getSkills();
+  document.querySelectorAll('.skill-cell input[type=checkbox]').forEach(cb=>{
+    const emp=cb.dataset.emp,mch=cb.dataset.mch,role=cb.dataset.role;
+    if(!skills[emp])skills[emp]={};if(!skills[emp][mch])skills[emp][mch]={setup:false,operate:false,setupLvl:'none',operateLvl:'none'};
+    skills[emp][mch][role]=cb.checked;
+  });
+  document.querySelectorAll('.skill-cell select[data-lvl]').forEach(sel=>{
+    const emp=sel.dataset.emp,mch=sel.dataset.mch,lvl=sel.dataset.lvl;
+    if(!skills[emp])skills[emp]={};if(!skills[emp][mch])skills[emp][mch]={setup:false,operate:false,setupLvl:'none',operateLvl:'none'};
+    skills[emp][mch][lvl]=sel.value;
+  });
+  lsSet('skills',skills);toast('✅ Skills matrix saved');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KPI MODE RENDERING
+// ══════════════════════════════════════════════════════════════
+function renderKPI(){
+  const active=jobs.filter(j=>j.status!=='complete');
+  const late=active.filter(j=>j.end>j.due);
+  const otd=active.length?Math.round((active.length-late.length)/active.length*100):100;
+  const wip=active.length;
+  const avgLead=Math.round(active.reduce((s,j)=>{return s+(j.end-j.start)/3600000;},0)/Math.max(active.length,1));
+  const emps=getEmployees().filter(e=>e.active);
+  const monData=genMonitorData();
+
+  // Machine utilization data
+  const machUtil=CNC_MACHINES.map(m=>{
+    const md=monData.find(d=>d.machine.id===m.id);
+    const util=md?(md.status==='running'?85+Math.random()*10:md.status==='setup'?60+Math.random()*15:md.status==='idle'?5+Math.random()*10:0):0;
+    const setupAcc=md?(80+Math.random()*20):0;const runAcc=md?(75+Math.random()*25):0;
+    const parts=md&&md.status==='running'?md.qtyDone:0;
+    return{id:m.id,util:Math.round(util),setupAcc:Math.round(setupAcc),runAcc:Math.round(runAcc),parts};
+  });
+  const avgUtil=Math.round(machUtil.reduce((s,m)=>s+m.util,0)/Math.max(machUtil.length,1));
+  const throughput=machUtil.reduce((s,m)=>s+m.parts,0);
+
+  // Operator KPIs
+  const opKPIs=emps.map(e=>{
+    const completed=2+Math.floor(Math.random()*8);
+    const setupAcc=Math.round(75+Math.random()*25);const cycleAcc=Math.round(80+Math.random()*20);
+    return{id:e.id,name:e.name,shift:e.shift,completed,setupAcc,cycleAcc};
+  });
+
+  // M1 corrections
+  const corrections=PARTS.slice(0,8).map(p=>{
+    const m1Std=p.h;const actual=p.h*(0.7+Math.random()*0.6);const dev=Math.round((actual-m1Std)/m1Std*100);
+    return{part:p.p,desc:p.d,m1Std:m1Std+'h',actual:actual.toFixed(1)+'h',dev:dev,recommended:actual.toFixed(1)+'h'};
+  }).filter(c=>Math.abs(c.dev)>20);
+
+  // Shift comparison
+  const dayOutput=Math.floor(throughput*0.6),nightOutput=throughput-dayOutput;
+
+  document.getElementById('kpi-body').innerHTML=`
+    <!-- Global KPIs -->
+    <div class="kpi-section">
+      <div class="section-title">🌐 Global Shop KPIs</div>
+      <div class="kpi-cards">
+        <div class="kpi-card"><div class="kpi-big" style="color:${otd>=90?'var(--green)':otd>=75?'var(--yellow)':'var(--red)'}">${otd}%</div><div class="kpi-label">OTD</div><div class="kpi-trend up">▲ 2% vs last week</div></div>
+        <div class="kpi-card"><div class="kpi-big">${wip}</div><div class="kpi-label">WIP Count</div></div>
+        <div class="kpi-card"><div class="kpi-big">${avgLead}h</div><div class="kpi-label">Avg Lead Time</div><div class="kpi-trend down">▼ 4h vs last month</div></div>
+        <div class="kpi-card"><div class="kpi-big">${throughput}</div><div class="kpi-label">Parts Today</div></div>
+        <div class="kpi-card"><div class="kpi-big" style="color:var(--blue)">${avgUtil}%</div><div class="kpi-label">Avg Utilization</div></div>
+      </div>
+    </div>
+
+    <!-- Machine KPIs -->
+    <div class="kpi-section">
+      <div class="section-title">🔧 Per-Machine KPIs</div>
+      <div style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Utilization by Machine</div>
+        <div class="chart-bar-wrap">${machUtil.map(m=>{
+          const col=m.util>80?'var(--green)':m.util>50?'var(--yellow)':'var(--red)';
+          return `<div class="chart-bar" style="height:${m.util}%;background:${col}"><div class="chart-bar-val" style="color:${col}">${m.util}%</div><div class="chart-bar-label">${m.id.substring(0,6)}</div></div>`;
+        }).join('')}</div>
+      </div>
+      <div class="tbl-wrap"><table class="dtbl">
+        <tr><th>Machine</th><th>Util %</th><th>Setup Accuracy</th><th>Run Accuracy</th><th>Parts Today</th></tr>
+        ${machUtil.map(m=>`<tr><td style="font-weight:600">${m.id}</td><td>${m.util}%</td><td>${m.setupAcc}%</td><td>${m.runAcc}%</td><td>${m.parts}</td></tr>`).join('')}
+      </table></div>
+    </div>
+
+    <!-- Operator KPIs -->
+    <div class="kpi-section">
+      <div class="section-title">👷 Per-Operator KPIs</div>
+      <div class="tbl-wrap"><table class="dtbl">
+        <tr><th>Operator</th><th>Jobs Done</th><th>Setup Accuracy</th><th>Cycle Accuracy</th><th>Shift</th></tr>
+        ${opKPIs.map(o=>`<tr><td style="font-weight:600">${o.name}</td><td>${o.completed}</td><td>${o.setupAcc}%</td><td>${o.cycleAcc}%</td><td>${o.shift}</td></tr>`).join('')}
+      </table></div>
+    </div>
+
+    <!-- Shift KPIs -->
+    <div class="kpi-section">
+      <div class="section-title">🌗 Per-Shift Comparison</div>
+      <div class="kpi-cards" style="grid-template-columns:1fr 1fr">
+        <div class="kpi-card" style="border-left:3px solid var(--blue)"><div class="kpi-big">${dayOutput}</div><div class="kpi-label">Day Shift Output</div><div style="font-size:10px;color:var(--dim);margin-top:4px">Util: ${Math.round(avgUtil*1.05)}% · OTD: ${Math.min(100,otd+3)}%</div></div>
+        <div class="kpi-card" style="border-left:3px solid var(--purple)"><div class="kpi-big">${nightOutput}</div><div class="kpi-label">Night Shift Output</div><div style="font-size:10px;color:var(--dim);margin-top:4px">Util: ${Math.round(avgUtil*0.92)}% · OTD: ${Math.max(0,otd-5)}%</div></div>
+      </div>
+    </div>
+
+    <!-- M1 Corrections -->
+    <div class="kpi-section">
+      <div class="section-title">📋 M1 Correction Report</div>
+      <div class="section-desc">Operations where actual times deviate &gt;20% from M1 standards. Review and update M1 routing.</div>
+      <div class="action-bar"><button class="btn primary" onclick="generateCorrectionReport()">📄 Generate Printable Report</button></div>
+      <div class="tbl-wrap"><table class="dtbl" id="correction-table">
+        <tr><th>Part</th><th>Description</th><th>M1 Std</th><th>Actual Avg</th><th>Deviation</th><th>Recommended</th></tr>
+        ${corrections.map(c=>`<tr class="${Math.abs(c.dev)>30?'correction-row':''}">
+          <td style="font-weight:600">${c.part}</td><td>${c.desc}</td><td>${c.m1Std}</td><td>${c.actual}</td>
+          <td style="color:${c.dev>0?'var(--red)':'var(--green)'};font-weight:700">${c.dev>0?'+':''}${c.dev}%</td>
+          <td style="font-weight:600">${c.recommended}</td>
+        </tr>`).join('')}
+      </table></div>
+    </div>`;
+}
+
+function generateCorrectionReport(){
+  const tbl=document.getElementById('correction-table');
+  if(!tbl){toast('No correction data');return;}
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>M1 Correction Report — Nupress</title><style>
+    body{font-family:Arial,sans-serif;padding:24px;color:#333}h1{font-size:18px;margin-bottom:4px}p{font-size:12px;color:#666;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ccc;padding:6px 10px;text-align:left}th{background:#f5f5f5;font-weight:700}
+    .warn{background:#fff3cd}.footer{margin-top:24px;font-size:10px;color:#999;border-top:1px solid #eee;padding-top:8px}
+    @media print{body{padding:0}}</style></head><body>
+    <h1>M1 Standard Time Correction Report</h1><p>Generated: ${new Date().toLocaleString('en-AU')} — Nupress Group</p>
+    ${tbl.outerHTML.replace(/class="[^"]*"/g,'').replace(/style="[^"]*"/g,'')}
+    <div class="footer">This report identifies operations where actual shop floor times deviate &gt;20% from current M1 routing standards. Recommended values are based on recent averages.</div>
+    </body></html>`);
+  w.document.close();
+  toast('📄 Report opened in new tab');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════════════
 function fmtDate(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
 function fmtDateTime(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
-function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ══════════════════════════════════════════════════════════════
+//  MONITOR ANIMATION — animate pie charts
+// ══════════════════════════════════════════════════════════════
+let monitorInterval=null;
+function startMonitorAnimation(){
+  if(monitorInterval)return;
+  monitorInterval=setInterval(()=>{if(currentMode==='monitor')renderMonitor();},5000);
 }
 
-// ── INIT ──
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
 genJobs();
-render();
+renderSchedule();
+startMonitorAnimation();
 </script>
 </body>
 </html>
