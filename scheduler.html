@@ -492,7 +492,8 @@ const MACHINES=[
   {id:'VRX730',name:'VRX730 — 5-Axis',type:'5axis',color:'#bf5af2',protocol:'MTConnect',ip:'192.168.1.114',port:5000},
   {id:'NTX2500',name:'NTX2500 — NTX Mill-Turn',type:'millturn',color:'#5e5ce6',protocol:'MTConnect',ip:'192.168.1.115',port:5000},
   {id:'INTEi200',name:'INTEi200 — Integrex i200',type:'millturn',color:'#0a84ff',protocol:'MTConnect',ip:'192.168.1.116',port:5000},
-  {id:'NHX5000',name:'NHX5000 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.117',port:19000},
+  {id:'NHX5000-1',name:'NHX5000-1 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.117',port:19000},
+  {id:'NHX5000-2',name:'NHX5000-2 — HMC',type:'hmc',color:'#ff9f0a',protocol:'Heidenhain',ip:'192.168.1.120',port:19000},
   {id:'DMU75',name:'DMU75 — DMG Mori 5-Axis',type:'5axis',color:'#af52de',protocol:'Heidenhain',ip:'192.168.1.118',port:19000},
   {id:'NMV3000',name:'NMV3000 — Mazak VMC',type:'vmc',color:'#ffd60a',protocol:'Mazak SmartM',ip:'192.168.1.119',port:19001},
   {id:'ROBOCUT1',name:'ROBOCUT1 — Wire EDM',type:'edm',color:'#ff6482',protocol:'FANUC FOCAS',ip:'192.168.1.119',port:8193},
@@ -501,7 +502,7 @@ const MACHINES=[
   {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
   {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
 ];
-const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
+const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
 const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.type));
 
 // ══════════════════════════════════════════════════════════════
@@ -604,7 +605,7 @@ const PARTS=[
   {p:'3442-005',d:'PIN 155MM REV G',h:9,ops:['millturn','cmm']},
 ];
 // Machine type → compatible machine IDs for operation routing
-const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
+const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
 let jobs=[], jobIdCounter=26900;
 
 function genJobs(){
@@ -1335,7 +1336,8 @@ const FLOOR_LAYOUT = [
   {id:'SQT10M',  col:2,row:4},
   {id:'QT20',    col:3,row:4},
   {id:'NTX2500', col:5,row:4},
-  {id:'NHX5000', col:6,row:4, rotated:true, label:'NHX5000 ×2'},
+  {id:'NHX5000-2',col:6,row:3},
+  {id:'NHX5000-1',col:6,row:4},
   // Row 3.5 — QT20HP moved right to col 3
   {id:'QT20HP',  col:3,row:5},
   // Row 4 — inspection / assembly
