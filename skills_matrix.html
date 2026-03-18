@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills Matrix — Nupress</title>
+<style>
+:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--brd:#333;--txt:#e8e8e8;--dim:#888;--dim2:#666;--green:#34c759;--yellow:#ffd60a;--red:#ff453a;--blue:#5ac8fa;--accent:#e07a3a;--purple:#bf5af2;--r:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;padding:24px}
+h1{font-size:22px;margin-bottom:4px}
+.sub{color:var(--dim);margin-bottom:20px;font-size:12px}
+.controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.controls select,.controls input{background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:6px 10px;border-radius:var(--r);font-size:12px;font-family:inherit}
+.controls label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.matrix-wrap{overflow-x:auto;margin-bottom:24px}
+table{border-collapse:collapse;width:100%}
+th{background:var(--s1);padding:8px 6px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);white-space:nowrap;position:sticky;top:0;z-index:2}
+th.machine{writing-mode:vertical-lr;text-orientation:mixed;min-width:36px;height:100px;text-align:left;padding:8px 4px}
+td{border:1px solid var(--brd);text-align:center;padding:6px;min-width:36px;cursor:default}
+td.name-cell{text-align:left;padding:8px 12px;white-space:nowrap;font-weight:600;min-width:140px;background:var(--s1);position:sticky;left:0;z-index:1}
+td.shift-cell{font-size:10px;color:var(--dim);padding:4px 8px;white-space:nowrap}
+tr:hover td{background:rgba(255,255,255,.03)}
+tr:hover td.name-cell{background:var(--s2)}
+/* Skill level colors */
+.sk-0{background:var(--s2);color:var(--dim2)}
+.sk-1{background:rgba(90,200,250,.12);color:var(--blue)}
+.sk-2{background:rgba(52,199,89,.12);color:var(--green)}
+.sk-3{background:rgba(255,214,10,.15);color:var(--yellow)}
+.sk-4{background:rgba(224,122,58,.15);color:var(--accent)}
+.sk-cell{font-weight:700;font-size:12px;border-radius:4px;cursor:pointer;transition:.15s;user-select:none}
+.sk-cell:hover{filter:brightness(1.3);outline:2px solid var(--blue)}
+/* Legend */
+.legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+.legend-dot{width:24px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+/* Stats */
+.stats{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:12px 16px;min-width:100px}
+.stat-v{font-size:22px;font-weight:700}
+.stat-l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+/* Query panel */
+.query-panel{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:16px;margin-bottom:20px}
+.query-panel h3{font-size:14px;margin-bottom:10px}
+.query-results{font-size:12px;color:var(--dim);max-height:200px;overflow-y:auto}
+.query-results li{padding:3px 0;list-style:none}
+.query-results .name{color:var(--txt);font-weight:600}
+.footer{color:var(--dim2);font-size:11px;margin-top:24px;border-top:1px solid var(--brd);padding-top:12px}
+</style>
+</head>
+<body>
+<h1>👷 Skills Matrix</h1>
+<div class="sub">Employee × Machine Capability Grid — Nupress Manufacturing</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot sk-0">—</div> None</div>
+  <div class="legend-item"><div class="legend-dot sk-1">B</div> Basic</div>
+  <div class="legend-item"><div class="legend-dot sk-2">C</div> Competent</div>
+  <div class="legend-item"><div class="legend-dot sk-3">S</div> Setup</div>
+  <div class="legend-item"><div class="legend-dot sk-4">T</div> Trainer</div>
+</div>
+
+<div class="controls">
+  <label>Shift:</label>
+  <select id="shift-filter" onchange="render()">
+    <option value="all">All Shifts</option>
+    <option value="day">Day Shift</option>
+    <option value="night">Night Shift</option>
+  </select>
+  <label style="margin-left:12px">Query:</label>
+  <select id="query-type" onchange="runQuery()">
+    <option value="">— Select —</option>
+    <option value="who-can-run">Who can run this machine?</option>
+    <option value="what-can-run">What can this person run?</option>
+  </select>
+  <input id="query-input" placeholder="Machine or Employee ID" oninput="runQuery()">
+</div>
+
+<div class="query-panel" id="query-panel" style="display:none">
+  <h3 id="query-title"></h3>
+  <ul class="query-results" id="query-results"></ul>
+</div>
+
+<div class="matrix-wrap">
+  <table id="matrix"></table>
+</div>
+
+<div class="footer" id="footer"></div>
+
+<script>
+const MACHINES = [
+  'QTN450M','QTN350MY','INTE2004S','INTE4004S','INTEJ400','SQT10M','QT20','QT20HP',
+  'VCS530C','VTC530C','HCN8800','FH4800','VRX730','NTX2500','INTEi200','NHX5000',
+  'DMU75','ROBOCUT1','CMM1','CMM2','NONCNC'
+];
+const SKILL_LABELS = {0:'—',1:'B',2:'C',3:'S',4:'T'};
+const SKILL_NAMES = {0:'None',1:'Basic',2:'Competent',3:'Setup',4:'Trainer'};
+
+let data = null;
+
+async function loadData(){
+  try {
+    const resp = await fetch('../data/skills_matrix.json');
+    data = await resp.json();
+  } catch(e) {
+    // Fallback: inline sample
+    data = {"employees":[]};
+  }
+  render();
+}
+
+function getFiltered(){
+  const shift = document.getElementById('shift-filter').value;
+  let employees = (data.employees || []).filter(e => e.active);
+  if(shift !== 'all') employees = employees.filter(e => e.shift === shift);
+  return employees;
+}
+
+function render(){
+  const employees = getFiltered();
+  
+  // Stats
+  const totalActive = (data.employees || []).filter(e => e.active).length;
+  const dayCount = (data.employees || []).filter(e => e.active && e.shift === 'day').length;
+  const nightCount = (data.employees || []).filter(e => e.active && e.shift === 'night').length;
+  let totalSkills = 0;
+  employees.forEach(e => { Object.values(e.skills||{}).forEach(v => { if(v>0) totalSkills++; }); });
+  
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-v">${totalActive}</div><div class="stat-l">Active Staff</div></div>
+    <div class="stat"><div class="stat-v">${dayCount}</div><div class="stat-l">Day Shift</div></div>
+    <div class="stat"><div class="stat-v">${nightCount}</div><div class="stat-l">Night Shift</div></div>
+    <div class="stat"><div class="stat-v">${totalSkills}</div><div class="stat-l">Total Skills</div></div>
+    <div class="stat"><div class="stat-v">${MACHINES.length}</div><div class="stat-l">Machines</div></div>
+  `;
+  
+  // Table
+  let html = '<thead><tr><th style="min-width:140px">Employee</th><th>Shift</th>';
+  MACHINES.forEach(m => { html += `<th class="machine">${m}</th>`; });
+  html += '</tr></thead><tbody>';
+  
+  employees.forEach(emp => {
+    html += `<tr>`;
+    html += `<td class="name-cell">${emp.name}<br><span style="color:var(--dim2);font-size:10px;font-weight:400">${emp.id}</span></td>`;
+    html += `<td class="shift-cell">${emp.shift === 'day' ? '☀️ Day' : '🌙 Night'}</td>`;
+    MACHINES.forEach(m => {
+      const level = (emp.skills||{})[m] || 0;
+      const label = SKILL_LABELS[level];
+      html += `<td class="sk-cell sk-${level}" title="${emp.name} → ${m}: ${SKILL_NAMES[level]}">${label}</td>`;
+    });
+    html += '</tr>';
+  });
+  
+  html += '</tbody>';
+  document.getElementById('matrix').innerHTML = html;
+  
+  document.getElementById('footer').textContent = `Last updated: ${data.updated || 'N/A'} | ${employees.length} employees shown`;
+}
+
+function runQuery(){
+  const type = document.getElementById('query-type').value;
+  const input = document.getElementById('query-input').value.trim().toUpperCase();
+  const panel = document.getElementById('query-panel');
+  const title = document.getElementById('query-title');
+  const results = document.getElementById('query-results');
+  
+  if(!type || !input){ panel.style.display='none'; return; }
+  panel.style.display = 'block';
+  
+  const employees = (data.employees || []).filter(e => e.active);
+  
+  if(type === 'who-can-run'){
+    title.textContent = `Who can run ${input}?`;
+    const capable = employees
+      .filter(e => (e.skills||{})[input] >= 1)
+      .sort((a,b) => ((b.skills||{})[input]||0) - ((a.skills||{})[input]||0));
+    
+    if(!capable.length){
+      results.innerHTML = '<li style="color:var(--red)">⚠️ No one trained on this machine!</li>';
+    } else {
+      results.innerHTML = capable.map(e => {
+        const lvl = (e.skills||{})[input];
+        return `<li><span class="name">${e.name}</span> (${e.id}, ${e.shift}) — <span class="sk-${lvl}" style="padding:1px 6px;border-radius:3px">${SKILL_NAMES[lvl]}</span></li>`;
+      }).join('');
+    }
+  } else if(type === 'what-can-run'){
+    const emp = employees.find(e => e.id.toUpperCase() === input || e.name.toUpperCase().includes(input));
+    if(!emp){
+      title.textContent = `Employee not found: ${input}`;
+      results.innerHTML = '';
+      return;
+    }
+    title.textContent = `What can ${emp.name} run?`;
+    const machines = Object.entries(emp.skills||{})
+      .filter(([m, lvl]) => lvl >= 1)
+      .sort((a,b) => b[1] - a[1]);
+    
+    if(!machines.length){
+      results.innerHTML = '<li style="color:var(--yellow)">No machine skills recorded</li>';
+    } else {
+      results.innerHTML = machines.map(([m, lvl]) => 
+        `<li><span class="name">${m}</span> — <span class="sk-${lvl}" style="padding:1px 6px;border-radius:3px">${SKILL_NAMES[lvl]}</span></li>`
+      ).join('');
+    }
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>

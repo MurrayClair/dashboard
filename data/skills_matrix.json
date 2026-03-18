@@ -1,0 +1,15 @@
+{
+  "updated": "2026-03-18T14:00:00",
+  "employees": [
+    {"id": "EMP001", "name": "Dave Turner", "active": true, "shift": "day", "skills": {"QTN450M": 4, "QTN350MY": 3, "SQT10M": 3, "QT20": 2, "QT20HP": 2}, "notes": "Lead lathe operator, trainer", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP002", "name": "Steve Harris", "active": true, "shift": "day", "skills": {"INTE2004S": 4, "INTE4004S": 3, "INTEJ400": 3, "INTEi200": 2, "NTX2500": 2}, "notes": "Mill-turn specialist", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP003", "name": "Jason Moore", "active": true, "shift": "day", "skills": {"VCS530C": 3, "VTC530C": 3, "HCN8800": 2, "FH4800": 2}, "notes": "VMC/HMC", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP004", "name": "Mark Nolan", "active": true, "shift": "day", "skills": {"VRX730": 4, "DMU75": 3, "NTX2500": 2}, "notes": "5-axis specialist, AS9102 certified", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP005", "name": "Tony Reed", "active": true, "shift": "day", "skills": {"CMM1": 4, "CMM2": 4}, "notes": "Quality inspector, CMM programmer", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP006", "name": "Craig Wells", "active": true, "shift": "day", "skills": {"HCN8800": 3, "FH4800": 3, "NHX5000": 3, "VCS530C": 1}, "notes": "HMC lead", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP007", "name": "Ben Cooper", "active": true, "shift": "day", "skills": {"ROBOCUT1": 4, "NONCNC": 3}, "notes": "Wire EDM + manual ops", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP008", "name": "Ryan Shaw", "active": true, "shift": "night", "skills": {"QTN450M": 2, "QTN350MY": 2, "INTE2004S": 2, "SQT10M": 1}, "notes": "Night shift lathe/mill-turn", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP009", "name": "James Kelly", "active": true, "shift": "night", "skills": {"VCS530C": 2, "VTC530C": 2, "HCN8800": 1, "VRX730": 1}, "notes": "Night shift VMC", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"},
+    {"id": "EMP010", "name": "Paul Grant", "active": true, "shift": "night", "skills": {"CMM1": 3, "CMM2": 3, "NONCNC": 2}, "notes": "Night quality + manual", "created": "2026-03-18T14:00:00", "updated": "2026-03-18T14:00:00"}
+  ]
+}
