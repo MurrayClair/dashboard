@@ -146,7 +146,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <div class="lightbox-inner" onclick="event.stopPropagation()">
     <div class="lightbox-title" id="lb-title"></div>
-    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">&times;</button>
     <div id="lb-drawing"></div>
   </div>
 </div>
@@ -403,8 +403,7 @@ function renderGantt(filteredMachines, filteredJobs){
       const isAtRisk = !isLate && (j.due - j.end) < 24*3600000;
       const cls = j.machine.startsWith('CMM') ? 'cmm' : isLate ? 'late' : isAtRisk ? 'at-risk' : 'on-time';
       const prog = j.status === 'in-progress' ? ' in-progress' : '';
-      html += `<div class="job ${cls}${prog}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px"
-        onclick="showInfoCard(event,'${j.id}')" ondblclick="openLightbox('${j.id}')">
+      html += `<div class="job ${cls}${prog}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">
         ${j.partId.substring(0,15)}${j.delay > 0 ? ' +'+j.delay+'h':''}
       </div>`;
     });
@@ -746,19 +745,40 @@ function genDrawingSVG(partId, partDesc, w, h){
   return svg;
 }
 
-// ── INFO CARD (click to open, X to close) ──
+// ── JOB CLICK HANDLER (single = info card, double = lightbox) ──
 let openCardJobId = null;
 let clickTimer = null;
+let lastClickJobId = null;
+let lastClickTime = 0;
 
-function showInfoCard(e, jobId){
+// Unified click handler on gantt area — detects single vs double click
+document.addEventListener('click', (e) => {
+  const jobEl = e.target.closest('.job[data-job]');
+  if(!jobEl) return;
   e.stopPropagation();
-  // Delay single click so double click can cancel it
+  const jobId = jobEl.getAttribute('data-job');
+  const now = Date.now();
+
+  // Double-click detection: same job within 400ms
+  if(jobId === lastClickJobId && (now - lastClickTime) < 400){
+    // It's a double click
+    lastClickJobId = null;
+    lastClickTime = 0;
+    if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
+    openLightbox(jobId);
+    return;
+  }
+
+  lastClickJobId = jobId;
+  lastClickTime = now;
+
+  // Delay single click
   if(clickTimer){ clearTimeout(clickTimer); clickTimer = null; }
   clickTimer = setTimeout(() => {
     clickTimer = null;
     _openInfoCard(e, jobId);
-  }, 250);
-}
+  }, 350);
+}, true); // capture phase
 
 function _openInfoCard(e, jobId){
   // Toggle off if same job clicked again
@@ -805,10 +825,10 @@ function closeInfoCard(){
   openCardJobId = null;
 }
 
-// Close info card when clicking outside
+// Close info card when clicking outside (not on a job block or the card itself)
 document.addEventListener('click', (e) => {
   const tip = document.getElementById('tooltip');
-  if(tip.style.display !== 'none' && !tip.contains(e.target) && !e.target.closest('.job')){
+  if(tip.style.display !== 'none' && !tip.contains(e.target) && !e.target.closest('.job[data-job]')){
     closeInfoCard();
   }
 });
@@ -826,7 +846,8 @@ function openLightbox(jobId){
   lb.classList.add('open');
 }
 function closeLightbox(e){
-  if(e && e.target !== document.getElementById('lightbox')) return;
+  // Close if called from X button (no event), backdrop click, or Escape
+  if(e && e.type === 'click' && e.target !== document.getElementById('lightbox')) return;
   document.getElementById('lightbox').classList.remove('open');
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') document.getElementById('lightbox').classList.remove('open'); });
