@@ -76,10 +76,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rc:hover{background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)}
 .rc-icon{font-size:12px}
 /* Tooltip */
-.tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:none;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.tip{position:fixed;background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:14px;font-size:12px;z-index:100;pointer-events:none;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .tip-title{font-weight:700;margin-bottom:6px;font-size:13px}
 .tip-row{display:flex;justify-content:space-between;margin-bottom:3px;color:var(--dim)}
 .tip-row span:last-child{color:var(--txt);font-weight:600}
+.tip-drawing{margin-top:10px;border:1px solid var(--brd);border-radius:6px;overflow:hidden;background:#fff;position:relative}
+.tip-drawing svg{display:block;width:100%;height:auto}
+.tip-drawing-label{position:absolute;bottom:4px;right:6px;font-size:8px;color:var(--dim2);background:rgba(26,26,26,.8);padding:1px 6px;border-radius:3px}
+.tip-dblclick{margin-top:6px;text-align:center;font-size:9px;color:var(--dim2);font-style:italic}
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;cursor:zoom-out;opacity:0;transition:opacity .2s;pointer-events:none}
+.lightbox.open{opacity:1;pointer-events:all}
+.lightbox-inner{background:#fff;border-radius:var(--r);padding:20px;max-width:90vw;max-height:90vh;overflow:auto;cursor:default;position:relative;box-shadow:0 16px 64px rgba(0,0,0,.6)}
+.lightbox-inner svg{display:block;width:100%;height:auto;max-height:80vh}
+.lightbox-title{position:absolute;top:12px;left:20px;font-size:14px;font-weight:700;color:#333}
+.lightbox-close{position:absolute;top:10px;right:14px;font-size:20px;cursor:pointer;color:#666;background:none;border:none;font-weight:700;line-height:1}
+.lightbox-close:hover{color:#000}
 /* Toast */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s1);border:1px solid var(--brd);padding:10px 20px;border-radius:var(--r);font-size:12px;font-weight:600;z-index:200;opacity:0;transition:.3s}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -122,6 +134,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 </div>
 <div class="tip" id="tooltip" style="display:none"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <div class="lightbox-title" id="lb-title"></div>
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <div id="lb-drawing"></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -376,7 +395,7 @@ function renderGantt(filteredMachines, filteredJobs){
       const cls = j.machine.startsWith('CMM') ? 'cmm' : isLate ? 'late' : isAtRisk ? 'at-risk' : 'on-time';
       const prog = j.status === 'in-progress' ? ' in-progress' : '';
       html += `<div class="job ${cls}${prog}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px"
-        onmouseenter="showTip(event,'${j.id}')" onmouseleave="hideTip()" onclick="selectJob('${j.id}')">
+        onmouseenter="showTip(event,'${j.id}')" onmouseleave="hideTip()" onclick="selectJob('${j.id}')" ondblclick="openLightbox('${j.id}')">
         ${j.partId.substring(0,15)}${j.delay > 0 ? ' +'+j.delay+'h':''}
       </div>`;
     });
@@ -586,6 +605,140 @@ function recoveryPrioritize(jobId){
   toast(`⬆️ Re-prioritized ${jobId} to front of queue`);
 }
 
+// ── DRAWING GENERATOR ──
+// Generates a procedural SVG "ballooned technical drawing" per part.
+// When connected to M1, replace with actual drawing file lookups.
+const drawingCache = {};
+function genDrawingSVG(partId, partDesc, w, h){
+  const key = partId + w + h;
+  if(drawingCache[key]) return drawingCache[key];
+  // Deterministic seed from partId
+  let seed = 0;
+  for(let i = 0; i < partId.length; i++) seed = ((seed << 5) - seed + partId.charCodeAt(i)) | 0;
+  const r = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
+
+  const cx = w/2, cy = h/2;
+  const partW = w*0.35 + r()*w*0.2;
+  const partH = h*0.25 + r()*h*0.2;
+  const px = cx - partW/2, py = cy - partH/2;
+
+  // Title block
+  const tbH = h*0.12;
+  const tbY = h - tbH;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+  // Background + border
+  svg += `<rect width="${w}" height="${h}" fill="#fff"/>`;
+  svg += `<rect x="1" y="1" width="${w-2}" height="${h-2}" fill="none" stroke="#333" stroke-width="2"/>`;
+  // Inner border
+  svg += `<rect x="8" y="8" width="${w-16}" height="${h-16}" fill="none" stroke="#999" stroke-width="0.5"/>`;
+
+  // Center lines
+  svg += `<line x1="${w*0.15}" y1="${cy}" x2="${w*0.85}" y2="${cy}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/>`;
+  svg += `<line x1="${cx}" y1="${h*0.1}" x2="${cx}" y2="${h*0.78}" stroke="#0088cc" stroke-width="0.3" stroke-dasharray="8,3,2,3"/>`;
+
+  // Main part outline — varies by part type
+  const shapeType = Math.floor(r()*5);
+  svg += `<g stroke="#333" stroke-width="1.2" fill="none">`;
+  if(shapeType === 0){
+    // Cylindrical (shaft/screw)
+    svg += `<rect x="${px}" y="${py}" width="${partW}" height="${partH}" rx="2"/>`;
+    svg += `<line x1="${px+partW*0.15}" y1="${py}" x2="${px+partW*0.15}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/>`;
+    svg += `<line x1="${px+partW*0.85}" y1="${py}" x2="${px+partW*0.85}" y2="${py+partH}" stroke-dasharray="4,2" stroke-width="0.5"/>`;
+    svg += `<ellipse cx="${px}" cy="${cy}" rx="${partH*0.15}" ry="${partH/2}" stroke-width="0.6"/>`;
+  } else if(shapeType === 1){
+    // Circular (sprocket/gear)
+    const rad = Math.min(partW, partH)*0.45;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${rad}"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${rad*0.3}" stroke-dasharray="3,2"/>`;
+    const teeth = 6 + Math.floor(r()*8);
+    for(let t=0;t<teeth;t++){
+      const a = (t/teeth)*Math.PI*2;
+      svg += `<line x1="${cx+Math.cos(a)*rad*0.85}" y1="${cy+Math.sin(a)*rad*0.85}" x2="${cx+Math.cos(a)*rad}" y2="${cy+Math.sin(a)*rad}" stroke-width="1.5"/>`;
+    }
+  } else if(shapeType === 2){
+    // Complex profile (manifold/housing)
+    const pts = [];
+    const segs = 6 + Math.floor(r()*4);
+    for(let s=0;s<segs;s++){
+      pts.push(`${px + (s/(segs-1))*partW},${py + r()*partH*0.3}`);
+    }
+    for(let s=segs-1;s>=0;s--){
+      pts.push(`${px + (s/(segs-1))*partW},${py + partH - r()*partH*0.3}`);
+    }
+    svg += `<polygon points="${pts.join(' ')}"/>`;
+    // Internal feature
+    svg += `<circle cx="${cx}" cy="${cy}" r="${Math.min(partW,partH)*0.12}" stroke-dasharray="3,2"/>`;
+  } else if(shapeType === 3){
+    // L-bracket/plate
+    svg += `<path d="M${px},${py} h${partW} v${partH*0.4} h${-partW*0.6} v${partH*0.6} h${-partW*0.4} Z"/>`;
+    // Holes
+    svg += `<circle cx="${px+partW*0.2}" cy="${py+partH*0.2}" r="${partH*0.06}"/>`;
+    svg += `<circle cx="${px+partW*0.8}" cy="${py+partH*0.2}" r="${partH*0.06}"/>`;
+  } else {
+    // Stepped shaft
+    const steps = 3 + Math.floor(r()*2);
+    let sx = px;
+    for(let s=0;s<steps;s++){
+      const sw = partW/steps;
+      const sh = partH*(0.4+r()*0.6);
+      const sy = cy - sh/2;
+      svg += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}"/>`;
+      sx += sw;
+    }
+  }
+  svg += `</g>`;
+
+  // Dimension lines
+  const dims = 2 + Math.floor(r()*3);
+  svg += `<g stroke="#333" stroke-width="0.4" fill="#333" font-size="${h*0.035}" font-family="Arial">`;
+  for(let d=0;d<dims;d++){
+    const dimY = py + partH + 12 + d*14;
+    if(dimY > tbY - 10) break;
+    const x1 = px + r()*partW*0.3;
+    const x2 = px + partW*0.5 + r()*partW*0.5;
+    const val = (5 + r()*200).toFixed(1);
+    // Arrows
+    svg += `<line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}"/>`;
+    svg += `<polygon points="${x1},${dimY} ${x1+4},${dimY-1.5} ${x1+4},${dimY+1.5}" fill="#333"/>`;
+    svg += `<polygon points="${x2},${dimY} ${x2-4},${dimY-1.5} ${x2-4},${dimY+1.5}" fill="#333"/>`;
+    // Extension lines
+    svg += `<line x1="${x1}" y1="${py+partH}" x2="${x1}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/>`;
+    svg += `<line x1="${x2}" y1="${py+partH}" x2="${x2}" y2="${dimY+3}" stroke-dasharray="2,1" stroke-width="0.3"/>`;
+    svg += `<text x="${(x1+x2)/2}" y="${dimY-3}" text-anchor="middle">${val}</text>`;
+  }
+  svg += `</g>`;
+
+  // Balloon callouts
+  const balloons = 3 + Math.floor(r()*4);
+  svg += `<g stroke="#cc0000" stroke-width="0.6" fill="none" font-size="${h*0.032}" font-family="Arial">`;
+  for(let b=1;b<=balloons;b++){
+    const bx = px + r()*partW;
+    const by = py + r()*partH;
+    const lx = bx + (r()>0.5?1:-1)*(partW*0.35+r()*30);
+    const ly = by + (r()>0.5?1:-1)*(partH*0.3+r()*20);
+    if(ly > tbY - 5 || ly < 12 || lx < 12 || lx > w-12) continue;
+    svg += `<line x1="${bx}" y1="${by}" x2="${lx}" y2="${ly}"/>`;
+    svg += `<circle cx="${lx}" cy="${ly}" r="${h*0.035}" fill="#fff" stroke="#cc0000"/>`;
+    svg += `<text x="${lx}" y="${ly+h*0.012}" text-anchor="middle" fill="#cc0000" font-weight="700">${b}</text>`;
+    // Dot at part
+    svg += `<circle cx="${bx}" cy="${by}" r="2" fill="#cc0000"/>`;
+  }
+  svg += `</g>`;
+
+  // Title block
+  svg += `<rect x="8" y="${tbY}" width="${w-16}" height="${tbH}" fill="#f5f5f5" stroke="#333" stroke-width="0.8"/>`;
+  svg += `<line x1="${w*0.5}" y1="${tbY}" x2="${w*0.5}" y2="${h-8}" stroke="#999" stroke-width="0.4"/>`;
+  svg += `<text x="${w*0.25}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.03}" font-family="Arial" font-weight="700" fill="#333">${partId}</text>`;
+  svg += `<text x="${w*0.25}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">${partDesc}</text>`;
+  svg += `<text x="${w*0.75}" y="${tbY+tbH*0.45}" text-anchor="middle" font-size="${h*0.025}" font-family="Arial" fill="#666">NUPRESS GROUP</text>`;
+  svg += `<text x="${w*0.75}" y="${tbY+tbH*0.8}" text-anchor="middle" font-size="${h*0.022}" font-family="Arial" fill="#999">BALLOONED DRAWING — REV ${String.fromCharCode(65+Math.floor(r()*6))}</text>`;
+  svg += `</svg>`;
+
+  drawingCache[key] = svg;
+  return svg;
+}
+
 // ── TOOLTIP ──
 function showTip(e, jobId){
   const j = jobs.find(j => j.id === jobId);
@@ -593,6 +746,7 @@ function showTip(e, jobId){
   const tip = document.getElementById('tooltip');
   const isLate = j.end > j.due;
   const daysLate = isLate ? Math.round((j.end - j.due)/(24*3600000)*10)/10 : 0;
+  const thumbSVG = genDrawingSVG(j.partId, j.partDesc, 320, 220);
   tip.innerHTML = `
     <div class="tip-title">${j.id}</div>
     <div class="tip-row"><span>Part</span><span>${j.partDesc}</span></div>
@@ -605,13 +759,33 @@ function showTip(e, jobId){
     ${isLate ? `<div class="tip-row"><span>Late</span><span style="color:var(--red)">${daysLate} days</span></div>` : ''}
     <div class="tip-row"><span>Status</span><span>${j.status}</span></div>
     ${j.needsCMM ? '<div class="tip-row"><span>CMM</span><span>Required</span></div>' : ''}
+    <div class="tip-drawing">${thumbSVG}<span class="tip-drawing-label">📐 Drawing</span></div>
+    <div class="tip-dblclick">Double-click to view full drawing</div>
   `;
   tip.style.display = 'block';
-  tip.style.left = Math.min(e.clientX + 12, window.innerWidth - 300) + 'px';
-  tip.style.top = Math.min(e.clientY + 12, window.innerHeight - 200) + 'px';
+  // Position — wider tooltip now, account for drawing
+  const tipW = 370, tipH = 500;
+  tip.style.left = Math.min(e.clientX + 12, window.innerWidth - tipW) + 'px';
+  tip.style.top = Math.min(e.clientY + 12, window.innerHeight - tipH) + 'px';
 }
 
 function hideTip(){document.getElementById('tooltip').style.display = 'none';}
+
+// ── LIGHTBOX (double-click to open full drawing) ──
+function openLightbox(jobId){
+  const j = jobs.find(j => j.id === jobId);
+  if(!j) return;
+  hideTip();
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lb-title').textContent = `${j.partId} — ${j.partDesc}`;
+  document.getElementById('lb-drawing').innerHTML = genDrawingSVG(j.partId, j.partDesc, 800, 560);
+  lb.classList.add('open');
+}
+function closeLightbox(e){
+  if(e && e.target !== document.getElementById('lightbox')) return;
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') document.getElementById('lightbox').classList.remove('open'); });
 
 // ── UTILS ──
 function fmtDate(d){return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
