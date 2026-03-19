@@ -590,6 +590,22 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 .ws-client-status.connected{background:var(--green-d);color:var(--green)}
 .ws-client-status.disconnected{background:var(--red-d);color:var(--red)}
 .ws-server-status-row{display:flex;align-items:center;gap:10px;padding:8px 0;flex-wrap:wrap}
+
+/* ─── FILTER DETAIL PANEL ─── */
+#filter-detail-panel{background:var(--s1);border-bottom:1px solid var(--brd);overflow:hidden;max-height:0;transition:max-height .3s ease;flex-shrink:0}
+#filter-detail-panel.open{max-height:310px}
+.fdp-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--brd);font-weight:700;font-size:13px;flex-shrink:0}
+.fdp-body{overflow-y:auto;max-height:250px;padding:0 16px 8px}
+.fdp-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.fdp-tbl th{background:var(--s2);border:1px solid var(--brd);padding:6px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);font-weight:700;position:sticky;top:0;z-index:2}
+.fdp-tbl td{border:1px solid var(--brd);padding:5px 8px;vertical-align:middle}
+.fdp-tbl tbody tr:hover td{background:var(--s3);cursor:pointer}
+.fdp-job-link{color:var(--blue);cursor:pointer;font-weight:700;font-family:monospace}
+.fdp-job-link:hover{text-decoration:underline}
+.fdp-view-btn{padding:2px 7px;border-radius:3px;font-size:10px;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
+.fdp-view-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-d)}
+@keyframes job-flash{0%,100%{filter:brightness(1)}50%{filter:brightness(2.5) saturate(1.5)}}
+.job-flash{animation:job-flash .4s ease 3}
 </style>
 </head>
 <body>
@@ -685,6 +701,14 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
       <div id="alloc-staff-list"></div>
     </div>
   </div>
+</div>
+<!-- Filter Detail Panel -->
+<div id="filter-detail-panel">
+  <div class="fdp-hd">
+    <span id="fdp-title"></span>
+    <button class="btn" onclick="closeFilterPanel()" style="font-size:10px">✕ Close</button>
+  </div>
+  <div class="fdp-body" id="fdp-body"></div>
 </div>
 <div class="gantt-wrap">
   <div class="gantt-area" id="gantt-area">
@@ -1615,7 +1639,95 @@ function getScaleDays(){
     default: return 14;
   }
 }
-function setFilter(f){filter=f;document.querySelectorAll('.ctrls .btn').forEach(b=>{const map={'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};if(map[b.textContent]!==undefined)b.classList.toggle('active',map[b.textContent]===f);});renderSchedule();}
+function setFilter(f){
+  // Clicking the same active filter toggles panel off and resets to All
+  if(f!=='all'&&filter===f){f='all';}
+  filter=f;
+  document.querySelectorAll('.ctrls .btn').forEach(b=>{const map={'All':'all','🔴 Late':'late','🟡 At Risk':'at-risk','🟣 CMM Queue':'cmm'};if(map[b.textContent]!==undefined)b.classList.toggle('active',map[b.textContent]===f);});
+  renderSchedule();
+  renderFilterPanel();
+}
+
+function renderFilterPanel(){
+  const panel=document.getElementById('filter-detail-panel');
+  const titleEl=document.getElementById('fdp-title');
+  const body=document.getElementById('fdp-body');
+  if(filter==='all'){panel.classList.remove('open');return;}
+  let fj,emoji,label;
+  if(filter==='late'){
+    fj=jobs.filter(j=>j.end>j.due&&j.status!=='complete').sort((a,b)=>(b.end-b.due)-(a.end-a.due));
+    emoji='🔴';label='Late Jobs';
+  }else if(filter==='at-risk'){
+    fj=jobs.filter(j=>j.status!=='complete'&&!(j.end>j.due)&&(j.due-j.end)<24*3600000);
+    emoji='🟡';label='At Risk Jobs';
+  }else if(filter==='cmm'){
+    fj=jobs.filter(j=>j.machine.startsWith('CMM')&&j.status!=='complete');
+    emoji='🟣';label='CMM Queue';
+  }
+  titleEl.textContent=`${emoji} ${label} (${fj.length})`;
+  if(!fj.length){
+    body.innerHTML='<div style="text-align:center;padding:20px;color:var(--dim2)">No matching jobs</div>';
+    panel.classList.add('open');return;
+  }
+  const rows=fj.map(j=>{
+    const isLate=j.end>j.due;
+    const daysLate=isLate?Math.round((j.end-j.due)/(24*3600000)*10)/10:null;
+    const daysUntilDue=Math.round((j.due-TODAY)/(24*3600000)*10)/10;
+    const p=j.priority||50;
+    const prioBadgeCls=p<=9?'prio-1':p<=19?'prio-10':p<=29?'prio-20':p<=39?'prio-30':p>=60?'prio-60':'prio-40';
+    const statusColor=j.status==='in-progress'?'var(--orange)':j.status==='queued'?'var(--dim)':'var(--green)';
+    const daysCell=isLate
+      ?`<span style="color:var(--red);font-weight:700">${daysLate}d late</span>`
+      :`<span style="color:var(--yellow)">${daysUntilDue}d until due</span>`;
+    return `<tr ondblclick="showDrawing('${j.id}')" title="Double-click row to view drawing">
+      <td><span class="fdp-job-link" onclick="event.stopPropagation();scrollToJob('${j.id}')">${j.id}</span></td>
+      <td>${j.customer||'—'}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${j.partDesc}">${j.partDesc}</td>
+      <td><span style="font-family:monospace;font-size:10px">${j.machine}</span></td>
+      <td><span class="${prioBadgeCls} prio-badge" style="font-size:9px">${p}</span></td>
+      <td>${fmtDate(j.due)}</td>
+      <td>${fmtDate(j.end)}</td>
+      <td><span style="color:${statusColor};font-size:10px;font-weight:700;text-transform:uppercase">${j.status}</span></td>
+      <td>${daysCell}</td>
+      <td><button class="fdp-view-btn" onclick="event.stopPropagation();showDrawing('${j.id}')">📄 View</button></td>
+    </tr>`;
+  }).join('');
+  body.innerHTML=`<table class="fdp-tbl">
+    <thead><tr>
+      <th>Job #</th><th>Customer</th><th>Part Description</th><th>Machine</th>
+      <th>Priority</th><th>Due Date</th><th>Sched End</th><th>Status</th>
+      <th>Days</th><th>Drawing</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+  panel.classList.add('open');
+}
+
+function closeFilterPanel(){setFilter('all');}
+
+function showDrawing(jobId){openLightbox(jobId);}
+
+function scrollToJob(jobId){
+  const area=document.getElementById('gantt-area');
+  // If current filter hides this job, temporarily show all
+  let el=area.querySelector(`[data-job="${jobId}"]`);
+  if(!el){
+    const savedFilter=filter;
+    filter='all';
+    renderGantt(getFilteredMachines(),jobs);
+    filter=savedFilter;
+    el=area.querySelector(`[data-job="${jobId}"]`);
+  }
+  if(!el)return;
+  const rect=el.getBoundingClientRect();
+  const areaRect=area.getBoundingClientRect();
+  area.scrollLeft+=rect.left-areaRect.left-area.clientWidth/3;
+  area.scrollTop+=rect.top-areaRect.top-area.clientHeight/2;
+  el.classList.remove('job-flash');
+  void el.offsetWidth;
+  el.classList.add('job-flash');
+  setTimeout(()=>el.classList.remove('job-flash'),1400);
+}
 function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
 function addGlobalDelay(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.delay+=4;c.end=new Date(c.originalEnd.getTime()+c.delay*3600000);recalcCascade();renderSchedule();toast(`⚠️ Added 4h delay to ${c.id}`);}
 function recoveryMove(jid,tm){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine=tm;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*3600000);j.delay=0;j.status='queued';recalcCascade();renderSchedule();toast(`🔄 Moved ${jid} to ${tm}`);}
