@@ -650,9 +650,6 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
   <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
-  <select id="delay-hours" style="padding:5px 6px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;width:65px">
-    <option value="1">1h</option><option value="2">2h</option><option value="4">4h</option><option value="8">8h</option><option value="16">16h</option><option value="24">24h</option><option value="custom">Custom</option>
-  </select>
   <button class="btn danger" onclick="addJobDelay()">＋ Add Delay</button>
   <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
   <div class="ctrl-sep"></div>
@@ -1746,24 +1743,15 @@ function scrollToJob(jobId){
 }
 function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
 function addJobDelay(){
-  // Find selected job — either clicked on Gantt or highlighted in filter panel
-  const selEl=document.querySelector('.job.selected');
-  const selJobId=selEl?selEl.dataset.job:null;
-  let targetJob=null;
-  if(selJobId){
-    targetJob=jobs.find(j=>j.id===selJobId);
-  }else if(selectedMachine){
-    // Fallback: in-progress job on selected machine
-    targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
-  }
-  if(!targetJob){toast('⚠️ Select a job on the Gantt first (click a job bar)');return;}
-  let hours=parseInt(document.getElementById('delay-hours').value);
-  if(isNaN(hours)){
-    const custom=prompt('Enter delay hours:');
-    if(!custom)return;
-    hours=parseFloat(custom);
-    if(isNaN(hours)||hours<=0){toast('❌ Invalid hours');return;}
-  }
+  if(!selectedMachine){toast('⚠️ Click a machine on the left first');return;}
+  // Find in-progress or first queued job on selected machine
+  let targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
+  if(!targetJob) targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='queued');
+  if(!targetJob){toast('⚠️ No active jobs on '+selectedMachine);return;}
+  const input=prompt(`Add delay to ${targetJob.id} — ${targetJob.partDesc}\nEnter hours:`);
+  if(!input)return;
+  const hours=parseFloat(input);
+  if(isNaN(hours)||hours<=0){toast('❌ Invalid hours');return;}
   autoBookmark('Before delay: '+targetJob.id+' +'+hours+'h');
   targetJob.delay=(targetJob.delay||0)+hours;
   targetJob.end=new Date(targetJob.originalEnd.getTime()+targetJob.delay*3600000);
