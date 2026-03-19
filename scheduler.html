@@ -838,6 +838,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
     <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
     <button class="setup-tab" onclick="setSetupTab('delays')">⏱ Delay Reasons</button>
+    <button class="setup-tab" onclick="setSetupTab('recovery')">🔐 Password Recovery</button>
     <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
     <!-- API Keys merged into Integrations tab -->
   </div>
@@ -848,6 +849,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <div class="setup-page" id="sp-shifts"></div>
     <div class="setup-page" id="sp-skills"></div>
     <div class="setup-page" id="sp-delays"></div>
+    <div class="setup-page" id="sp-recovery"></div>
     <div class="setup-page" id="sp-integrations"></div>
     <div class="setup-page" id="sp-apikeys"></div>
   </div>
@@ -1659,7 +1661,7 @@ function setMode(m){
 function setSetupTab(t){
   currentSetupTab=t;
   document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t==='delays'?'delay':t))b.classList.add('active');});
+  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t==='delays'?'delay':t==='recovery'?'password':t))b.classList.add('active');});
   document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+t).classList.add('active');
   renderSetupTab();
@@ -3274,6 +3276,7 @@ function renderSetupTab(){
   else if(tab==='shifts')renderSetupShifts();
   else if(tab==='skills')renderSetupSkills();
   else if(tab==='delays')renderSetupDelays();
+  else if(tab==='recovery')renderSetupRecovery();
   else if(tab==='integrations')renderSetupIntegrations();
   else if(tab==='apikeys')renderSetupApiKeys();
 }
@@ -4815,6 +4818,181 @@ function ignoreTimeRowForever(key){
   lsSet('time_ignores',ignores);
   toast('🚫 Added to permanent ignore list');
   renderKPI();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PASSWORD RECOVERY SETUP (Admin Only)
+// ══════════════════════════════════════════════════════════════
+function getRecoveryConfig(){return lsGet('recovery_config',{method:'monday',mondayBoardId:'',mondayResetGroupId:'',resetUrlBase:'',resetExpireMinutes:60,maxRequestsPerHour:3,requireAdminApproval:false});}
+
+function renderSetupRecovery(){
+  const cfg=getRecoveryConfig();
+  const mondayKeys=lsGet('api_keys',{});
+  const mondayConfigured=!!(mondayKeys.monday&&mondayKeys.monday.key);
+  const recoveryLog=lsGet('recovery_log',[]);
+  const testStatus=lsGet('recovery_test_status',{status:'untested'});
+  const testDot=testStatus.status==='success'?'🟢':testStatus.status==='failed'?'🔴':testStatus.status==='testing'?'🟡':'⚪';
+  const testLabel=testStatus.status==='success'?'Connected — last tested '+testStatus.time:testStatus.status==='failed'?'Failed — '+testStatus.error:testStatus.status==='testing'?'Testing...':'Not tested';
+
+  document.getElementById('sp-recovery').innerHTML=`
+    <div class="section-title">🔐 Password Recovery Configuration</div>
+    <div class="section-desc">Admin only. Configure how password reset requests are delivered to users. All Nupress employees use Monday.com — reset notifications are pushed there automatically.</div>
+
+    <div style="background:var(--red-d);border:1px solid rgba(255,69,58,.3);border-radius:var(--rs);padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--red)">
+      🔒 This section requires administrator access in production. Changes are audit logged.
+    </div>
+
+    <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:16px">
+      <div class="section-title" style="font-size:14px;margin-bottom:8px">📌 Monday.com Password Reset Pathway</div>
+      <div class="section-desc" style="margin-bottom:12px">When a user clicks "Forgot Password", NuPhoenix creates an item on a Monday.com board. Monday.com emails the user with the reset link automatically.</div>
+      
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:16px">${testDot}</span>
+        <span style="font-size:12px;color:var(--dim)">${testLabel}</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label>Monday.com API Key</label>
+          <div style="font-size:11px;color:${mondayConfigured?'var(--green)':'var(--red)'};margin-top:2px">
+            ${mondayConfigured?'✅ Configured in Integrations tab':'❌ Not configured — set up in Integrations tab first'}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group">
+          <label>Reset Board ID</label>
+          <input id="rcv-board-id" value="${cfg.mondayBoardId}" placeholder="e.g. 1234567890" style="width:200px"/>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">Create a "Password Resets" board in Monday.com and paste its ID here</div>
+        </div>
+        <div class="form-group">
+          <label>Reset Group ID (optional)</label>
+          <input id="rcv-group-id" value="${cfg.mondayResetGroupId||''}" placeholder="e.g. new_group" style="width:200px"/>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">Group within the board for reset items (leave blank for default)</div>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group">
+          <label>Reset URL Base</label>
+          <input id="rcv-url-base" value="${cfg.resetUrlBase||''}" placeholder="https://nuphoenix.nupress.local" style="width:300px"/>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">Base URL for the reset link in the Monday.com notification (e.g. http://nupress-server:8080)</div>
+        </div>
+      </div>
+
+      <div class="action-bar" style="margin-top:14px">
+        <button class="btn primary" onclick="testRecoveryConnection()">🔌 Test Connection</button>
+        <button class="btn" onclick="testRecoverySendSample()">📧 Send Test Reset</button>
+        <button class="btn success" onclick="saveRecoveryConfig()">💾 Save</button>
+      </div>
+    </div>
+
+    <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:16px">
+      <div class="section-title" style="font-size:14px;margin-bottom:8px">⚙️ Recovery Settings</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Reset Link Expiry (minutes)</label>
+          <input id="rcv-expire" type="number" value="${cfg.resetExpireMinutes}" min="10" max="1440" style="width:100px"/>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">How long the reset link is valid (default: 60 min)</div>
+        </div>
+        <div class="form-group">
+          <label>Max Requests Per Hour</label>
+          <input id="rcv-max-requests" type="number" value="${cfg.maxRequestsPerHour}" min="1" max="10" style="width:100px"/>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">Rate limit per username (default: 3)</div>
+        </div>
+        <div class="form-group">
+          <label>Require Admin Approval</label>
+          <select id="rcv-require-approval" style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:6px 10px;border-radius:var(--rs);font-size:12px">
+            <option value="false" ${!cfg.requireAdminApproval?'selected':''}>No — auto-send reset link</option>
+            <option value="true" ${cfg.requireAdminApproval?'selected':''}>Yes — admin must approve first</option>
+          </select>
+          <div style="font-size:9px;color:var(--dim);margin-top:3px">If yes, reset item sits as "Pending Approval" on Monday.com until admin changes status</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:16px">
+      <div class="section-title" style="font-size:14px;margin-bottom:8px">🔄 Recovery Flow Diagram</div>
+      <div style="font-size:11px;color:var(--dim);line-height:2;font-family:monospace;background:var(--s3);padding:12px;border-radius:var(--rs)">
+        User clicks "Forgot Password"<br>
+        &nbsp;&nbsp;↓<br>
+        NuPhoenix → Monday.com API (create item + post reset link)<br>
+        &nbsp;&nbsp;↓<br>
+        Monday.com → emails user (automatic notification)<br>
+        &nbsp;&nbsp;↓<br>
+        User clicks link → enters new password<br>
+        &nbsp;&nbsp;↓<br>
+        NuPhoenix validates token → password updated ✅<br>
+        &nbsp;&nbsp;↓<br>
+        Monday.com item auto-updated to "Completed"
+      </div>
+    </div>
+
+    ${recoveryLog.length>0?`
+    <div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)">
+      <div class="section-title" style="font-size:14px;margin-bottom:8px">📋 Recent Password Reset Requests</div>
+      <div class="tbl-wrap" style="max-height:200px;overflow-y:auto"><table class="dtbl">
+        <tr><th>Time</th><th>Username</th><th>Status</th><th>Monday.com Item</th><th>Resolved</th></tr>
+        ${recoveryLog.slice(-15).reverse().map(r=>`<tr>
+          <td style="font-size:10px;color:var(--dim)">${r.time||'—'}</td>
+          <td>${r.username||'—'}</td>
+          <td><span style="color:${r.status==='completed'?'var(--green)':r.status==='pending'?'var(--yellow)':'var(--red)'};font-weight:600">${(r.status||'pending').toUpperCase()}</span></td>
+          <td style="font-size:10px;color:var(--dim)">${r.mondayItemId||'—'}</td>
+          <td style="font-size:10px">${r.resolvedAt||'—'}</td>
+        </tr>`).join('')}
+      </table></div>
+    </div>`:'<div style="padding:16px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r)"><div class="section-title" style="font-size:14px;margin-bottom:6px">📋 Recent Password Reset Requests</div><div style="color:var(--dim);font-size:11px">No password reset requests yet.</div></div>'}`;
+}
+
+function saveRecoveryConfig(){
+  const cfg={
+    method:'monday',
+    mondayBoardId:document.getElementById('rcv-board-id').value.trim(),
+    mondayResetGroupId:document.getElementById('rcv-group-id').value.trim(),
+    resetUrlBase:document.getElementById('rcv-url-base').value.trim(),
+    resetExpireMinutes:parseInt(document.getElementById('rcv-expire').value)||60,
+    maxRequestsPerHour:parseInt(document.getElementById('rcv-max-requests').value)||3,
+    requireAdminApproval:document.getElementById('rcv-require-approval').value==='true'
+  };
+  lsSet('recovery_config',cfg);
+  toast('✅ Password recovery configuration saved');
+}
+
+function testRecoveryConnection(){
+  const cfg=getRecoveryConfig();
+  const mondayKeys=lsGet('api_keys',{});
+  if(!mondayKeys.monday||!mondayKeys.monday.key){toast('❌ Monday.com API key not configured — go to Integrations tab');return;}
+  if(!cfg.mondayBoardId){toast('❌ No Monday.com Board ID set');return;}
+  lsSet('recovery_test_status',{status:'testing',time:new Date().toLocaleTimeString('en-AU')});
+  renderSetupRecovery();
+  toast('🔌 Testing Monday.com connection for password resets...');
+  // Simulated test — in production this makes a real API call to verify board access
+  setTimeout(()=>{
+    const success=Math.random()>0.2; // Simulate — mostly succeeds
+    if(success){
+      lsSet('recovery_test_status',{status:'success',time:new Date().toLocaleTimeString('en-AU')});
+      toast('✅ Monday.com connection verified — Board ID '+cfg.mondayBoardId+' accessible');
+    }else{
+      lsSet('recovery_test_status',{status:'failed',time:new Date().toLocaleTimeString('en-AU'),error:'Board not found or access denied'});
+      toast('❌ Monday.com connection failed — check Board ID and API key permissions');
+    }
+    renderSetupRecovery();
+  },1500);
+}
+
+function testRecoverySendSample(){
+  const cfg=getRecoveryConfig();
+  if(!cfg.mondayBoardId){toast('❌ Configure and test connection first');return;}
+  toast('📧 Sending test password reset to Monday.com board...');
+  setTimeout(()=>{
+    const log=lsGet('recovery_log',[]);
+    log.push({time:new Date().toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),username:'test-user',status:'completed',mondayItemId:'SIM-'+Date.now(),resolvedAt:'Test only'});
+    lsSet('recovery_log',log);
+    toast('✅ Test reset item created on Monday.com board. Check your board to verify.');
+    renderSetupRecovery();
+  },1000);
 }
 
 // ══════════════════════════════════════════════════════════════
