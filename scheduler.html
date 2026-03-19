@@ -1508,7 +1508,7 @@ body.kiosk-mode .floor-pool{display:none}
 // ══════════════════════════════════════════════════════════════
 const TODAY = new Date(); TODAY.setHours(6,0,0,0);
 const HOUR_PX = {day:12,week:4,month1:1.2,month3:0.5,month6:0.25,month12:0.12,monthbeyond:0.04};
-let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
+let scale='week', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 let currentUser = null;
 const SHIFT_HOURS = 10;
 
@@ -1900,34 +1900,39 @@ function genJobs(){
     }
   });
   // ── SIMULATION LAYER — randomise on each refresh ──
-  // Randomly apply delays to ~20% of in-progress/queued jobs
-  jobs.filter(j=>j.status!=="complete").forEach(j=>{
-    if(Math.random()<0.2){
-      const delayH=1+Math.floor(Math.random()*8);
+  // ── Seeded PRNG for consistent demo simulation ──
+  let _seed=42;
+  function sRand(){_seed=((_seed*1103515245+12345)&0x7fffffff);return _seed/0x7fffffff;}
+
+  // Apply delays to ~30% of in-progress/queued jobs for a busy-looking demo
+  const activeJobs=jobs.filter(j=>j.status!=="complete");
+  activeJobs.forEach((j,i)=>{
+    if(sRand()<0.30){
+      const delayH=2+Math.floor(sRand()*10);
       const reasons=getDelayReasons();
-      const reason=reasons[Math.floor(Math.random()*reasons.length)];
+      const reason=reasons[Math.floor(sRand()*reasons.length)];
       j.delay=(j.delay||0)+delayH;
       j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
       const delayLog=lsGet("delay_log",[]);
-      delayLog.push({jobId:j.id,partDesc:j.partDesc,machine:j.machine,customer:j.customer||"",hours:delayH,reason,timestamp:new Date(Date.now()-Math.random()*86400000).toISOString(),totalDelay:j.delay});
+      delayLog.push({jobId:j.id,partDesc:j.partDesc,machine:j.machine,customer:j.customer||"",hours:delayH,reason,timestamp:new Date(Date.now()-sRand()*86400000).toISOString(),totalDelay:j.delay});
       lsSet("delay_log",delayLog);
     }
   });
-  // Randomly make ~15% of jobs late (end > due)
+  // Make ~25% of on-time jobs late (end > due) for visible red blocks
   jobs.filter(j=>j.status!=="complete"&&j.end<=j.due).forEach(j=>{
-    if(Math.random()<0.15){
-      const lateH=4+Math.floor(Math.random()*40);
+    if(sRand()<0.25){
+      const lateH=8+Math.floor(sRand()*48);
       j.delay=(j.delay||0)+lateH;
       j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
     }
   });
-  // Randomly put 1-2 machines in breakdown (only if user hasn't set any)
+  // Put 2 machines in breakdown for demo realism (only if user hasn't set any)
   const breakdowns=getBreakdowns();
   const cncIds=CNC_MACHINES.map(m=>m.id);
   if(Object.keys(breakdowns).filter(k=>breakdowns[k].active).length===0){
-    for(let i=0;i<1+Math.floor(Math.random()*2);i++){
-      const mid=cncIds[Math.floor(Math.random()*cncIds.length)];
-      const expDate=new Date(Date.now()+(1+Math.floor(Math.random()*5))*86400000);
+    for(let i=0;i<2;i++){
+      const mid=cncIds[Math.floor(sRand()*cncIds.length)];
+      const expDate=new Date(Date.now()+(2+Math.floor(sRand()*4))*86400000);
       breakdowns[mid]={active:true,expectedAvailable:expDate.toISOString().split("T")[0],timestamp:new Date().toISOString()};
     }
     setBreakdowns(breakdowns);
