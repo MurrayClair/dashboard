@@ -112,6 +112,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .job.at-risk{background:rgba(255,214,10,.2);color:var(--yellow);border-color:rgba(255,214,10,.3)}
 .job.late{background:rgba(255,69,58,.2);color:var(--red);border-color:rgba(255,69,58,.3)}
 .job.in-progress{border-left:3px solid var(--accent)}
+.job.selected{outline:2px solid var(--blue)!important;box-shadow:0 0 8px rgba(90,200,250,.5);z-index:10!important}
 .job.cmm{background:rgba(191,90,242,.2);color:var(--purple);border-color:rgba(191,90,242,.3)}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:3;pointer-events:none}
 .today-label{position:absolute;top:-28px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;z-index:6}
@@ -649,7 +650,10 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
   <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
-  <button class="btn danger" onclick="addGlobalDelay()">＋ Add Delay</button>
+  <select id="delay-hours" style="padding:5px 6px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;width:65px">
+    <option value="1">1h</option><option value="2">2h</option><option value="4">4h</option><option value="8">8h</option><option value="16">16h</option><option value="24">24h</option><option value="custom">Custom</option>
+  </select>
+  <button class="btn danger" onclick="addJobDelay()">＋ Add Delay</button>
   <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
   <div class="ctrl-sep"></div>
   <div style="position:relative;display:flex;align-items:center;gap:4px">
@@ -1558,7 +1562,7 @@ function renderGantt(fm,fj){
       const prioCls=p<=9?'prio-crit':p<=19?'prio-urg':p<=29?'prio-high':p<=39?'prio-elev':p>=60?'prio-dim':'';
       const prioBadgeCls=p<=9?'prio-1':p<=19?'prio-10':p<=29?'prio-20':p<=39?'prio-30':p>=60?'prio-60':'prio-40';
       const subcoBadge=j.hasSubco?`<span class="subco-badge">SUBCO</span>`:'';
-      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
+      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px;cursor:pointer" onclick="selectJob(event,'${j.id}')" title="${j.id} — ${(j.partDesc||'').replace(/'/g,'')}\n${j.customer||''} | Qty: ${j.qty} | Due: ${j.due?j.due.toLocaleDateString('en-AU'):''}">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
     });
     // Quote overlay bars
     html+=renderQuoteBarsForMachine(m.id,y,startTime,hpx,labelW,fj);
@@ -1611,7 +1615,19 @@ function renderLatePanel(){
 // (scroll sync no longer needed — labels are inside the gantt area)
 
 // ── Schedule actions ──
+let selectedJob=null;
 function selectMachine(id){selectedMachine=selectedMachine===id?null:id;renderSchedule();}
+function selectJob(event,jobId){
+  event.stopPropagation();
+  // Deselect previous
+  document.querySelectorAll('.job.selected').forEach(el=>el.classList.remove('selected'));
+  if(selectedJob===jobId){selectedJob=null;return;}
+  selectedJob=jobId;
+  const el=document.querySelector('.job[data-job="'+jobId+'"]');
+  if(el)el.classList.add('selected');
+  const j=jobs.find(jj=>jj.id===jobId);
+  if(j)toast(`Selected: ${j.id} — ${j.partDesc} (${j.customer||''})`);
+}
 function setScale(s){
   scale=s;
   // Highlight Day/Week buttons, deactivate if month selected
@@ -1729,7 +1745,32 @@ function scrollToJob(jobId){
   setTimeout(()=>el.classList.remove('job-flash'),1400);
 }
 function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
-function addGlobalDelay(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.delay+=4;c.end=new Date(c.originalEnd.getTime()+c.delay*3600000);recalcCascade();renderSchedule();toast(`⚠️ Added 4h delay to ${c.id}`);}
+function addJobDelay(){
+  // Find selected job — either clicked on Gantt or highlighted in filter panel
+  const selEl=document.querySelector('.job.selected');
+  const selJobId=selEl?selEl.dataset.job:null;
+  let targetJob=null;
+  if(selJobId){
+    targetJob=jobs.find(j=>j.id===selJobId);
+  }else if(selectedMachine){
+    // Fallback: in-progress job on selected machine
+    targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
+  }
+  if(!targetJob){toast('⚠️ Select a job on the Gantt first (click a job bar)');return;}
+  let hours=parseInt(document.getElementById('delay-hours').value);
+  if(isNaN(hours)){
+    const custom=prompt('Enter delay hours:');
+    if(!custom)return;
+    hours=parseFloat(custom);
+    if(isNaN(hours)||hours<=0){toast('❌ Invalid hours');return;}
+  }
+  autoBookmark('Before delay: '+targetJob.id+' +'+hours+'h');
+  targetJob.delay=(targetJob.delay||0)+hours;
+  targetJob.end=new Date(targetJob.originalEnd.getTime()+targetJob.delay*3600000);
+  recalcCascade();renderSchedule();
+  toast(`⚠️ Added ${hours}h delay to ${targetJob.id} (${targetJob.partDesc})`);
+  broadcastChange('schedule_update',{});
+}
 function recoveryMove(jid,tm){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine=tm;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*3600000);j.delay=0;j.status='queued';recalcCascade();renderSchedule();toast(`🔄 Moved ${jid} to ${tm}`);}
 function recoveryOvertime(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.totalHours=Math.max(2,j.totalHours-SHIFT_HOURS);j.end=new Date(j.start.getTime()+j.totalHours*3600000);j.delay=Math.max(0,j.delay-SHIFT_HOURS);recalcCascade();renderSchedule();toast(`⏰ Overtime added to ${jid}`);}
 function recoverySplit(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const m=MACHINES.find(m=>m.id===j.machine);const alts=(COMPAT[m?.type]||[]).filter(m=>m!==j.machine);j.qty=Math.ceil(j.qty/2);j.totalHours=Math.ceil(j.totalHours/2);j.end=new Date(j.start.getTime()+j.totalHours*3600000);if(alts.length)jobs.push({...j,id:j.id+'-SPLIT',machine:alts[0],start:new Date(TODAY),end:new Date(TODAY.getTime()+j.totalHours*3600000),status:'queued',delay:0});recalcCascade();renderSchedule();toast(`✂️ Split ${jid}`);}
