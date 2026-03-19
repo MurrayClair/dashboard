@@ -1299,6 +1299,80 @@ const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millt
 let jobs=[];
 let quotes=lsGet('quotes',[]);
 
+// ── DEMO QUOTE PIPELINE ──
+if(quotes.length===0){
+  quotes=[
+    {
+      id:"q1",
+      quoteNum:"Q-1234",
+      customer:"Hanwha Defence",
+      description:"K9 Thunder SPH Turret Ring Components — 24-month program, 50 units/month",
+      status:"Submitted",
+      operations:[
+        {machine:"INTE4004S",setupH:4,runHPerPc:2.5,qty:50},
+        {machine:"INTEJ400",setupH:3,runHPerPc:1.8,qty:50},
+        {machine:"DMU75",setupH:5,runHPerPc:3.2,qty:50},
+        {machine:"NTX2500",setupH:3,runHPerPc:2.0,qty:50},
+        {machine:"CMM1",setupH:1,runHPerPc:0.5,qty:50},
+      ],
+      dueDate:"2026-06-15",
+      value:480000,
+      probability:65,
+      notes:"Defence tender — K9 Thunder SPH program for Australian Army. 24-month delivery schedule, 50 units/month. Requires AS9100 certification on all operations. Turret ring is 5-axis critical — DMU75 and INTE4004S will be heavily loaded. Subco heat treat required.",
+      visible:true,
+    },
+    {
+      id:"q2",
+      quoteNum:"Q-1235",
+      customer:"Rheinmetall",
+      description:"Boxer CRV Hull Brackets — 12 units",
+      status:"Submitted",
+      operations:[
+        {machine:"DMU75",setupH:6,runHPerPc:4.0,qty:12},
+        {machine:"INTE4004S",setupH:4,runHPerPc:3.5,qty:12},
+        {machine:"VRX730",setupH:5,runHPerPc:2.8,qty:12},
+        {machine:"CMM2",setupH:2,runHPerPc:1.0,qty:12},
+      ],
+      dueDate:"2026-05-30",
+      value:185000,
+      probability:40,
+      notes:"Boxer CRV hull mounting brackets. Conflicts with Q-1234 on DMU75 and INTE4004S. If both quotes won, these two machines are overloaded by ~60 hours in May-June.",
+      visible:true,
+    },
+    {
+      id:"q3",
+      quoteNum:"Q-1236",
+      customer:"Boeing",
+      description:"F/A-18 Hornet Legacy Support Brackets — 200pcs",
+      status:"Draft",
+      operations:[
+        {machine:"VCS530C",setupH:2,runHPerPc:0.8,qty:200},
+        {machine:"HCN8800",setupH:3,runHPerPc:0.6,qty:200},
+        {machine:"CMM1",setupH:1,runHPerPc:0.3,qty:200},
+      ],
+      dueDate:"2026-07-31",
+      value:92000,
+      probability:25,
+      notes:"Legacy support program. High volume, low complexity. Good fill work for VMC capacity gaps. AS9102 controlled.",
+      visible:false,
+    },
+  ];
+  lsSet("quotes",quotes);
+}
+
+// ── SEED DELAY LOG ──
+if(lsGet("delay_log",[]).length<3){
+  const seedDelays=[
+    {jobId:"26719-0002-002",partDesc:"DRIVE CUP AZIMUTH R150 264MM",machine:"INTE4004S",customer:"EOS",hours:3,reason:"Waiting for CMM",timestamp:new Date(Date.now()-2*86400000).toISOString(),totalDelay:3},
+    {jobId:"26719-0012-002",partDesc:"RING LOCK AZIMUTH UPR 216MM",machine:"INTE2004S",customer:"EOS",hours:2,reason:"Tooling Issue",timestamp:new Date(Date.now()-1.5*86400000).toISOString(),totalDelay:2},
+    {jobId:"26893-0003-001",partDesc:"MEDIA CHASSIS BOTTOM PLATE",machine:"HCN8800",customer:"Rohde & Schwarz",hours:1.5,reason:"Waiting on Peer Review / First Off Sign Off",timestamp:new Date(Date.now()-86400000).toISOString(),totalDelay:1.5},
+    {jobId:"14033",partDesc:"SOCKET HEAD CAP SCREW M12X1.75",machine:"QT20HP",customer:"Nupress Stock",hours:4,reason:"Machine Breakdown",timestamp:new Date(Date.now()-0.5*86400000).toISOString(),totalDelay:4},
+    {jobId:"26861-0002-001",partDesc:"X-ROTATION CLEVIS",machine:"DMU75",customer:"EOS",hours:2,reason:"Waiting on Material",timestamp:new Date(Date.now()-0.3*86400000).toISOString(),totalDelay:2},
+    {jobId:"25309-0026-003",partDesc:"HOLDER SILENCODER",machine:"QTN450M",customer:"BAE Systems",hours:1,reason:"Rework Required",timestamp:new Date(Date.now()-0.1*86400000).toISOString(),totalDelay:1},
+  ];
+  lsSet("delay_log",seedDelays);
+}
+
 const OP_PROCESS={lathe:'TURN',millturn:'MILL/TURN',vmc:'MILL',hmc:'HMC MILL','5axis':'5AXIS MILL',cmm:'INSPECT',subco:'SUBCONTRACT',edm:'WIRE EDM'};
 
 function genJobs(){
@@ -1394,6 +1468,39 @@ function genJobs(){
       mq['SUBCO']=subcoEnd.getTime()+3600000;
     }
   });
+  // ── SIMULATION LAYER — randomise on each refresh ──
+  // Randomly apply delays to ~20% of in-progress/queued jobs
+  jobs.filter(j=>j.status!=="complete").forEach(j=>{
+    if(Math.random()<0.2){
+      const delayH=1+Math.floor(Math.random()*8);
+      const reasons=getDelayReasons();
+      const reason=reasons[Math.floor(Math.random()*reasons.length)];
+      j.delay=(j.delay||0)+delayH;
+      j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
+      const delayLog=lsGet("delay_log",[]);
+      delayLog.push({jobId:j.id,partDesc:j.partDesc,machine:j.machine,customer:j.customer||"",hours:delayH,reason,timestamp:new Date(Date.now()-Math.random()*86400000).toISOString(),totalDelay:j.delay});
+      lsSet("delay_log",delayLog);
+    }
+  });
+  // Randomly make ~15% of jobs late (end > due)
+  jobs.filter(j=>j.status!=="complete"&&j.end<=j.due).forEach(j=>{
+    if(Math.random()<0.15){
+      const lateH=4+Math.floor(Math.random()*40);
+      j.delay=(j.delay||0)+lateH;
+      j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
+    }
+  });
+  // Randomly put 1-2 machines in breakdown (only if user hasn't set any)
+  const breakdowns=getBreakdowns();
+  const cncIds=CNC_MACHINES.map(m=>m.id);
+  if(Object.keys(breakdowns).filter(k=>breakdowns[k].active).length===0){
+    for(let i=0;i<1+Math.floor(Math.random()*2);i++){
+      const mid=cncIds[Math.floor(Math.random()*cncIds.length)];
+      const expDate=new Date(Date.now()+(1+Math.floor(Math.random()*5))*86400000);
+      breakdowns[mid]={active:true,expectedAvailable:expDate.toISOString().split("T")[0],timestamp:new Date().toISOString()};
+    }
+    setBreakdowns(breakdowns);
+  }
   recalcCascade();
 }
 
