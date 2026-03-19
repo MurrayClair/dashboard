@@ -1155,10 +1155,24 @@ function getEmployees(){return lsGet('employees',DEFAULT_EMPLOYEES);}
 function getShifts(){return lsGet('shifts',DEFAULT_SHIFTS);}
 function getSkills(){return lsGet('skills',null)||genDefaultSkills();}
 function getM1Config(){return lsGet('m1config',{server:'NP-SQL01\\M1PROD',database:'M1_Nupress',user:'m1_reader',password:'',schema:'dbo',tables:[
-  {name:'Job Master',path:'dbo.jomast'},{name:'Job Operations',path:'dbo.jooper'},
-  {name:'Job Routing',path:'dbo.jorout'},{name:'Part Master',path:'dbo.inmast'},
-  {name:'Work Centre',path:'dbo.wkcntr'},{name:'Employee',path:'dbo.empmst'},
-  {name:'PO Receipts',path:'dbo.porect'},{name:'Shop Floor Txn',path:'dbo.sftran'},
+  {name:'Job Master',path:'dbo.JOMAST'},
+  {name:'Job Assemblies',path:'dbo.JOASMB'},
+  {name:'Job Operations',path:'dbo.JOOPER'},
+  {name:'Job Materials',path:'dbo.JOMTRL'},
+  {name:'Part Master',path:'dbo.INMAST'},
+  {name:'Part Routing',path:'dbo.INRTNG'},
+  {name:'Work Center',path:'dbo.WKCNTR'},
+  {name:'Machine Group',path:'dbo.MCGRPS'},
+  {name:'Employee Master',path:'dbo.EMPMST'},
+  {name:'Timecard Lines',path:'dbo.LNMAST'},
+  {name:'PO Header',path:'dbo.POHDR'},
+  {name:'PO Lines',path:'dbo.POLINE'},
+  {name:'Customer Master',path:'dbo.ARCUST'},
+  {name:'Sales Order Header',path:'dbo.SOHDR'},
+  {name:'Sales Order Lines',path:'dbo.SOLINE'},
+  {name:'Inventory Transactions',path:'dbo.INTRAN'},
+  {name:'Quote Header',path:'dbo.QTEHDR'},
+  {name:'Quote Lines',path:'dbo.QTELIN'},
 ]});}
 function getMachineSetup(){return lsGet('machine_setup',MACHINES.map(m=>({id:m.id,name:m.name,type:m.type,protocol:m.protocol,ip:m.ip,port:m.port,status:'Online'})));}
 function getBreakdowns(){return lsGet('breakdowns',{});}
@@ -1193,85 +1207,123 @@ function setBreakdownDate(machineId,date){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  PARTS & JOBS (same as original)
+//  M1 REAL JOBS — actual Nupress M1 database extract (2026-03-19)
 // ══════════════════════════════════════════════════════════════
-const CUSTOMERS=['Bradken','Timberjack','John Deere','BAE Systems','Thales','Caterpillar','Rio Tinto','BHP','Sandvik','Weir Minerals','Metso','FLSmidth','GE Aviation','Rolls-Royce','Boeing','Komatsu'];
-const PO_PREFIX=['PO-','SC-','WO-','CO-'];
-const PARTS=[
-  {p:'570-10-0402C1-04',d:'Y ROTATION POWER SCREW',h:18,ops:['lathe','millturn','cmm']},
-  {p:'2012691',d:'RING GEAR HOUSING',h:12,ops:['millturn','hmc','cmm']},
-  {p:'505327',d:'SPROCKET 16 TOOTH',h:6,ops:['lathe','vmc']},
-  {p:'AU07595',d:'SPLIT SPROCKET 14T DUAL',h:8,ops:['lathe','vmc','cmm']},
-  {p:'T45H36FLKIN',d:'KINLOC SPANNER T45',h:10,ops:['millturn']},
-  {p:'SR29015',d:'LOOPER TABLE FEED ROLLER',h:14,ops:['lathe','millturn','cmm']},
-  {p:'NP-TJR-HFX280',d:'HFX 280 ROD TIMBERJACK',h:16,ops:['lathe','hmc','cmm']},
-  {p:'414E5047-2',d:'BUSHING',h:4,ops:['lathe']},
-  {p:'1471-248',d:'MANIFOLD SS316',h:9,ops:['millturn','vmc','cmm']},
-  {p:'SHAFT-XH150',d:'TRB 100DIA SHAFT',h:20,ops:['lathe','millturn','cmm']},
-  {p:'10-020-30-4274',d:'HINGE CAM',h:5,ops:['vmc']},
-  {p:'NP-100471134',d:'SOCKET HEAD CAP SCREW',h:3,ops:['lathe']},
-  {p:'FST-316-BN-M24',d:'BACK NUT 316SS M24',h:7,ops:['lathe','cmm']},
-  {p:'KP-NP06',d:'VCII KNIFE PLATE',h:11,ops:['5axis','cmm']},
-  {p:'HB120-24',d:'MAIN CARRIAGE AXLE',h:15,ops:['lathe','millturn','cmm']},
-  {p:'SPNADAPR25',d:'SPIN ADAPTOR R25',h:8,ops:['millturn','vmc']},
-  {p:'PKM011',d:'OPERATING SHAFT CAM',h:6,ops:['vmc']},
-  {p:'ZP201006-202',d:'SPIGOT CARRIAGE ROD',h:5,ops:['lathe']},
-  {p:'TEN178PNPE02',d:'TENSIONER UNIT 17.8MM',h:7,ops:['millturn','cmm']},
-  {p:'FP220024',d:'LOCKNUT 55DIA',h:4,ops:['lathe']},
-  {p:'261858277-01',d:'PLATE 1',h:22,ops:['5axis','hmc','cmm']},
-  {p:'ME5331-31',d:'ITEM 4',h:13,ops:['millturn','vmc']},
-  {p:'NP-12-2-90-R',d:'MODIFIED SPIDER R',h:10,ops:['millturn','cmm']},
-  {p:'TYPE-2-FERRULE',d:'FERRULE',h:6,ops:['lathe','vmc']},
-  {p:'6162-2DN51',d:'HYDRAULIC SPACER',h:4,ops:['lathe']},
-  {p:'1471-215',d:'PRINTHEAD LID ALU',h:5,ops:['vmc']},
-  {p:'DE-6-S',d:'SANDVIK #6 DRIVE END',h:8,ops:['millturn','cmm']},
-  {p:'SCK-17-S',d:'SCK-17-S',h:7,ops:['lathe','vmc']},
-  {p:'410-A40-345',d:'FTG EXCLUDER NUT MLG',h:3,ops:['lathe']},
-  {p:'3442-005',d:'PIN 155MM REV G',h:9,ops:['millturn','cmm']},
+const M1_REAL_JOBS=[
+  // ── Overdue ────────────────────────────────────────────────
+  {id:'26719-0002-002',partDesc:'DRIVE CUP AZIMUTH R150 264MM',due:'2026-03-10',qty:20,customer:'EOS',machine:'INTE4004S',opSeq:['millturn','millturn','5axis','subco','cmm'],totalHours:62,hasSubco:true,needsCMM:true,value:42000},
+  // ── Urgent (this week) ─────────────────────────────────────
+  {id:'26871-0023-001',partDesc:'RETAINER',due:'2026-03-19',qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:3,hasSubco:false,needsCMM:false,value:800},
+  {id:'25309-0026-003',partDesc:'HOLDER SILENCODER',due:'2026-03-20',qty:18,customer:'BAE Systems',machine:'QTN450M',opSeq:['millturn','cmm'],totalHours:22,hasSubco:false,needsCMM:true,value:12000},
+  // ── March ─────────────────────────────────────────────────
+  {id:'26894-0002-001',partDesc:'T38-500-36AF-DOLLY',due:'2026-03-25',qty:20,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe','cmm'],totalHours:20,hasSubco:false,needsCMM:true,value:9000},
+  {id:'26844-0003-001',partDesc:'CYLINDER NUT M14X2',due:'2026-03-27',qty:2,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:600},
+  {id:'24446-0011-002',partDesc:'DEFLECTOR RIGHT',due:'2026-03-31',qty:27,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:27,hasSubco:false,needsCMM:true,value:8100},
+  {id:'26898-0001-001',partDesc:'AIR CAP',due:'2026-03-31',qty:5,customer:'Nupress Stock',machine:'SQT10M',opSeq:['lathe','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
+  // ── April 20 ───────────────────────────────────────────────
+  {id:'26719-0012-001',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:'2026-04-20',qty:7,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:44,hasSubco:true,needsCMM:true,value:28000},
+  {id:'26719-0012-002',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:'2026-04-20',qty:20,customer:'EOS',machine:'INTE2004S',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:72,hasSubco:true,needsCMM:true,value:56000},
+  {id:'26860-0003-001',partDesc:'BOSS',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'INTEi200',opSeq:['millturn'],totalHours:4,hasSubco:false,needsCMM:false,value:1200},
+  {id:'26860-0004-001',partDesc:'BACK PLATE',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:1800},
+  {id:'26860-0011-001',partDesc:'TELESCOPE MOUNTING BOSS',due:'2026-04-20',qty:12,customer:'BAE Systems',machine:'INTE4004S',opSeq:['millturn'],totalHours:24,hasSubco:false,needsCMM:false,value:9600},
+  {id:'26860-0017-001',partDesc:'TOW HANDLE MOUNT',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'VTC530C',opSeq:['vmc'],totalHours:5,hasSubco:false,needsCMM:false,value:1500},
+  // ── April 24 ───────────────────────────────────────────────
+  {id:'26879-0017-001',partDesc:'RETAINER',due:'2026-04-24',qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:2,hasSubco:false,needsCMM:false,value:600},
+  {id:'26893-0001-001',partDesc:'SDRS MEDIA CHASSIS FRONT PLATE',due:'2026-04-24',qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2400},
+  {id:'26893-0002-001',partDesc:'SNSS MEDIA CHASSIS FRONT PLATE',due:'2026-04-24',qty:2,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:4,hasSubco:false,needsCMM:false,value:1600},
+  {id:'26893-0003-001',partDesc:'MEDIA CHASSIS BOTTOM PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'HCN8800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4800},
+  {id:'26893-0004-001',partDesc:'SAS3 BACKPLANE MOUNTING PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
+  {id:'26893-0005-001',partDesc:'CAGE SIDE PLATE RHS',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'FH4800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
+  {id:'26893-0006-001',partDesc:'CAGE SIDE PLATE LHS',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-2',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
+  {id:'26893-0007-001',partDesc:'CAGE DIVIDER PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3000},
+  {id:'26893-0008-001',partDesc:'SAS3 BACKPLANE CLAMP',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2500},
+  {id:'26893-0009-001',partDesc:'SAS3 ADAPTER MOUNTING PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NMV3000',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
+  {id:'26893-0011-001',partDesc:'MEDIA CHASSIS TOP PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:4000},
+  {id:'26893-0013-001',partDesc:'MEDIA TRAY BLANK-SINGLE',due:'2026-04-24',qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:1800},
+  // ── May ────────────────────────────────────────────────────
+  {id:'26861-0002-001',partDesc:'X-ROTATION CLEVIS',due:'2026-05-20',qty:1,customer:'EOS',machine:'DMU75',opSeq:['millturn','5axis','5axis','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:6000},
+  {id:'26861-0011-001',partDesc:'ADJUSTING NUT',due:'2026-05-20',qty:1,customer:'EOS',machine:'QTN450M',opSeq:['lathe','millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:2800},
+  {id:'26861-0018-001',partDesc:'LOCK NUT',due:'2026-05-20',qty:1,customer:'EOS',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:900},
+  {id:'26861-0023-001',partDesc:'ROTATION CLEVIS',due:'2026-05-20',qty:1,customer:'EOS',machine:'VRX730',opSeq:['millturn','5axis','cmm'],totalHours:14,hasSubco:false,needsCMM:true,value:5500},
+  {id:'26861-0025-001',partDesc:'Y-ROTATION POWER SCREW',due:'2026-05-20',qty:1,customer:'EOS',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
+  {id:'26861-0030-001',partDesc:'BEARING RETAINING PLATE',due:'2026-05-20',qty:1,customer:'EOS',machine:'VRX730',opSeq:['vmc','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:2400},
+  {id:'26861-0031-001',partDesc:'X-ROTATION POWER SCREW',due:'2026-05-20',qty:1,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
+  {id:'26861-0034-001',partDesc:'32 TOOTH SPUR',due:'2026-05-20',qty:1,customer:'EOS',machine:'INTEi200',opSeq:['millturn','5axis','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:3000},
+  {id:'26861-0037-001',partDesc:'HEX CONNECTOR',due:'2026-05-20',qty:2,customer:'EOS',machine:'QTN350MY',opSeq:['lathe','millturn'],totalHours:10,hasSubco:false,needsCMM:false,value:2800},
+  {id:'26861-0044-001',partDesc:'HANDLE BUSH',due:'2026-05-20',qty:1,customer:'EOS',machine:'SQT10M',opSeq:['lathe','millturn','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
+  // ── June ───────────────────────────────────────────────────
+  {id:'14033',partDesc:'SOCKET HEAD CAP SCREW M12X1.75',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe','cmm'],totalHours:40,hasSubco:false,needsCMM:true,value:12000},
+  {id:'14055',partDesc:'GRIPPER BLOCK JAWS INTERNAL',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QT20',opSeq:['lathe'],totalHours:30,hasSubco:false,needsCMM:false,value:8000},
+  {id:'14056',partDesc:'PISTON',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QTN450M',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:10000},
+  {id:'14057',partDesc:'PISTON GLAND',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:8000},
+  {id:'14058',partDesc:'PLATE COVER',due:'2026-06-30',qty:50,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:30,hasSubco:false,needsCMM:true,value:7500},
+  {id:'14059',partDesc:'PLATE COVER',due:'2026-06-30',qty:50,customer:'Nupress Stock',machine:'VTC530C',opSeq:['vmc'],totalHours:20,hasSubco:false,needsCMM:false,value:6000},
+  {id:'24054-0121-001',partDesc:'WEIGHT',due:'2026-06-30',qty:49,customer:'Nupress Stock',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:35,hasSubco:false,needsCMM:true,value:14700},
+  {id:'25309-0091-001',partDesc:'ADAPTER',due:'2026-06-30',qty:88,customer:'Nupress Stock',machine:'INTE4004S',opSeq:['millturn','millturn','millturn','cmm'],totalHours:80,hasSubco:false,needsCMM:true,value:35200},
 ];
+// Derived PARTS array for legacy KPI corrections panel (p=id, d=desc, h=avg op hours)
+const PARTS=M1_REAL_JOBS.map(j=>({p:j.id,d:j.partDesc,h:Math.max(2,Math.round(j.totalHours/j.opSeq.length))}));
 // Machine type → compatible machine IDs for operation routing
-const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
-let jobs=[], jobIdCounter=26900;
+const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
+let jobs=[];
+
+const OP_PROCESS={lathe:'TURN',millturn:'MILL/TURN',vmc:'MILL',hmc:'HMC MILL','5axis':'5AXIS MILL',cmm:'INSPECT',subco:'SUBCONTRACT',edm:'WIRE EDM'};
 
 function genJobs(){
   jobs=[];
-  const mq={};MACHINES.forEach(m=>mq[m.id]=0);
-  for(let i=0;i<38;i++){
-    const part=PARTS[i%PARTS.length], mIdx=i%MACHINES.length, machine=MACHINES[mIdx];
-    const baseHours=part.h*(0.8+Math.random()*0.4), qty=Math.floor(1+Math.random()*30);
-    const totalHours=Math.max(2,Math.round(baseHours*(1+qty/50)));
-    const offsetHours=mq[machine.id];
-    const startDate=new Date(TODAY.getTime()+(offsetHours-24-Math.random()*48)*3600000);
-    const endDate=new Date(startDate.getTime()+totalHours*3600000);
-    const dueDate=new Date(startDate.getTime()+(totalHours+(Math.random()*72-24))*3600000);
-    const isInProgress=startDate<TODAY&&endDate>TODAY;
-    const delayHours=isInProgress?Math.max(0,Math.round((Math.random()-0.3)*16)):0;
+  // Machine queues — allow scheduling up to 30 days in the past for overdue/urgent jobs
+  const mq={};
+  MACHINES.forEach(m=>mq[m.id]=TODAY.getTime()-30*24*3600000);
+  const prioOverrides=lsGet('priorities',{});
+  // Sort by due date ascending so urgent jobs schedule first and fill machines first
+  const sorted=[...M1_REAL_JOBS].sort((a,b)=>new Date(a.due)-new Date(b.due));
+  sorted.forEach(jd=>{
+    const due=new Date(jd.due+'T23:59:00');
+    const h=jd.totalHours;
+    // Natural start = due date minus hours needed (×1.3 scheduling buffer)
+    const naturalStart=due.getTime()-h*1.3*3600000;
+    // Actual start = latest of natural start and machine availability
+    const startMs=Math.max(naturalStart,mq[jd.machine]);
+    const startDate=new Date(startMs);
+    const endDate=new Date(startMs+h*3600000);
+    const isComplete=endDate.getTime()<TODAY.getTime();
+    const isInProgress=startDate.getTime()<TODAY.getTime()&&endDate.getTime()>=TODAY.getTime();
+    const isOverdue=due.getTime()<TODAY.getTime()&&!isComplete;
+    const delayHours=isOverdue?Math.round(h*0.15):0;
     const actualEnd=new Date(endDate.getTime()+delayHours*3600000);
-    // Customer & PO
-    const customer=CUSTOMERS[i%CUSTOMERS.length];
-    const po=PO_PREFIX[i%PO_PREFIX.length]+(40000+i*7);
-    // Generate operations for this job (multi-op routing)
-    const opTypes=part.ops||['lathe'];
-    const operations=opTypes.map((opType,opIdx)=>{
-      const opMachines=TYPE_MACHINES[opType]||[machine.id];
-      const opMachine=opMachines[Math.floor(Math.random()*opMachines.length)];
-      const opHours=Math.max(1,Math.round(totalHours/opTypes.length*(0.7+Math.random()*0.6)));
-      const opStart=new Date(startDate.getTime()+opIdx*(totalHours/opTypes.length)*3600000);
-      const opEnd=new Date(opStart.getTime()+opHours*3600000);
-      return {opNum:opIdx+1,opType,process:opType==='cmm'?'INSPECT':opType==='lathe'?'TURN':opType==='millturn'?'MILL/TURN':opType==='vmc'?'MILL':opType==='hmc'?'HMC MILL':opType==='5axis'?'5AXIS MILL':'PROCESS',machine:opMachine,hours:opHours,start:opStart,end:opEnd,status:opEnd<TODAY?'complete':opStart<TODAY&&opEnd>TODAY?'in-progress':'queued'};
+    const status=isComplete?'complete':isInProgress?'in-progress':'queued';
+    const daysUntilDue=(due.getTime()-TODAY.getTime())/(24*3600000);
+    const priority=prioOverrides[jd.id]!==undefined?prioOverrides[jd.id]:
+      daysUntilDue<0?5:daysUntilDue<7?15:daysUntilDue<21?30:daysUntilDue<60?50:65;
+    // Build operations array
+    const operations=jd.opSeq.map((opType,oi)=>{
+      const opMachines=TYPE_MACHINES[opType]||[jd.machine];
+      const opMachine=oi===0?jd.machine:opMachines[oi%opMachines.length];
+      const opH=Math.max(1,Math.round(h/jd.opSeq.length));
+      const opStart=new Date(startDate.getTime()+oi*(h/jd.opSeq.length)*3600000);
+      const opEnd=new Date(opStart.getTime()+opH*3600000);
+      return{opNum:oi+1,opType,process:OP_PROCESS[opType]||'PROCESS',machine:opMachine,hours:opH,start:opStart,end:opEnd,status:opEnd<TODAY?'complete':opStart<TODAY&&opEnd>TODAY?'in-progress':'queued'};
     });
-    const hasSubco=Math.random()<0.3;
-    const value=Math.round((2000+Math.random()*48000)/100)*100;
-    const prioOverrides=lsGet('priorities',{});
-    const jobId=`${jobIdCounter+i}-0001-001`;
-    const priority=prioOverrides[jobId]!==undefined?prioOverrides[jobId]:50;
-    jobs.push({id:jobId,partId:part.p,partDesc:part.d,machine:machine.id,qty,totalHours,start:startDate,end:actualEnd,originalEnd:endDate,due:dueDate,delay:delayHours,status:endDate<TODAY?'complete':isInProgress?'in-progress':'queued',needsCMM:Math.random()>0.3,cmmDone:endDate<TODAY,customer,po,operations,priority,hasSubco,value});
-    mq[machine.id]=offsetHours+totalHours+2;
-  }
-  const cmmJobs=jobs.filter(j=>j.needsCMM&&j.status==='in-progress');
-  cmmJobs.forEach((j,i)=>{
-    const cm=i%2===0?'CMM1':'CMM2';const cs=new Date(j.end.getTime()+i*4*3600000);
-    jobs.push({id:j.id+'-CMM',partId:j.partId,partDesc:j.partDesc+' (CMM)',machine:cm,qty:j.qty,totalHours:2+Math.random()*3,start:cs,end:new Date(cs.getTime()+(2+Math.random()*3)*3600000),originalEnd:new Date(cs.getTime()+2*3600000),due:j.due,delay:0,status:'queued',needsCMM:false,cmmDone:false,parentJob:j.id,priority:j.priority,hasSubco:j.hasSubco,value:j.value});
+    jobs.push({id:jd.id,partId:jd.id,partDesc:jd.partDesc,machine:jd.machine,qty:jd.qty,totalHours:h,start:startDate,end:actualEnd,originalEnd:endDate,due,delay:delayHours,status,needsCMM:jd.needsCMM,cmmDone:isComplete&&jd.needsCMM,customer:jd.customer,po:'WO-'+jd.id,operations,priority,hasSubco:jd.hasSubco,value:jd.value});
+    mq[jd.machine]=actualEnd.getTime()+2*3600000;
+    // CMM follow-up job
+    if(jd.needsCMM&&!isComplete){
+      const cmmCount=jobs.filter(j=>j.machine==='CMM1'||j.machine==='CMM2').length;
+      const cm=cmmCount%2===0?'CMM1':'CMM2';
+      const cmmStart=new Date(Math.max(actualEnd.getTime(),mq[cm]));
+      const cmmH=Math.max(2,Math.round(h*0.08));
+      const cmmEnd=new Date(cmmStart.getTime()+cmmH*3600000);
+      jobs.push({id:jd.id+'-CMM',partId:jd.id,partDesc:jd.partDesc+' (CMM)',machine:cm,qty:jd.qty,totalHours:cmmH,start:cmmStart,end:cmmEnd,originalEnd:cmmEnd,due,delay:0,status:cmmStart<TODAY?'in-progress':'queued',needsCMM:false,cmmDone:false,parentJob:jd.id,customer:jd.customer,po:'WO-'+jd.id,operations:[],priority,hasSubco:false,value:0});
+      mq[cm]=cmmEnd.getTime()+3600000;
+    }
+    // SUBCO follow-up job for defence parts
+    if(jd.hasSubco&&!isComplete){
+      const subcoH=Math.round(h*0.25);
+      const subcoStart=new Date(Math.max(startDate.getTime()+h*0.4*3600000,mq['SUBCO']));
+      const subcoEnd=new Date(subcoStart.getTime()+subcoH*3600000);
+      jobs.push({id:jd.id+'-SUBCO',partId:jd.id,partDesc:jd.partDesc+' (Subcontract)',machine:'SUBCO',qty:jd.qty,totalHours:subcoH,start:subcoStart,end:subcoEnd,originalEnd:subcoEnd,due,delay:0,status:subcoStart<TODAY?'in-progress':'queued',needsCMM:false,cmmDone:false,parentJob:jd.id,customer:jd.customer,po:'WO-'+jd.id,operations:[],priority,hasSubco:true,value:0});
+      mq['SUBCO']=subcoEnd.getTime()+3600000;
+    }
   });
   recalcCascade();
 }
