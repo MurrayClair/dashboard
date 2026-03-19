@@ -1272,30 +1272,61 @@ const OP_PROCESS={lathe:'TURN',millturn:'MILL/TURN',vmc:'MILL',hmc:'HMC MILL','5
 
 function genJobs(){
   jobs=[];
-  // Machine queues — allow scheduling up to 30 days in the past for overdue/urgent jobs
+  // Machine queues start at TODAY — schedule forward from now
   const mq={};
-  MACHINES.forEach(m=>mq[m.id]=TODAY.getTime()-30*24*3600000);
+  MACHINES.forEach(m=>mq[m.id]=TODAY.getTime());
   const prioOverrides=lsGet('priorities',{});
-  // Sort by due date ascending so urgent jobs schedule first and fill machines first
-  const sorted=[...M1_REAL_JOBS].sort((a,b)=>new Date(a.due)-new Date(b.due));
+
+  // Compute priority for a job
+  function calcPrio(jd){
+    if(prioOverrides[jd.id]!==undefined)return prioOverrides[jd.id];
+    const d=(new Date(jd.due+'T23:59:00').getTime()-TODAY.getTime())/(24*3600000);
+    return d<0?5:d<7?15:d<21?30:d<60?50:65;
+  }
+
+  // Simulate ~20% of oldest jobs (by due date) as already complete
+  const byDueAsc=[...M1_REAL_JOBS].sort((a,b)=>new Date(a.due)-new Date(b.due));
+  const completeSet=new Set(byDueAsc.slice(0,Math.floor(byDueAsc.length*0.2)).map(j=>j.id));
+
+  // Schedule in priority order (most urgent first) so high-priority jobs get earliest slots
+  const sorted=[...M1_REAL_JOBS].sort((a,b)=>{
+    const pa=calcPrio(a),pb=calcPrio(b);
+    if(pa!==pb)return pa-pb;
+    return new Date(a.due)-new Date(b.due);
+  });
+
   sorted.forEach(jd=>{
     const due=new Date(jd.due+'T23:59:00');
     const h=jd.totalHours;
-    // Natural start = due date minus hours needed (×1.3 scheduling buffer)
-    const naturalStart=due.getTime()-h*1.3*3600000;
-    // Actual start = latest of natural start and machine availability
-    const startMs=Math.max(naturalStart,mq[jd.machine]);
-    const startDate=new Date(startMs);
-    const endDate=new Date(startMs+h*3600000);
-    const isComplete=endDate.getTime()<TODAY.getTime();
-    const isInProgress=startDate.getTime()<TODAY.getTime()&&endDate.getTime()>=TODAY.getTime();
-    const isOverdue=due.getTime()<TODAY.getTime()&&!isComplete;
-    const delayHours=isOverdue?Math.round(h*0.15):0;
-    const actualEnd=new Date(endDate.getTime()+delayHours*3600000);
-    const status=isComplete?'complete':isInProgress?'in-progress':'queued';
+    const priority=calcPrio(jd);
     const daysUntilDue=(due.getTime()-TODAY.getTime())/(24*3600000);
-    const priority=prioOverrides[jd.id]!==undefined?prioOverrides[jd.id]:
-      daysUntilDue<0?5:daysUntilDue<7?15:daysUntilDue<21?30:daysUntilDue<60?50:65;
+    const isOverdue=daysUntilDue<0;
+    const isActuallyComplete=completeSet.has(jd.id);
+
+    let startDate,endDate,status,delayHours=0;
+
+    if(isActuallyComplete){
+      // Place in the past — ended near its due date (simulated completion)
+      endDate=new Date(due.getTime()+2*3600000);
+      startDate=new Date(endDate.getTime()-h*3600000);
+      status='complete';
+    } else if(isOverdue){
+      // Overdue open job: 30% done, 70% remaining, spans TODAY
+      const doneHours=h*0.3;
+      startDate=new Date(TODAY.getTime()-doneHours*3600000);
+      // End after TODAY — queue behind current machine availability if needed
+      const remainMs=Math.max(mq[jd.machine],TODAY.getTime());
+      delayHours=Math.ceil(Math.abs(daysUntilDue)*0.3+2);
+      endDate=new Date(remainMs+(h*0.7+delayHours)*3600000);
+      status='in-progress';
+    } else {
+      // Future job — schedule forward from machine cursor
+      const startMs=mq[jd.machine];
+      startDate=new Date(startMs);
+      endDate=new Date(startMs+h*3600000);
+      status=startDate.getTime()<=TODAY.getTime()?'in-progress':'queued';
+    }
+
     // Build operations array
     const operations=jd.opSeq.map((opType,oi)=>{
       const opMachines=TYPE_MACHINES[opType]||[jd.machine];
@@ -1305,20 +1336,26 @@ function genJobs(){
       const opEnd=new Date(opStart.getTime()+opH*3600000);
       return{opNum:oi+1,opType,process:OP_PROCESS[opType]||'PROCESS',machine:opMachine,hours:opH,start:opStart,end:opEnd,status:opEnd<TODAY?'complete':opStart<TODAY&&opEnd>TODAY?'in-progress':'queued'};
     });
-    jobs.push({id:jd.id,partId:jd.id,partDesc:jd.partDesc,machine:jd.machine,qty:jd.qty,totalHours:h,start:startDate,end:actualEnd,originalEnd:endDate,due,delay:delayHours,status,needsCMM:jd.needsCMM,cmmDone:isComplete&&jd.needsCMM,customer:jd.customer,po:'WO-'+jd.id,operations,priority,hasSubco:jd.hasSubco,value:jd.value});
-    mq[jd.machine]=actualEnd.getTime()+2*3600000;
+
+    jobs.push({id:jd.id,partId:jd.id,partDesc:jd.partDesc,machine:jd.machine,qty:jd.qty,totalHours:h,start:startDate,end:endDate,originalEnd:endDate,due,delay:delayHours,status,needsCMM:jd.needsCMM,cmmDone:status==='complete'&&jd.needsCMM,customer:jd.customer,po:'WO-'+jd.id,operations,priority,hasSubco:jd.hasSubco,value:jd.value});
+
+    // Only advance machine cursor for non-complete jobs
+    if(status!=='complete'){
+      mq[jd.machine]=endDate.getTime()+2*3600000;
+    }
+
     // CMM follow-up job
-    if(jd.needsCMM&&!isComplete){
+    if(jd.needsCMM&&status!=='complete'){
       const cmmCount=jobs.filter(j=>j.machine==='CMM1'||j.machine==='CMM2').length;
       const cm=cmmCount%2===0?'CMM1':'CMM2';
-      const cmmStart=new Date(Math.max(actualEnd.getTime(),mq[cm]));
+      const cmmStart=new Date(Math.max(endDate.getTime(),mq[cm]));
       const cmmH=Math.max(2,Math.round(h*0.08));
       const cmmEnd=new Date(cmmStart.getTime()+cmmH*3600000);
       jobs.push({id:jd.id+'-CMM',partId:jd.id,partDesc:jd.partDesc+' (CMM)',machine:cm,qty:jd.qty,totalHours:cmmH,start:cmmStart,end:cmmEnd,originalEnd:cmmEnd,due,delay:0,status:cmmStart<TODAY?'in-progress':'queued',needsCMM:false,cmmDone:false,parentJob:jd.id,customer:jd.customer,po:'WO-'+jd.id,operations:[],priority,hasSubco:false,value:0});
       mq[cm]=cmmEnd.getTime()+3600000;
     }
     // SUBCO follow-up job for defence parts
-    if(jd.hasSubco&&!isComplete){
+    if(jd.hasSubco&&status!=='complete'){
       const subcoH=Math.round(h*0.25);
       const subcoStart=new Date(Math.max(startDate.getTime()+h*0.4*3600000,mq['SUBCO']));
       const subcoEnd=new Date(subcoStart.getTime()+subcoH*3600000);
