@@ -650,17 +650,11 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
   <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
-  <select id="delay-reason" style="padding:5px 6px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;width:130px">
-    <option value="Machine Breakdown">Machine Breakdown</option>
-    <option value="Waiting on Material">Waiting on Material</option>
-    <option value="Quality Hold">Quality Hold</option>
-    <option value="Tooling Issue">Tooling Issue</option>
-    <option value="Staff Shortage">Staff Shortage</option>
-    <option value="Rework Required">Rework Required</option>
-    <option value="Subco Delay">Subco Delay</option>
-    <option value="Other">Other</option>
-  </select>
-  <button class="btn danger" onclick="addJobDelay()">＋ Add Delay</button>
+  <div style="display:inline-flex;align-items:center;gap:4px;background:var(--red-d);border:1px solid rgba(255,69,58,.3);border-radius:var(--rs);padding:3px 6px">
+    <span style="font-size:10px;color:var(--red);font-weight:700">⏱</span>
+    <select id="delay-reason" style="padding:4px 6px;border-radius:4px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--red);cursor:pointer;font-family:inherit;min-width:120px;outline:none"></select>
+    <button class="btn" onclick="addJobDelay()" style="padding:3px 10px;font-size:10px;background:var(--red);color:#fff;border-color:var(--red);font-weight:700">＋ Delay</button>
+  </div>
   <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
   <div class="ctrl-sep"></div>
   <div style="position:relative;display:flex;align-items:center;gap:4px">
@@ -793,6 +787,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <button class="setup-tab" onclick="setSetupTab('employees')">👷 Employees</button>
     <button class="setup-tab" onclick="setSetupTab('shifts')">🕐 Shift Patterns</button>
     <button class="setup-tab" onclick="setSetupTab('skills')">📊 Skills Matrix</button>
+    <button class="setup-tab" onclick="setSetupTab('delays')">⏱ Delay Reasons</button>
     <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
     <!-- API Keys merged into Integrations tab -->
   </div>
@@ -802,6 +797,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <div class="setup-page" id="sp-employees"></div>
     <div class="setup-page" id="sp-shifts"></div>
     <div class="setup-page" id="sp-skills"></div>
+    <div class="setup-page" id="sp-delays"></div>
     <div class="setup-page" id="sp-integrations"></div>
     <div class="setup-page" id="sp-apikeys"></div>
   </div>
@@ -1476,7 +1472,7 @@ function setMode(m){
 function setSetupTab(t){
   currentSetupTab=t;
   document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t))b.classList.add('active');});
+  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t==='delays'?'delay':t))b.classList.add('active');});
   document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+t).classList.add('active');
   renderSetupTab();
@@ -1758,10 +1754,11 @@ function addJobDelay(){
   if(!targetJob) targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='queued');
   if(!targetJob){toast('⚠️ No active jobs on '+selectedMachine);return;}
   const reason=document.getElementById('delay-reason').value;
-  const input=prompt(`Add delay to ${targetJob.id} — ${targetJob.partDesc}\nReason: ${reason}\n\nEnter hours:`);
+  const input=prompt(`Add delay to ${targetJob.id} — ${targetJob.partDesc}\nReason: ${reason}\n\nEnter hours (max 10 — 1 shift):`);
   if(!input)return;
   const hours=parseFloat(input);
   if(isNaN(hours)||hours<=0){toast('❌ Invalid hours');return;}
+  if(hours>10){toast('❌ Max 10 hours (1 shift). For longer delays use Breakdown Maintenance.');return;}
   autoBookmark('Before delay: '+targetJob.id+' +'+hours+'h');
   targetJob.delay=(targetJob.delay||0)+hours;
   targetJob.end=new Date(targetJob.originalEnd.getTime()+targetJob.delay*3600000);
@@ -1774,6 +1771,14 @@ function addJobDelay(){
   broadcastChange('schedule_update',{});
 }
 function getDelayLog(){return lsGet('delay_log',[]);}
+const DEFAULT_DELAY_REASONS=['Machine Breakdown','Waiting on Material','Waiting for CMM','Tooling Issue','Waiting on Peer Review / First Off Sign Off','Rework Required'];
+function getDelayReasons(){return lsGet('delay_reasons',DEFAULT_DELAY_REASONS);}
+function populateDelayReasons(){
+  const sel=document.getElementById('delay-reason');
+  if(!sel)return;
+  const reasons=getDelayReasons();
+  sel.innerHTML=reasons.map(r=>`<option value="${r}">${r}</option>`).join('');
+}
 function recoveryMove(jid,tm){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine=tm;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*3600000);j.delay=0;j.status='queued';recalcCascade();renderSchedule();toast(`🔄 Moved ${jid} to ${tm}`);}
 function recoveryOvertime(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.totalHours=Math.max(2,j.totalHours-SHIFT_HOURS);j.end=new Date(j.start.getTime()+j.totalHours*3600000);j.delay=Math.max(0,j.delay-SHIFT_HOURS);recalcCascade();renderSchedule();toast(`⏰ Overtime added to ${jid}`);}
 function recoverySplit(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const m=MACHINES.find(m=>m.id===j.machine);const alts=(COMPAT[m?.type]||[]).filter(m=>m!==j.machine);j.qty=Math.ceil(j.qty/2);j.totalHours=Math.ceil(j.totalHours/2);j.end=new Date(j.start.getTime()+j.totalHours*3600000);if(alts.length)jobs.push({...j,id:j.id+'-SPLIT',machine:alts[0],start:new Date(TODAY),end:new Date(TODAY.getTime()+j.totalHours*3600000),status:'queued',delay:0});recalcCascade();renderSchedule();toast(`✂️ Split ${jid}`);}
@@ -3059,6 +3064,7 @@ function renderSetupTab(){
   else if(tab==='employees')renderSetupEmployees();
   else if(tab==='shifts')renderSetupShifts();
   else if(tab==='skills')renderSetupSkills();
+  else if(tab==='delays')renderSetupDelays();
   else if(tab==='integrations')renderSetupIntegrations();
   else if(tab==='apikeys')renderSetupApiKeys();
 }
@@ -4599,6 +4605,92 @@ function ignoreTimeRowForever(key){
 }
 
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  DELAY REASONS SETUP
+// ══════════════════════════════════════════════════════════════
+function renderSetupDelays(){
+  const reasons=getDelayReasons();
+  const log=getDelayLog();
+  // Count by reason for stats
+  const reasonCounts={};
+  log.forEach(d=>{reasonCounts[d.reason]=(reasonCounts[d.reason]||0)+1;});
+  const totalHours=log.reduce((s,d)=>s+d.hours,0);
+  document.getElementById('sp-delays').innerHTML=`
+    <div class="section-title">⏱ Delay Reasons</div>
+    <div class="section-desc">Define the short delay reasons available on the schedule toolbar and Raspberry Pi stations. Max delay: 10 hours (1 shift). For longer downtime use Breakdown Maintenance.</div>
+
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="st" style="flex:1;min-width:120px"><div class="st-v">${log.length}</div><div class="st-l">Total Delays Logged</div></div>
+      <div class="st" style="flex:1;min-width:120px"><div class="st-v">${totalHours.toFixed(1)}h</div><div class="st-l">Total Hours Lost</div></div>
+      <div class="st" style="flex:1;min-width:120px"><div class="st-v">${reasons.length}</div><div class="st-l">Reasons Configured</div></div>
+    </div>
+
+    <div class="action-bar" style="margin-bottom:10px">
+      <button class="btn primary" onclick="addDelayReason()">＋ Add Reason</button>
+      <button class="btn success" onclick="saveDelayReasons()">💾 Save</button>
+      <button class="btn" onclick="resetDelayReasons()">↻ Reset to Defaults</button>
+    </div>
+
+    <div class="tbl-wrap"><table class="dtbl" id="delay-reasons-table">
+      <tr><th style="width:30px">#</th><th>Reason</th><th style="width:80px">Times Used</th><th style="width:80px">Hours Lost</th><th style="width:40px"></th></tr>
+      ${reasons.map((r,i)=>{
+        const cnt=reasonCounts[r]||0;
+        const hrs=log.filter(d=>d.reason===r).reduce((s,d)=>s+d.hours,0);
+        return `<tr>
+          <td style="color:var(--dim);text-align:center">${i+1}</td>
+          <td><input value="${r}" data-ridx="${i}" style="width:100%"/></td>
+          <td style="text-align:center;color:${cnt>0?'var(--txt)':'var(--dim)'}">${cnt}</td>
+          <td style="text-align:center;color:${hrs>0?'var(--red)':'var(--dim)'}">${hrs.toFixed(1)}h</td>
+          <td><button class="btn danger" onclick="deleteDelayReason(${i})" style="padding:2px 8px;font-size:10px">✕</button></td>
+        </tr>`;
+      }).join('')}
+    </table></div>
+
+    ${log.length>0?`
+    <div class="section-title" style="margin-top:20px;font-size:13px">📋 Recent Delay Log</div>
+    <div class="tbl-wrap" style="max-height:200px;overflow-y:auto"><table class="dtbl">
+      <tr><th>Time</th><th>Job</th><th>Machine</th><th>Customer</th><th>Reason</th><th>Hours</th></tr>
+      ${log.slice(-20).reverse().map(d=>`<tr>
+        <td style="font-size:10px;color:var(--dim)">${new Date(d.timestamp).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+        <td>${d.jobId}</td>
+        <td>${d.machine}</td>
+        <td>${d.customer||'—'}</td>
+        <td>${d.reason}</td>
+        <td style="color:var(--red);font-weight:600">${d.hours}h</td>
+      </tr>`).join('')}
+    </table></div>`:''}`;
+}
+function addDelayReason(){
+  const reasons=getDelayReasons();
+  reasons.push('New Reason');
+  lsSet('delay_reasons',reasons);
+  renderSetupDelays();
+  toast('Added new reason — edit the name and save');
+}
+function deleteDelayReason(i){
+  const reasons=getDelayReasons();
+  if(reasons.length<=1){toast('Need at least one reason');return;}
+  if(!confirm('Delete "'+reasons[i]+'"?'))return;
+  reasons.splice(i,1);
+  lsSet('delay_reasons',reasons);
+  renderSetupDelays();populateDelayReasons();
+  toast('Reason deleted');
+}
+function saveDelayReasons(){
+  const inputs=document.querySelectorAll('#delay-reasons-table input[data-ridx]');
+  const reasons=[];
+  inputs.forEach(el=>reasons.push(el.value.trim()));
+  lsSet('delay_reasons',reasons.filter(r=>r));
+  populateDelayReasons();
+  toast('✅ Delay reasons saved');
+}
+function resetDelayReasons(){
+  if(!confirm('Reset to default reasons?'))return;
+  lsSet('delay_reasons',DEFAULT_DELAY_REASONS);
+  renderSetupDelays();populateDelayReasons();
+  toast('Reset to defaults');
+}
+
 //  INTEGRATIONS SETUP (Monday.com etc.)
 // ══════════════════════════════════════════════════════════════
 function renderSetupIntegrations(){
@@ -5286,6 +5378,7 @@ if(isScreen2){
   if(document.readyState!=='loading')applyScreen2Mode();
 }else{
   genJobs();
+  populateDelayReasons();
 
   // ── Apply URL-based mode filters BEFORE first render ──
   if(machineFilter){
