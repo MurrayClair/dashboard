@@ -414,6 +414,69 @@ table.dtbl select{width:auto;min-width:100px}
 .modal-radios label:has(input:checked){border-color:var(--accent);background:rgba(224,122,58,.15);color:var(--accent)}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 
+/* ─── QUOTES & CAPACITY PANEL ─── */
+.qc-panel{position:fixed;top:0;right:-460px;width:450px;height:100vh;background:var(--s1);border-left:1px solid var(--brd);z-index:450;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.6)}
+.qc-panel.open{right:0}
+.qc-hd{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--brd);background:var(--s2);gap:8px;flex-shrink:0}
+.qc-hd-title{font-weight:700;font-size:14px;flex:1}
+.qc-body{flex:1;overflow-y:auto}
+.qc-sec{padding:14px 16px;border-bottom:1px solid var(--brd)}
+.qc-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.qc-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qc-sum-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px;text-align:center}
+.qc-sum-val{font-size:15px;font-weight:700;line-height:1.2}
+.qc-sum-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.qc-form label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px;display:block}
+.qc-form input,.qc-form select,.qc-form textarea{width:100%;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:7px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit}
+.qc-form textarea{resize:vertical;min-height:50px}
+.qc-field{margin-bottom:8px}
+.qc-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.qc-ops-tbl{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0}
+.qc-ops-tbl th{color:var(--dim);font-weight:600;font-size:9px;text-transform:uppercase;padding:3px 4px;border-bottom:1px solid var(--brd);text-align:left}
+.qc-ops-tbl td{padding:3px 2px;vertical-align:middle}
+.qc-ops-tbl input,.qc-ops-tbl select{background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:3px 5px;border-radius:3px;font-size:11px;font-family:inherit;width:100%}
+.del-op{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:0 3px;line-height:1}
+.prob-slider-row{display:flex;align-items:center;gap:10px;margin-top:4px;margin-bottom:8px}
+.prob-slider{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,#8e8e93,#ffd60a 25%,#5ac8fa 50%,#34c759)}
+.prob-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.prob-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;min-width:76px;text-align:center}
+.prob-ls{background:rgba(142,142,147,.15);color:#8e8e93;border:1px solid rgba(142,142,147,.3)}
+.prob-po{background:rgba(255,214,10,.15);color:var(--yellow);border:1px solid rgba(255,214,10,.3)}
+.prob-li{background:rgba(90,200,250,.15);color:var(--blue);border:1px solid rgba(90,200,250,.3)}
+.prob-co{background:rgba(52,199,89,.15);color:var(--green);border:1px solid rgba(52,199,89,.3)}
+.quote-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:7px;overflow:hidden;transition:border-color .15s}
+.quote-card:hover{border-color:var(--brd2)}
+.quote-card-hd{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer;user-select:none}
+.qc-num{font-weight:700;font-size:12px;font-family:monospace}
+.qc-cust{font-size:11px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qc-val{font-size:11px;font-weight:600;color:var(--green);white-space:nowrap}
+.qc-prob-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.qc-tog{position:relative;width:34px;height:18px;flex-shrink:0}
+.qc-tog input{opacity:0;width:0;height:0;position:absolute}
+.qc-track{position:absolute;inset:0;background:var(--brd);border-radius:9px;cursor:pointer;transition:.2s}
+.qc-track::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.qc-tog input:checked+.qc-track{background:var(--accent)}
+.qc-tog input:checked+.qc-track::after{transform:translateX(16px)}
+.quote-card-body{padding:8px 11px 11px;display:none;border-top:1px solid var(--brd)}
+.quote-card.qc-exp .quote-card-body{display:block}
+.qc-card-btns{display:flex;gap:5px;margin-top:8px}
+.cap-month-row{margin:4px 0}
+.cap-month-lbl{font-size:10px;color:var(--dim);margin-bottom:2px;display:flex;justify-content:space-between}
+.cap-bar-bg{height:10px;background:var(--s3);border-radius:3px;overflow:hidden;display:flex}
+.cap-seg{height:100%;transition:width .3s}
+.scenario-btns{display:flex;flex-wrap:wrap;gap:5px}
+.scenario-btn{padding:5px 10px;border-radius:var(--rs);font-size:10px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;transition:.15s;font-family:inherit}
+.scenario-btn:hover{background:var(--s3);border-color:var(--blue);color:var(--blue)}
+.qc-risk-row{font-size:11px;padding:5px 8px;border-radius:var(--rs);margin-bottom:4px}
+.qc-risk-row.red{background:rgba(255,69,58,.1);color:var(--red);border:1px solid rgba(255,69,58,.25)}
+.qc-risk-row.yellow{background:rgba(255,214,10,.1);color:var(--yellow);border:1px solid rgba(255,214,10,.25)}
+.qc-risk-row.green{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.25)}
+.job.qbar{border:2px dashed !important;opacity:.55;pointer-events:auto;cursor:pointer;border-radius:4px !important}
+.job.qbar-ls{background:rgba(142,142,147,.25) !important;border-color:#8e8e93 !important;color:#8e8e93 !important}
+.job.qbar-po{background:rgba(255,214,10,.18) !important;border-color:var(--yellow) !important;color:var(--yellow) !important}
+.job.qbar-li{background:rgba(90,200,250,.18) !important;border-color:var(--blue) !important;color:var(--blue) !important}
+.job.qbar-co{background:rgba(52,199,89,.18) !important;border-color:var(--green) !important;color:var(--green) !important}
+
 /* ─── CHAT PANEL ─── */
 .chat-bubble-btn{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(224,122,58,.4);font-family:inherit;transition:.2s;display:flex;align-items:center;gap:6px}
 .chat-bubble-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
@@ -583,6 +646,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <div class="ctrl-sep"></div>
   <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
   <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
+  <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Quotes &amp; Capacity</button>
 </div>
 <!-- Search Results Panel -->
 <div id="search-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:12px 16px;max-height:60vh;overflow-y:auto">
@@ -795,6 +859,76 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <div class="modal-actions">
       <button class="btn" onclick="closeScrapModal()">Cancel</button>
       <button class="btn warn" onclick="submitScrapPushIn()">Submit Push-In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUOTES & CAPACITY PANEL ═══ -->
+<div class="qc-panel" id="qc-panel">
+  <div class="qc-hd">
+    <span style="font-size:16px">📋</span>
+    <div class="qc-hd-title">Quotes &amp; Capacity Planning</div>
+    <button class="btn" style="font-size:10px;padding:3px 10px;background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)" onclick="generateRiskReport()">📊 Risk Report</button>
+    <button class="chat-hd-btn" onclick="closeQuotesPanel()" title="Close" style="font-size:18px;margin-left:4px">✕</button>
+  </div>
+  <div class="qc-body" id="qc-body">
+    <!-- Pipeline Summary -->
+    <div class="qc-sec" id="qc-summary-sec"><div style="color:var(--dim);font-size:11px">Add quotes to see pipeline summary.</div></div>
+    <!-- Scenarios -->
+    <div class="qc-sec">
+      <div class="qc-sec-title">⚡ What-If Scenarios</div>
+      <div class="scenario-btns">
+        <button class="scenario-btn" onclick="qcScenarioWinAll()">🏆 Win All</button>
+        <button class="scenario-btn" onclick="qcScenarioLoseAll()">❌ Lose All</button>
+        <button class="scenario-btn" onclick="qcScenarioBestCase()">📈 Best Case</button>
+        <button class="scenario-btn" onclick="qcScenarioWorstCase()">📉 Worst Case</button>
+        <button class="scenario-btn" onclick="qcScenarioReset()">↩ Reset</button>
+      </div>
+    </div>
+    <!-- Capacity Analysis -->
+    <div class="qc-sec">
+      <div class="qc-sec-title">📊 Capacity by Machine (6-Month Forecast)</div>
+      <div id="qc-capacity-content"><div style="color:var(--dim);font-size:11px">Toggle quotes ON to see capacity impact.</div></div>
+    </div>
+    <!-- Add / Edit Quote form -->
+    <div class="qc-sec">
+      <div class="qc-sec-title">➕ <span id="qc-form-title">Add Quote</span></div>
+      <div class="qc-form" id="qc-add-form">
+        <div class="qc-row2">
+          <div class="qc-field"><label>M1 Quote #</label><input type="text" id="qf-num" placeholder="e.g. M1-12345"></div>
+          <div class="qc-field"><label>Status</label><select id="qf-status"><option>Draft</option><option>Submitted</option><option>Won</option><option>Lost</option></select></div>
+        </div>
+        <div class="qc-field"><label>Customer Name</label><input type="text" id="qf-cust" placeholder="Customer name"></div>
+        <div class="qc-field"><label>Description / Part Name</label><input type="text" id="qf-desc" placeholder="Part or job description"></div>
+        <div class="qc-field">
+          <label>Operations <span style="color:var(--dim);text-transform:none;letter-spacing:0;font-weight:400;font-size:10px">(machine, setup h, run h/pc, qty)</span></label>
+          <table class="qc-ops-tbl">
+            <thead><tr><th style="min-width:120px">Machine</th><th>Setup h</th><th>Run h/pc</th><th>Qty</th><th></th></tr></thead>
+            <tbody id="qf-ops-body"></tbody>
+          </table>
+          <button class="btn" style="font-size:10px;padding:3px 10px;margin-top:4px" onclick="qcAddOp()">+ Add Operation</button>
+        </div>
+        <div class="qc-row2">
+          <div class="qc-field"><label>Due Date</label><input type="date" id="qf-due"></div>
+          <div class="qc-field"><label>Est. Value $</label><input type="number" id="qf-value" placeholder="0" min="0" step="1000"></div>
+        </div>
+        <div class="qc-field">
+          <label>Probability — <span id="qf-prob-pct">50%</span> <span id="qf-prob-badge" class="prob-badge prob-li">Likely</span></label>
+          <div class="prob-slider-row">
+            <input type="range" class="prob-slider" id="qf-prob" min="0" max="100" value="50" oninput="qcUpdateProbBadge(this.value,'qf-prob-pct','qf-prob-badge')">
+          </div>
+        </div>
+        <div class="qc-field"><label>Notes</label><textarea id="qf-notes" placeholder="Optional notes…"></textarea></div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn" onclick="qcClearForm()">Cancel</button>
+          <button class="btn" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)" onclick="qcSaveQuote()">💾 Save Quote</button>
+        </div>
+      </div>
+    </div>
+    <!-- Quotes list -->
+    <div class="qc-sec" style="border-bottom:none">
+      <div class="qc-sec-title">📄 Quote Pipeline <span id="qc-count" style="color:var(--txt);font-size:11px;text-transform:none;letter-spacing:0;font-weight:400"></span></div>
+      <div id="qc-list"></div>
     </div>
   </div>
 </div>
@@ -1312,6 +1446,8 @@ function renderGantt(fm,fj){
       const subcoBadge=j.hasSubco?`<span class="subco-badge">SUBCO</span>`:'';
       html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
     });
+    // Quote overlay bars
+    html+=renderQuoteBarsForMachine(m.id,y,startTime,hpx,labelW,fj);
   });
 
   // Today line
@@ -3723,8 +3859,19 @@ function parseCommand(cmd,raw){
   }
   // Reports modal
   if(cmd.includes('show report')||cmd.includes('open report')){openReportsModal();return{msg:'Opening reports panel.',type:'action'};}
+  // Quotes & Capacity
+  if(cmd.includes('show quote')||cmd.includes('open quote')||cmd.includes('quote panel')||cmd.includes('capacity plan')){openQuotesPanel();return{msg:'Opening Quotes & Capacity panel.',type:'action'};}
+  if(cmd.includes('win all')||cmd.includes('what if we win all')){openQuotesPanel();qcScenarioWinAll();return{msg:'📊 Showing capacity impact if ALL quotes are won.',type:'action'};}
+  if(cmd.includes('lose all')||cmd.includes('worst case')){openQuotesPanel();qcScenarioWorstCase();return{msg:'📊 Showing worst-case capacity (all quotes lost).',type:'action'};}
+  if(cmd.includes('best case')){openQuotesPanel();qcScenarioBestCase();return{msg:'📊 Showing best-case capacity (all quotes won).',type:'action'};}
+  if(cmd.includes('reset prob')||cmd.includes('reset scenario')){qcScenarioReset();return{msg:'↩ Scenario reset to stored probability weights.',type:'action'};}
+  const winCustMatch=cmd.match(/what if we win (.+)/);
+  if(winCustMatch){const cust=winCustMatch[1].trim();openQuotesPanel();qcScenarioWinCustomer(cust);return{msg:`📊 Showing capacity impact if all ${cust} quotes are won.`,type:'action'};}
+  const toggleQMatch=cmd.match(/toggle quote\s+([^\s]+)/);
+  if(toggleQMatch){const qn=toggleQMatch[1];const q=quotes.find(x=>x.quoteNum.toLowerCase().includes(qn.toLowerCase()));if(q){qcToggleVisible(q.id);openQuotesPanel();return{msg:`Toggled quote ${q.quoteNum} ${q.visible?'ON':'OFF'} on Gantt.`,type:'action'};}return{msg:`Quote "${qn}" not found.`};}
+  if(cmd.includes('show capacity report')||cmd.includes('capacity report')||cmd.includes('risk report')){generateRiskReport();return{msg:'📥 Generating and downloading capacity risk report…',type:'action'};}
   // Help / fallback
-  return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show m1 warnings" — opens Warnings tab\n• "show time variances" — opens Time Review in KPI\n• "download daily priorities" / "download cmm queue as pdf" etc.\n• "show reports"'};
+  return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show m1 warnings" — opens Warnings tab\n• "show time variances" — opens Time Review in KPI\n• "download daily priorities" / "download cmm queue as pdf" etc.\n• "show reports"\n• "show quotes" — opens Quotes & Capacity panel\n• "what if we win all" — max capacity scenario\n• "what if we win [customer]" — customer scenario\n• "toggle quote [number]" — show/hide on Gantt\n• "show capacity report" — download risk report'};
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -4936,6 +5083,476 @@ if(isScreen2){
       }
     },200);
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  QUOTES & CAPACITY PLANNING
+// ══════════════════════════════════════════════════════════════
+let quotes=lsGet('quotes',[]);
+let qcScenarioProbOverrides=null; // null = use stored probabilities
+let qcEditingId=null;
+
+function saveQuotesData(){lsSet('quotes',quotes);}
+
+function openQuotesPanel(){
+  document.getElementById('qc-panel').classList.add('open');
+  qcRenderSummary();
+  qcRenderList();
+  qcRenderCapacity();
+  if(!document.getElementById('qf-ops-body').children.length) qcAddOp();
+}
+
+function closeQuotesPanel(){
+  document.getElementById('qc-panel').classList.remove('open');
+}
+
+function qcProbClass(p){
+  return p<=25?'prob-ls':p<=50?'prob-po':p<=75?'prob-li':'prob-co';
+}
+function qcProbLabel(p){
+  return p<=25?'Long Shot':p<=50?'Possible':p<=75?'Likely':'Confident';
+}
+function qcProbDotColor(p){
+  return p<=25?'#8e8e93':p<=50?'var(--yellow)':p<=75?'var(--blue)':'var(--green)';
+}
+function qcBarClass(p){
+  return p<=25?'qbar-ls':p<=50?'qbar-po':p<=75?'qbar-li':'qbar-co';
+}
+
+function qcUpdateProbBadge(val,pctId,badgeId){
+  const v=parseInt(val);
+  document.getElementById(pctId).textContent=v+'%';
+  const b=document.getElementById(badgeId);
+  b.className='prob-badge '+qcProbClass(v);
+  b.textContent=qcProbLabel(v);
+}
+
+function qcAddOp(){
+  const tbody=document.getElementById('qf-ops-body');
+  const machOpts=MACHINES.map(m=>`<option value="${m.id}">${m.id} — ${m.name.split('—')[1]?.trim()||m.type}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><select class="qf-op-mach">${machOpts}</select></td><td><input type="number" class="qf-op-setup" min="0" step="0.5" value="1" style="width:52px"></td><td><input type="number" class="qf-op-run" min="0" step="0.5" value="4" style="width:52px"></td><td><input type="number" class="qf-op-qty" min="1" step="1" value="1" style="width:44px"></td><td><button class="del-op" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function qcGetFormOps(){
+  const rows=document.getElementById('qf-ops-body').querySelectorAll('tr');
+  const ops=[];
+  rows.forEach(r=>{
+    const mach=r.querySelector('.qf-op-mach')?.value;
+    const setup=parseFloat(r.querySelector('.qf-op-setup')?.value)||0;
+    const run=parseFloat(r.querySelector('.qf-op-run')?.value)||0;
+    const qty=parseInt(r.querySelector('.qf-op-qty')?.value)||1;
+    if(mach) ops.push({machineId:mach,setupHours:setup,runHours:run,qty});
+  });
+  return ops;
+}
+
+function qcClearForm(){
+  ['qf-num','qf-cust','qf-desc','qf-notes'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('qf-due').value='';
+  document.getElementById('qf-value').value='';
+  document.getElementById('qf-status').value='Draft';
+  document.getElementById('qf-prob').value=50;
+  document.getElementById('qf-ops-body').innerHTML='';
+  qcUpdateProbBadge(50,'qf-prob-pct','qf-prob-badge');
+  qcAddOp();
+  qcEditingId=null;
+  document.getElementById('qc-form-title').textContent='Add Quote';
+}
+
+function qcSaveQuote(){
+  const num=document.getElementById('qf-num').value.trim();
+  const cust=document.getElementById('qf-cust').value.trim();
+  if(!num){alert('Quote number is required.');return;}
+  if(!cust){alert('Customer name is required.');return;}
+  const ops=qcGetFormOps();
+  const prob=parseInt(document.getElementById('qf-prob').value);
+  const q={
+    id:qcEditingId||(Date.now()+''),
+    quoteNum:num,
+    customer:cust,
+    description:document.getElementById('qf-desc').value.trim(),
+    operations:ops,
+    dueDate:document.getElementById('qf-due').value,
+    value:parseFloat(document.getElementById('qf-value').value)||0,
+    probability:prob,
+    status:document.getElementById('qf-status').value,
+    notes:document.getElementById('qf-notes').value.trim(),
+    visible:true,
+    createdAt:qcEditingId?(quotes.find(x=>x.id===qcEditingId)?.createdAt||Date.now()):Date.now()
+  };
+  if(qcEditingId){
+    const idx=quotes.findIndex(x=>x.id===qcEditingId);
+    if(idx>=0) quotes[idx]=q; else quotes.push(q);
+  } else {
+    quotes.push(q);
+  }
+  saveQuotesData();
+  qcClearForm();
+  qcRenderList();
+  qcRenderSummary();
+  qcRenderCapacity();
+  renderSchedule();
+}
+
+function qcDeleteQuote(id){
+  quotes=quotes.filter(q=>q.id!==id);
+  saveQuotesData();
+  qcRenderList();
+  qcRenderSummary();
+  qcRenderCapacity();
+  renderSchedule();
+}
+
+function qcToggleVisible(id){
+  const q=quotes.find(x=>x.id===id);
+  if(q){
+    q.visible=!q.visible;
+    saveQuotesData();
+    qcRenderCapacity();
+    qcRenderSummary();
+    renderSchedule();
+  }
+}
+
+function qcEditQuote(id){
+  const q=quotes.find(x=>x.id===id);
+  if(!q) return;
+  qcEditingId=id;
+  document.getElementById('qc-form-title').textContent='Edit Quote';
+  document.getElementById('qf-num').value=q.quoteNum;
+  document.getElementById('qf-cust').value=q.customer;
+  document.getElementById('qf-desc').value=q.description;
+  document.getElementById('qf-due').value=q.dueDate;
+  document.getElementById('qf-value').value=q.value;
+  document.getElementById('qf-notes').value=q.notes;
+  document.getElementById('qf-status').value=q.status;
+  document.getElementById('qf-prob').value=q.probability;
+  qcUpdateProbBadge(q.probability,'qf-prob-pct','qf-prob-badge');
+  document.getElementById('qf-ops-body').innerHTML='';
+  q.operations.forEach(op=>{
+    qcAddOp();
+    const rows=document.getElementById('qf-ops-body').querySelectorAll('tr');
+    const r=rows[rows.length-1];
+    r.querySelector('.qf-op-mach').value=op.machineId;
+    r.querySelector('.qf-op-setup').value=op.setupHours;
+    r.querySelector('.qf-op-run').value=op.runHours;
+    r.querySelector('.qf-op-qty').value=op.qty;
+  });
+  document.getElementById('qc-add-form').scrollIntoView({behavior:'smooth'});
+}
+
+function qcToggleCard(id){
+  document.getElementById('qcard-'+id)?.classList.toggle('qc-exp');
+}
+
+function qcRenderList(){
+  const el=document.getElementById('qc-list');
+  if(!quotes.length){
+    el.innerHTML='<div style="color:var(--dim);font-size:11px;padding:4px 0">No quotes yet. Add one above.</div>';
+    document.getElementById('qc-count').textContent='';
+    return;
+  }
+  document.getElementById('qc-count').textContent='('+quotes.length+')';
+  el.innerHTML=quotes.map(q=>{
+    const pc=qcProbClass(q.probability);
+    const dotColor=qcProbDotColor(q.probability);
+    const statusColor=q.status==='Won'?'var(--green)':q.status==='Lost'?'var(--red)':q.status==='Submitted'?'var(--blue)':'var(--dim)';
+    const totalHours=q.operations.reduce((s,op)=>s+op.setupHours+op.runHours*op.qty,0);
+    const opsHtml=q.operations.map(op=>{
+      const m=MACHINES.find(x=>x.id===op.machineId);
+      return`<div style="font-size:10px;padding:2px 0">&nbsp;• ${op.machineId}${m?' ('+m.type+')':''}: ${op.setupHours}h setup + ${op.runHours}h/pc × ${op.qty} = <b>${(op.setupHours+op.runHours*op.qty).toFixed(1)}h</b></div>`;
+    }).join('');
+    return`<div class="quote-card" id="qcard-${q.id}">
+      <div class="quote-card-hd" onclick="qcToggleCard('${q.id}')">
+        <div class="qc-prob-dot" style="background:${dotColor}"></div>
+        <div class="qc-num">${q.quoteNum}</div>
+        <div class="qc-cust" title="${q.customer}">${q.customer}</div>
+        <div class="qc-val">${q.value?'$'+q.value.toLocaleString():''}</div>
+        <div style="font-size:10px;color:${statusColor};white-space:nowrap;margin-right:4px">${q.status}</div>
+        <label class="qc-tog" onclick="event.stopPropagation()" title="Show on Gantt">
+          <input type="checkbox" ${q.visible?'checked':''} onchange="qcToggleVisible('${q.id}')">
+          <div class="qc-track"></div>
+        </label>
+      </div>
+      <div class="quote-card-body">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:5px">${q.description||'—'}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;margin-bottom:6px">
+          <span>Due: <b>${q.dueDate||'—'}</b></span>
+          <span>Prob: <b>${q.probability}%</b> <span class="prob-badge ${pc}" style="font-size:9px;padding:1px 5px">${qcProbLabel(q.probability)}</span></span>
+          <span>~${totalHours.toFixed(0)}h total</span>
+        </div>
+        ${q.operations.length?`<div style="font-size:10px;color:var(--dim);margin-bottom:3px">Operations:</div>${opsHtml}`:''}
+        ${q.notes?`<div style="font-size:10px;color:var(--dim);margin-top:5px;font-style:italic">${q.notes}</div>`:''}
+        <div class="qc-card-btns">
+          <button class="btn" style="font-size:10px;padding:3px 8px" onclick="qcEditQuote('${q.id}')">✏️ Edit</button>
+          <button class="btn danger" style="font-size:10px;padding:3px 8px" onclick="if(confirm('Delete quote ${q.quoteNum}?'))qcDeleteQuote('${q.id}')">🗑 Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function qcRenderSummary(){
+  const el=document.getElementById('qc-summary-sec');
+  if(!quotes.length){el.innerHTML='<div style="color:var(--dim);font-size:11px">Add quotes to see pipeline summary.</div>';return;}
+  const active=quotes.filter(q=>q.status!=='Lost');
+  const totalPipeline=active.reduce((s,q)=>s+q.value,0);
+  const weightedPipeline=active.reduce((s,q)=>s+q.value*(q.probability/100),0);
+  const totalHours=active.reduce((s,q)=>s+q.operations.reduce((h,op)=>h+op.setupHours+op.runHours*op.qty,0),0);
+  const weightedHours=active.reduce((s,q)=>s+q.operations.reduce((h,op)=>h+op.setupHours+op.runHours*op.qty,0)*(q.probability/100),0);
+  const visQ=active.filter(q=>q.visible);
+  const machLoad={};
+  visQ.forEach(q=>q.operations.forEach(op=>{
+    const p=qcScenarioProbOverrides&&qcScenarioProbOverrides[q.id]!==undefined?qcScenarioProbOverrides[q.id]:q.probability;
+    machLoad[op.machineId]=(machLoad[op.machineId]||0)+(op.setupHours+op.runHours*op.qty)*(p/100);
+  }));
+  const overloaded=Object.entries(machLoad).filter(([,h])=>h>160).map(([id])=>id);
+  el.innerHTML=`<div class="qc-sec-title">📈 Pipeline Summary</div>
+  <div class="qc-sum-grid">
+    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--green)">$${(totalPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Total Pipeline</div></div>
+    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--yellow)">$${(weightedPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Weighted Pipeline</div></div>
+    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--blue)">${totalHours.toFixed(0)}h</div><div class="qc-sum-lbl">Total Hours</div></div>
+    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--orange)">${weightedHours.toFixed(0)}h</div><div class="qc-sum-lbl">Weighted Hours</div></div>
+  </div>
+  ${overloaded.length?`<div class="qc-risk-row red" style="margin-top:8px">⚠️ Machines at capacity risk (>160h/mo weighted): ${overloaded.join(', ')}</div>`:''}`;
+}
+
+function qcCalcCurrentLoad(){
+  const load={};
+  const now=new Date(TODAY);
+  for(let m=0;m<6;m++){
+    const mk=new Date(now.getFullYear(),now.getMonth()+m,1).toISOString().slice(0,7);
+    load[mk]={};
+    MACHINES.forEach(mach=>{load[mk][mach.id]=0;});
+  }
+  (jobs||[]).filter(j=>j.status!=='complete').forEach(j=>{
+    const jEnd=j.end instanceof Date?j.end:new Date(j.end);
+    const mk=jEnd.toISOString().slice(0,7);
+    if(load[mk]&&load[mk][j.machine]!==undefined){
+      load[mk][j.machine]+=(j.end-j.start)/3600000;
+    }
+  });
+  return load;
+}
+
+function qcCalcQuoteLoad(probOverrides){
+  const load={};
+  const now=new Date(TODAY);
+  const months=[];
+  for(let m=0;m<6;m++){
+    const d=new Date(now.getFullYear(),now.getMonth()+m,1);
+    const mk=d.toISOString().slice(0,7);
+    months.push(mk);
+    load[mk]={};
+    MACHINES.forEach(mach=>{load[mk][mach.id]=0;});
+  }
+  quotes.filter(q=>q.visible&&q.status!=='Lost').forEach(q=>{
+    const prob=probOverrides&&probOverrides[q.id]!==undefined?probOverrides[q.id]:q.probability;
+    const dueMonth=q.dueDate?q.dueDate.slice(0,7):months[months.length-1];
+    const targetMonth=months.includes(dueMonth)?dueMonth:months[months.length-1];
+    q.operations.forEach(op=>{
+      const totalH=(op.setupHours+op.runHours*op.qty)*(prob/100);
+      if(load[targetMonth]&&load[targetMonth][op.machineId]!==undefined){
+        load[targetMonth][op.machineId]+=totalH;
+      }
+    });
+  });
+  return load;
+}
+
+function qcRenderCapacity(){
+  const el=document.getElementById('qc-capacity-content');
+  const visQ=quotes.filter(q=>q.visible&&q.status!=='Lost');
+  if(!visQ.length){el.innerHTML='<div style="color:var(--dim);font-size:11px">Toggle quotes ON to see capacity impact.</div>';return;}
+  const AVAIL=520;
+  const currentLoad=qcCalcCurrentLoad();
+  const quoteLoad=qcCalcQuoteLoad(qcScenarioProbOverrides);
+  const now=new Date(TODAY);
+  const months=[];
+  for(let m=0;m<6;m++){
+    months.push(new Date(now.getFullYear(),now.getMonth()+m,1).toISOString().slice(0,7));
+  }
+  const usedMachIds=new Set();
+  visQ.forEach(q=>q.operations.forEach(op=>usedMachIds.add(op.machineId)));
+  const usedMachs=[...usedMachIds].map(id=>MACHINES.find(m=>m.id===id)).filter(Boolean);
+  let html='';
+  usedMachs.forEach(mach=>{
+    html+=`<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;margin-bottom:5px;color:${mach.color||'var(--txt)'}">${mach.id} <span style="font-weight:400;color:var(--dim);font-size:10px">(${mach.type})</span></div>`;
+    months.forEach(mk=>{
+      const cur=currentLoad[mk]?.[mach.id]||0;
+      const qload=quoteLoad[mk]?.[mach.id]||0;
+      const total=cur+qload;
+      const overloaded=total>AVAIL;
+      const pctCur=Math.min(100,cur/AVAIL*100);
+      const pctQ=Math.min(100-pctCur,qload/AVAIL*100);
+      const pctOver=overloaded?Math.min(15,(total-AVAIL)/AVAIL*100):0;
+      const monthLabel=new Date(mk+'-15').toLocaleDateString('en-AU',{month:'short',year:'2-digit'});
+      html+=`<div class="cap-month-row">
+        <div class="cap-month-lbl">
+          <span>${monthLabel}</span>
+          <span style="color:${overloaded?'var(--red)':'var(--dim)'}">${cur.toFixed(0)}h + ${qload.toFixed(0)}h = ${total.toFixed(0)}/${AVAIL}h${overloaded?' ⚠️':''}</span>
+        </div>
+        <div class="cap-bar-bg">
+          <div class="cap-seg" style="width:${pctCur}%;background:var(--blue)"></div>
+          <div class="cap-seg" style="width:${pctQ}%;background:var(--yellow)"></div>
+          ${pctOver>0?`<div class="cap-seg" style="width:${pctOver}%;background:var(--red)"></div>`:''}
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  html+=`<div style="display:flex;gap:12px;font-size:9px;color:var(--dim);margin-top:8px;flex-wrap:wrap">
+    <span><span style="display:inline-block;width:10px;height:10px;background:var(--blue);border-radius:2px;vertical-align:middle;margin-right:3px"></span>Current Load</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:var(--yellow);border-radius:2px;vertical-align:middle;margin-right:3px"></span>Quote Load (weighted)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:var(--red);border-radius:2px;vertical-align:middle;margin-right:3px"></span>Overload</span>
+    <span style="color:var(--dim)">Avail = 520h/machine/mo (single shift)</span>
+  </div>`;
+  el.innerHTML=html;
+}
+
+// ─── Scenarios ────────────────────────────────────────────────
+function qcScenarioWinAll(){
+  qcScenarioProbOverrides={};
+  quotes.forEach(q=>{if(q.status!=='Lost')qcScenarioProbOverrides[q.id]=100;});
+  qcRenderCapacity();qcRenderSummary();renderSchedule();
+  addChatMsg('agent','📊 Scenario: ALL quotes won (100% probability). Check capacity bars for overloads.');
+}
+function qcScenarioLoseAll(){
+  qcScenarioProbOverrides={};
+  quotes.forEach(q=>{qcScenarioProbOverrides[q.id]=0;});
+  qcRenderCapacity();qcRenderSummary();renderSchedule();
+  addChatMsg('agent','📊 Scenario: ALL quotes lost (0% probability). Showing idle capacity.');
+}
+function qcScenarioBestCase(){qcScenarioWinAll();}
+function qcScenarioWorstCase(){qcScenarioLoseAll();}
+function qcScenarioReset(){
+  qcScenarioProbOverrides=null;
+  qcRenderCapacity();qcRenderSummary();renderSchedule();
+  addChatMsg('agent','↩ Scenario reset — using stored probability weights.');
+}
+function qcScenarioWinCustomer(cust){
+  if(!qcScenarioProbOverrides) qcScenarioProbOverrides={};
+  const matched=quotes.filter(q=>q.customer.toLowerCase().includes(cust.toLowerCase()));
+  matched.forEach(q=>{qcScenarioProbOverrides[q.id]=100;});
+  qcRenderCapacity();qcRenderSummary();renderSchedule();
+  if(matched.length) addChatMsg('agent',`📊 Scenario: all ${matched.length} quote(s) for "${cust}" set to 100%.`);
+  else addChatMsg('agent',`No quotes found matching "${cust}".`);
+}
+
+// ─── Gantt Quote Bar Rendering ────────────────────────────────
+function renderQuoteBarsForMachine(machineId,y,startTime,hpx,labelW,fj){
+  if(!quotes||!quotes.length) return '';
+  let html='';
+  const visQ=quotes.filter(q=>q.visible&&q.status!=='Lost');
+  visQ.forEach(q=>{
+    q.operations.filter(op=>op.machineId===machineId).forEach(op=>{
+      if(!q.dueDate) return;
+      const due=new Date(q.dueDate+'T23:59:59');
+      const totalH=op.setupHours+op.runHours*op.qty;
+      const machJobs=fj.filter(j=>j.machine===machineId&&j.status!=='complete');
+      const maxEnd=machJobs.reduce((mx,j)=>j.end>mx?j.end:mx,TODAY);
+      const estStart=maxEnd>TODAY?new Date(maxEnd):new Date(TODAY);
+      const estEnd=new Date(estStart.getTime()+totalH*3600000);
+      const actualEnd=estEnd<due?estEnd:due;
+      if(actualEnd<=estStart) return;
+      const barStartH=(estStart-startTime)/3600000;
+      const barDurH=(actualEnd-estStart)/3600000;
+      if(barStartH+barDurH<0) return;
+      const x=labelW+barStartH*hpx;
+      const w=Math.max(barDurH*hpx,40);
+      const prob=qcScenarioProbOverrides&&qcScenarioProbOverrides[q.id]!==undefined?qcScenarioProbOverrides[q.id]:q.probability;
+      const bc=qcBarClass(prob);
+      const conflict=fj.some(j=>j.machine===machineId&&j.status!=='complete'&&j.start<actualEnd&&j.end>estStart);
+      html+=`<div class="job qbar ${bc}" title="Quote ${q.quoteNum} — ${q.customer} (${prob}%)\n${totalH.toFixed(1)}h est. | Due: ${q.dueDate}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px;font-size:9px;z-index:5" onclick="openQuotesPanel()">Q:${q.quoteNum} ${prob}%${conflict?' ⚠️':''}</div>`;
+    });
+  });
+  return html;
+}
+
+// ─── Risk Report ──────────────────────────────────────────────
+function generateRiskReport(){
+  const now=new Date(TODAY);
+  const AVAIL=520;
+  const currentLoad=qcCalcCurrentLoad();
+  const winAllLoad=qcCalcQuoteLoad(Object.fromEntries(quotes.map(q=>[q.id,100])));
+  const weightedLoad=qcCalcQuoteLoad(null);
+  const months=[];
+  for(let m=0;m<6;m++){months.push(new Date(now.getFullYear(),now.getMonth()+m,1).toISOString().slice(0,7));}
+  const active=quotes.filter(q=>q.status!=='Lost');
+  const totalPipeline=active.reduce((s,q)=>s+q.value,0);
+  const weightedPipeline=active.reduce((s,q)=>s+q.value*(q.probability/100),0);
+  const conflicts=[];
+  MACHINES.forEach(mach=>{
+    months.forEach(mk=>{
+      const cur=currentLoad[mk]?.[mach.id]||0;
+      const qload=winAllLoad[mk]?.[mach.id]||0;
+      const total=cur+qload;
+      if(total>AVAIL){
+        const ovh=(total-AVAIL).toFixed(0);
+        conflicts.push(`${mach.id} overloaded by ${ovh}h in ${new Date(mk+'-15').toLocaleDateString('en-AU',{month:'long',year:'numeric'})}`);
+      }
+    });
+  });
+  const idleMachines=[];
+  MACHINES.forEach(mach=>{
+    const totalIdle=months.reduce((s,mk)=>s+Math.max(0,AVAIL-(currentLoad[mk]?.[mach.id]||0)),0);
+    if(totalIdle>200) idleMachines.push(`${mach.id}: ${totalIdle.toFixed(0)}h idle over 6 months`);
+  });
+  const recs=[];
+  const highConflictMachines=[...new Set(conflicts.map(c=>c.split(' ')[0]))];
+  if(highConflictMachines.length) recs.push(`Consider subcontracting or overtime on ${highConflictMachines.slice(0,3).join(', ')} if high-probability quotes are won simultaneously.`);
+  const highValue=active.filter(q=>q.value>50000&&q.probability>=75);
+  if(highValue.length) recs.push(`High-confidence, high-value quotes (${highValue.map(q=>q.quoteNum).join(', ')}) should be pre-scheduled proactively.`);
+  const lowProb=active.filter(q=>q.probability<25&&q.value>20000);
+  if(lowProb.length) recs.push(`Long-shot quotes (${lowProb.map(q=>q.quoteNum).join(', ')}) represent significant upside — follow up to improve close probability.`);
+  if(!recs.length) recs.push('No specific concerns identified. Pipeline is well-balanced with current capacity.');
+  const heatmapMachines=MACHINES.filter(mach=>months.some(mk=>(currentLoad[mk]?.[mach.id]||0)+(weightedLoad[mk]?.[mach.id]||0)>0));
+  const reportHtml=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NuPhoenix Capacity Risk Report</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:960px;margin:30px auto;padding:0 20px;color:#1a1a1a;font-size:13px}
+h1{font-size:20px;border-bottom:3px solid #333;padding-bottom:8px;margin-bottom:20px}
+h2{font-size:14px;color:#fff;background:#333;padding:6px 12px;border-radius:4px;margin-top:24px;margin-bottom:10px}
+h3{font-size:12px;margin-top:12px;margin-bottom:5px;color:#444}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+th{background:#444;color:#fff;padding:6px 10px;text-align:left;font-size:11px;font-weight:600}
+td{padding:5px 10px;border-bottom:1px solid #eee}
+tr:nth-child(even) td{background:#f9f9f9}
+.g{color:#1a7a3c;font-weight:600}.r{color:#c0392b;font-weight:600}.y{color:#b7760a;font-weight:600}
+.card{padding:10px 14px;border-radius:5px;margin-bottom:8px;font-size:12px}
+.card.r{background:#fdf0ef;border:1px solid #f5c6c0;color:#c0392b}
+.card.y{background:#fefae9;border:1px solid #f0d99e;color:#7d5e0a}
+.card.g{background:#edf9f0;border:1px solid #a3d9b1;color:#1a7a3c}
+.hm td{text-align:center;font-size:10px;padding:4px 6px;font-weight:600}
+.hg{background:#d5f5e3;color:#1a7a3c}.hy{background:#fef9e7;color:#7d5e0a}.hr{background:#fce8e6;color:#c0392b}.h0{background:#f5f5f5;color:#aaa}
+@media print{body{margin:15px;max-width:100%}}
+</style></head><body>
+<h1>📋 NuPhoenix Capacity &amp; Quote Risk Report</h1>
+<p style="color:#666;margin-bottom:16px">Generated: ${new Date().toLocaleString('en-AU')} &nbsp;|&nbsp; ${active.length} active quotes &nbsp;|&nbsp; Total pipeline: <b>$${totalPipeline.toLocaleString()}</b> &nbsp;|&nbsp; Weighted: <b>$${Math.round(weightedPipeline).toLocaleString()}</b></p>
+<h2>1. Quote Pipeline Summary</h2>
+<table><thead><tr><th>Quote #</th><th>Customer</th><th>Description</th><th>Value</th><th>Prob %</th><th>Status</th><th>Due</th><th>Est. Hours</th></tr></thead><tbody>
+${active.map(q=>{const h=q.operations.reduce((s,op)=>s+op.setupHours+op.runHours*op.qty,0);const pc=q.probability>=75?'g':q.probability>=50?'y':'r';return`<tr><td><b>${q.quoteNum}</b></td><td>${q.customer}</td><td>${q.description||'—'}</td><td>$${q.value.toLocaleString()}</td><td class="${pc}">${q.probability}%</td><td>${q.status}</td><td>${q.dueDate||'—'}</td><td>${h.toFixed(1)}h</td></tr>`;}).join('')}
+</tbody></table>
+<h2>2. Upside Scenario — If ALL Quotes Won</h2>
+${conflicts.length?`<p>Winning all pending quotes would create the following capacity constraints:</p>${conflicts.map(c=>`<div class="card r">⚠️ ${c}</div>`).join('')}`:`<div class="card g">✅ No capacity overloads — current machine capacity can absorb all quoted work.</div>`}
+<h2>3. Downside Scenario — If ALL Quotes Lost</h2>
+${idleMachines.length?`<p>If no pending quotes are won, the following idle capacity exists over the next 6 months:</p><table><thead><tr><th>Machine</th><th>Idle Capacity</th></tr></thead><tbody>${idleMachines.map(ic=>{const parts=ic.split(':');return`<tr><td>${parts[0]}</td><td>${parts[1]||''}</td></tr>`;}).join('')}</tbody></table>`:`<div class="card y">Current schedule fills most available capacity — limited idle time if quotes are lost.</div>`}
+<h2>4. Capacity Heatmap — Weighted Load (Next 6 Months)</h2>
+<p style="font-size:11px;color:#666">Percentage of available capacity (520h/machine/month). 🟢 &lt;60% | 🟡 60-90% | 🔴 &gt;90%</p>
+<table class="hm"><thead><tr><th>Machine</th>${months.map(mk=>`<th>${new Date(mk+'-15').toLocaleDateString('en-AU',{month:'short',year:'2-digit'})}</th>`).join('')}</tr></thead><tbody>
+${heatmapMachines.length?heatmapMachines.map(mach=>`<tr><td><b>${mach.id}</b></td>${months.map(mk=>{const cur=currentLoad[mk]?.[mach.id]||0;const q=weightedLoad[mk]?.[mach.id]||0;const pct=Math.round((cur+q)/AVAIL*100);const cls=pct>=90?'hr':pct>=60?'hy':pct>0?'hg':'h0';return`<td class="${cls}">${pct?pct+'%':'—'}</td>`;}).join('')}</tr>`).join(''):'<tr><td colspan="7" style="color:#999;text-align:center">No active quote load to display</td></tr>'}
+</tbody></table>
+<h2>5. Recommendations</h2>
+${recs.map(r=>`<div class="card y">💡 ${r}</div>`).join('')}
+<p style="margin-top:32px;font-size:10px;color:#bbb;border-top:1px solid #eee;padding-top:10px">NuPhoenix Scheduler — Capacity Risk Report — ${new Date().toLocaleString()}</p>
+</body></html>`;
+  const blob=new Blob([reportHtml],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`NuPhoenix_CapacityReport_${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 </script>
 </body>
