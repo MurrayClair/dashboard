@@ -650,24 +650,24 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
   <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
-  <div style="display:inline-flex;align-items:center;gap:4px;background:var(--red-d);border:1px solid rgba(255,69,58,.3);border-radius:var(--rs);padding:3px 6px">
-    <span style="font-size:10px;color:var(--red);font-weight:700">⏱</span>
-    <select id="delay-reason" style="padding:4px 6px;border-radius:4px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--red);cursor:pointer;font-family:inherit;min-width:120px;outline:none"></select>
-    <button class="btn" onclick="addJobDelay()" style="padding:3px 10px;font-size:10px;background:var(--red);color:#fff;border-color:var(--red);font-weight:700">＋ Delay</button>
+  <div style="display:inline-flex;align-items:center;gap:3px;background:var(--red-d);border:1px solid rgba(255,69,58,.3);border-radius:var(--rs);padding:2px 4px">
+    <span style="font-size:9px;color:var(--red);font-weight:700">⏱</span>
+    <select id="delay-reason" style="padding:2px 4px;border-radius:3px;font-size:10px;font-weight:600;border:none;background:transparent;color:var(--red);cursor:pointer;font-family:inherit;max-width:90px;outline:none"></select>
+    <button class="btn" onclick="addJobDelay()" style="padding:2px 6px;font-size:9px;background:var(--red);color:#fff;border-color:var(--red);font-weight:700">＋</button>
   </div>
-  <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
-  <div class="ctrl-sep"></div>
-  <div style="position:relative;display:flex;align-items:center;gap:4px">
-    <input type="text" id="search-input" placeholder="Search job, customer, PO…" 
-      style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:5px 10px;border-radius:var(--rs);font-size:11px;font-family:inherit;width:200px"
-      oninput="onSearchInput()" onkeydown="if(event.key==='Escape'){clearSearch();}">
-    <button class="btn" onclick="doSearch()" style="padding:5px 10px">🔍 Search</button>
-    <button class="btn" onclick="clearSearch()" style="padding:5px 8px;font-size:13px" title="Clear">✕</button>
-  </div>
+  <button class="btn success" onclick="completeCurrentJob()" style="padding:5px 8px;font-size:10px">✓ Complete</button>
   <div class="ctrl-sep"></div>
   <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
   <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
   <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Quotes &amp; Capacity</button>
+  <div class="ctrl-sep"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:4px">
+    <input type="text" id="search-input" placeholder="Search job…" 
+      style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:5px 8px;border-radius:var(--rs);font-size:11px;font-family:inherit;width:150px"
+      oninput="onSearchInput()" onkeydown="if(event.key==='Escape'){clearSearch();}">
+    <button class="btn" onclick="doSearch()" style="padding:5px 8px">🔍</button>
+    <button class="btn" onclick="clearSearch()" style="padding:5px 6px;font-size:11px" title="Clear">✕</button>
+  </div>
 </div>
 <!-- Search Results Panel -->
 <div id="search-panel" style="display:none;background:var(--s1);border-bottom:1px solid var(--brd);padding:12px 16px;max-height:60vh;overflow-y:auto">
@@ -1854,7 +1854,29 @@ function scrollToJob(jobId){
   el.classList.add('job-flash');
   setTimeout(()=>el.classList.remove('job-flash'),1400);
 }
-function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
+function completeCurrentJob(){
+  // Priority: selected job bar > in-progress on selected machine > nothing
+  let targetJob=null;
+  const selEl=document.querySelector('.job.selected');
+  if(selEl&&selEl.dataset.job){
+    targetJob=jobs.find(j=>j.id===selEl.dataset.job);
+  }else if(selectedMachine){
+    targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
+    if(!targetJob) targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='queued');
+  }
+  if(!targetJob){toast('⚠️ Click a job bar or select a machine first');return;}
+  if(!confirm(`Complete ${targetJob.id} — ${targetJob.partDesc}?`))return;
+  autoBookmark('Before complete: '+targetJob.id);
+  targetJob.status='complete';
+  targetJob.end=new Date(TODAY);
+  targetJob.delay=0;
+  selectedJob=null;
+  // Also complete linked CMM/SUBCO jobs
+  jobs.filter(j=>j.parentJob===targetJob.id).forEach(j=>{j.status='complete';j.end=new Date(TODAY);});
+  recalcCascade();renderSchedule();
+  toast(`✅ Completed ${targetJob.id} — ${targetJob.partDesc}`);
+  broadcastChange('schedule_update',{});
+}
 function addJobDelay(){
   if(!selectedMachine){toast('⚠️ Click a machine on the left first');return;}
   let targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
