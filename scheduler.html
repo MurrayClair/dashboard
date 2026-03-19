@@ -689,6 +689,118 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 .fdp-view-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-d)}
 @keyframes job-flash{0%,100%{filter:brightness(1)}50%{filter:brightness(2.5) saturate(1.5)}}
 .job-flash{animation:job-flash .4s ease 3}
+
+/* ─── KIOSK TIMECARD PANEL ─── */
+.tc-wrap{padding:12px 12px 20px;display:none}
+body.kiosk-mode .tc-wrap{display:block}
+body.kiosk-mode .floor-pool{display:none}
+
+.tc-shift-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px}
+.tc-shift-stat{text-align:center}
+.tc-shift-stat .tsv{font-size:22px;font-weight:700;line-height:1.1}
+.tc-shift-stat .tsl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+.tc-job-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.tc-job-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.tc-job-num{font-size:18px;font-weight:800;font-family:monospace;color:var(--txt)}
+.tc-job-op{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+.tc-job-op.setup{background:rgba(255,159,10,.2);color:var(--orange);border:1px solid rgba(255,159,10,.3)}
+.tc-job-op.run{background:rgba(90,200,250,.2);color:var(--blue);border:1px solid rgba(90,200,250,.3)}
+.tc-job-op.idle{background:var(--s3);color:var(--dim)}
+.tc-job-op.paused{background:rgba(255,214,10,.2);color:var(--yellow);border:1px solid rgba(255,214,10,.3)}
+
+.tc-job-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-bottom:10px}
+.tc-job-meta span{color:var(--dim)}
+.tc-job-meta strong{color:var(--txt)}
+
+.tc-status-big{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--rs);margin-bottom:10px;font-size:16px;font-weight:700;transition:.3s}
+.tc-status-big.idle{background:var(--s3);color:var(--dim)}
+.tc-status-big.setup{background:rgba(255,159,10,.15);color:var(--orange);border:1px solid rgba(255,159,10,.25)}
+.tc-status-big.run{background:rgba(90,200,250,.15);color:var(--blue);border:1px solid rgba(90,200,250,.25)}
+.tc-status-big.paused{background:rgba(255,214,10,.12);color:var(--yellow);border:1px solid rgba(255,214,10,.25)}
+
+.tc-timer{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;margin-left:auto;font-family:monospace}
+@keyframes tc-tick{50%{opacity:.7}}
+
+.tc-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tc-btn{min-height:64px;border-radius:10px;font-size:17px;font-weight:700;border:2px solid transparent;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tc-btn:active{transform:scale(.97);filter:brightness(1.2)}
+.tc-btn.setup{background:rgba(52,199,89,.2);color:var(--green);border-color:rgba(52,199,89,.4)}
+.tc-btn.setup:hover{background:var(--green);color:#000}
+.tc-btn.run{background:rgba(90,200,250,.2);color:var(--blue);border-color:rgba(90,200,250,.4)}
+.tc-btn.run:hover{background:var(--blue);color:#000}
+.tc-btn.pause{background:rgba(255,214,10,.18);color:var(--yellow);border-color:rgba(255,214,10,.4)}
+.tc-btn.pause:hover{background:var(--yellow);color:#000}
+.tc-btn.end{background:rgba(255,69,58,.2);color:var(--red);border-color:rgba(255,69,58,.4)}
+.tc-btn.end:hover{background:var(--red);color:#fff}
+.tc-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;filter:none}
+@keyframes tc-btn-flash{0%{filter:brightness(1)}50%{filter:brightness(2.5) saturate(2)}100%{filter:brightness(1)}}
+.tc-btn-flash{animation:tc-btn-flash .25s ease}
+
+.tc-queue-section{margin-bottom:14px}
+.tc-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;user-select:none;padding:4px 0}
+.tc-section-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.tc-section-chevron{color:var(--dim);transition:transform .2s;font-size:11px}
+.tc-queue-list{display:flex;flex-direction:column;gap:6px}
+.tc-queue-item{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 12px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tc-queue-item:hover{border-color:var(--blue);background:var(--blue-d)}
+.tc-queue-item.next-up{border-color:rgba(52,199,89,.4);background:rgba(52,199,89,.07)}
+.tc-queue-num{font-weight:700;font-size:13px;font-family:monospace;min-width:100px}
+.tc-queue-part{font-size:11px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:80px}
+.tc-queue-qty{font-size:11px;color:var(--txt);white-space:nowrap}
+.tc-queue-due{font-size:10px;color:var(--dim2);white-space:nowrap}
+.tc-next-badge{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(52,199,89,.2);color:var(--green);border:1px solid rgba(52,199,89,.3);white-space:nowrap}
+
+.tc-history-list{display:flex;flex-direction:column;gap:5px}
+.tc-hist-item{background:var(--s2);border:1px solid var(--brd);border-left:3px solid var(--brd);border-radius:var(--rs);padding:8px 12px;font-size:11px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tc-hist-item.has-scrap{border-left-color:var(--red);background:rgba(255,69,58,.05)}
+.tc-hist-item.no-scrap{border-left-color:var(--green)}
+.tc-hist-job{font-weight:700;font-family:monospace;font-size:12px;min-width:100px}
+.tc-hist-times{color:var(--dim);flex:1}
+.tc-hist-qty{font-weight:600;white-space:nowrap}
+.tc-hist-scrap{color:var(--red);font-weight:700;white-space:nowrap}
+
+/* Operator selection overlay */
+.op-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center}
+.op-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:32px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.op-card-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:8px}
+.op-card-sub{font-size:12px;color:var(--dim);text-align:center;margin-bottom:24px}
+.op-emp-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:320px;overflow-y:auto}
+.op-emp-btn{padding:14px 16px;border-radius:var(--rs);font-size:15px;font-weight:700;border:2px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;font-family:inherit;transition:.15s;text-align:left;display:flex;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent}
+.op-emp-btn:hover{border-color:var(--accent);background:rgba(224,122,58,.15);color:var(--accent)}
+.op-emp-badge{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.op-emp-info{flex:1}
+.op-emp-name{font-size:15px;font-weight:700}
+.op-emp-shift{font-size:11px;color:var(--dim);margin-top:2px}
+.op-skip-btn{width:100%;padding:12px;border-radius:var(--rs);font-size:13px;font-weight:600;border:1px solid var(--brd);background:var(--s3);color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
+.op-skip-btn:hover{color:var(--txt);border-color:var(--brd2)}
+
+/* TC end-job modal */
+.tc-end-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:flex;align-items:center;justify-content:center}
+.tc-end-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:28px;width:520px;max-width:97vw;max-height:95vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.tc-end-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.tc-end-row{margin-bottom:14px}
+.tc-end-row label{display:block;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:5px}
+.tc-end-input{width:100%;background:var(--s3);border:2px solid var(--brd);color:var(--txt);padding:12px 14px;border-radius:var(--rs);font-size:20px;font-family:inherit;outline:none;transition:.15s}
+.tc-end-input:focus{border-color:var(--accent)}
+.tc-end-input.sm{font-size:14px;padding:8px 12px}
+.tc-end-time-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
+.tc-end-time-box{background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:10px;text-align:center}
+.tc-end-time-val{font-size:18px;font-weight:700;font-family:monospace}
+.tc-end-time-lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.tc-end-actions{display:flex;gap:10px;margin-top:20px}
+.tc-end-btn{flex:1;padding:14px;border-radius:10px;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:.15s;min-height:54px;-webkit-tap-highlight-color:transparent}
+.tc-end-btn.cancel{background:var(--s3);color:var(--dim);border:2px solid var(--brd)}
+.tc-end-btn.cancel:hover{color:var(--txt)}
+.tc-end-btn.submit{background:var(--green);color:#000}
+.tc-end-btn.submit:hover{filter:brightness(1.1)}
+
+/* Timecards viewer mode */
+.tc-view-wrap{flex:1;overflow-y:auto;padding:16px}
+.tc-view-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.tc-view-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;text-align:center}
+.tc-view-big{font-size:24px;font-weight:700;line-height:1.2}
+.tc-view-lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -764,6 +876,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <button class="mode-btn" id="setup-mode-btn" onclick="setMode('setup')">⚙️ Setup</button>
     <button class="mode-btn" onclick="setMode('kpi')">📈 KPI</button>
     <button class="mode-btn" onclick="setMode('warnings')" id="warnings-mode-btn">⚠️ Warnings</button>
+    <button class="mode-btn" id="timecards-mode-btn" onclick="setMode('timecards')">⏱ Timecards</button>
   </div>
   <button class="btn" id="reports-btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
   <span id="kiosk-machine-label" class="kiosk-machine-label" style="display:none"></span>
@@ -908,6 +1021,53 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <div id="monitor-legacy" style="display:none">
       <div class="machine-grid" id="monitor-grid"></div>
     </div>
+    <!-- ═══ KIOSK TIMECARD PANEL ═══ (only visible in kiosk mode) -->
+    <div id="kiosk-tc-wrap" class="tc-wrap">
+      <!-- Shift summary bar -->
+      <div class="tc-shift-bar">
+        <div class="tc-shift-stat"><div class="tsv" id="tc-ss-jobs">0</div><div class="tsl">Jobs Done</div></div>
+        <div class="tc-shift-stat"><div class="tsv" id="tc-ss-parts">0</div><div class="tsl">Parts Made</div></div>
+        <div class="tc-shift-stat"><div class="tsv" id="tc-ss-hours">0.0h</div><div class="tsl">Hours Logged</div></div>
+        <div class="tc-shift-stat"><div class="tsv" id="tc-ss-otd" style="color:var(--green)">—</div><div class="tsl">OTD</div></div>
+      </div>
+      <!-- Current job card -->
+      <div class="tc-job-card">
+        <div class="tc-job-head">
+          <span class="tc-job-num" id="tc-job-num">No Job Selected</span>
+          <span class="tc-job-op idle" id="tc-job-op-badge">IDLE</span>
+        </div>
+        <div class="tc-job-meta" id="tc-job-meta"><span style="color:var(--dim)">Tap a queued job below to load it</span></div>
+        <div class="tc-status-big idle" id="tc-status-big">
+          <span id="tc-status-icon">⏸</span>
+          <span id="tc-status-text">IDLE — Select a job to begin</span>
+          <span class="tc-timer" id="tc-timer">00:00:00</span>
+        </div>
+        <div style="font-size:12px;color:var(--dim);cursor:pointer" id="tc-operator-display" onclick="tcShowOperatorModal()">👤 No operator — tap to set</div>
+      </div>
+      <!-- Action buttons -->
+      <div class="tc-btns">
+        <button class="tc-btn setup" id="tc-btn-setup" onclick="tcStartSetup()">🟢 START SETUP</button>
+        <button class="tc-btn run" id="tc-btn-run" onclick="tcStartRun()" disabled>🔵 START RUN</button>
+        <button class="tc-btn pause" id="tc-btn-pause" onclick="tcPause()" disabled>🟡 PAUSE</button>
+        <button class="tc-btn end" id="tc-btn-end" onclick="tcOpenEndModal()" disabled>🔴 END JOB</button>
+      </div>
+      <!-- Job queue -->
+      <div class="tc-queue-section">
+        <div class="tc-section-hd" onclick="tcToggleSection('queue')">
+          <div class="tc-section-title">📋 Job Queue <span id="tc-queue-count" style="font-size:11px;color:var(--dim);font-weight:400">(0 jobs)</span></div>
+          <span class="tc-section-chevron" id="tc-queue-chevron">▼</span>
+        </div>
+        <div id="tc-queue-body" class="tc-queue-list"></div>
+      </div>
+      <!-- History (collapsed by default) -->
+      <div class="tc-queue-section">
+        <div class="tc-section-hd" onclick="tcToggleSection('history')">
+          <div class="tc-section-title">📜 Recent Timecards</div>
+          <span class="tc-section-chevron" id="tc-history-chevron" style="transform:rotate(-90deg)">▼</span>
+        </div>
+        <div id="tc-history-body" class="tc-history-list" style="display:none"></div>
+      </div>
+    </div>
   </div>
   <div class="floor-pool" id="floor-pool">
     <div class="floor-pool-hd">👷 Unassigned</div>
@@ -997,6 +1157,34 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <div id="warn-detail-panel"></div>
 </div>
 </div>
+<!-- ═══ MODE: TIMECARDS ═══ -->
+<div class="mode-content" id="mode-timecards">
+<div class="tc-view-wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div class="section-title" style="margin:0">⏱ Shop Floor Timecards</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <span class="ctrl-label">Machine</span>
+      <select id="tc-view-machine" onchange="renderTimecardViewer()" style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px"></select>
+      <span class="ctrl-label">Operator</span>
+      <select id="tc-view-operator" onchange="renderTimecardViewer()" style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:11px"></select>
+      <button class="btn primary" onclick="exportTimecards()">📥 Export CSV</button>
+      <button class="btn danger" onclick="clearAllTimecards()">🗑️ Clear All</button>
+    </div>
+  </div>
+  <div id="tc-view-stats" class="tc-view-stats"></div>
+  <div class="tbl-wrap">
+    <table class="dtbl" id="tc-view-table">
+      <thead><tr>
+        <th>Job</th><th>Part</th><th>Machine</th><th>Operator</th>
+        <th>Operation</th><th>Setup</th><th>Run</th><th>Total</th>
+        <th>Good Qty</th><th>Scrap</th><th>Scrap Reason</th><th>Notes</th><th>Date</th>
+      </tr></thead>
+      <tbody id="tc-view-tbody"><tr><td colspan="13" style="text-align:center;color:var(--dim);padding:20px">No timecards recorded yet. Start tracking from a kiosk station.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
   <!-- WebSocket / Pi Connection Status Bar (shown in kiosk/Pi mode) -->
   <div class="ws-status-bar" id="ws-status-bar">
     <div class="ws-conn-dot disconnected" id="ws-dot"></div>
@@ -1043,6 +1231,65 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
     <div class="modal-actions">
       <button class="btn" onclick="closeScrapModal()">Cancel</button>
       <button class="btn warn" onclick="submitScrapPushIn()">Submit Push-In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPERATOR SELECTION MODAL ═══ -->
+<div class="op-overlay" id="op-overlay" style="display:none">
+  <div class="op-card">
+    <div class="op-card-title">👤 Select Operator</div>
+    <div class="op-card-sub">Who is operating this machine?</div>
+    <div class="op-emp-list" id="op-emp-list"></div>
+    <button class="op-skip-btn" onclick="tcSelectOperator(null)">Skip (Anonymous)</button>
+  </div>
+</div>
+
+<!-- ═══ TC END-JOB MODAL ═══ -->
+<div class="tc-end-overlay" id="tc-end-overlay" style="display:none">
+  <div class="tc-end-card">
+    <div class="tc-end-title">🔴 Complete Job</div>
+    <div class="tc-end-time-grid">
+      <div class="tc-end-time-box">
+        <div class="tc-end-time-val" id="te-setup-time">—</div>
+        <div class="tc-end-time-lbl">Setup Time</div>
+      </div>
+      <div class="tc-end-time-box">
+        <div class="tc-end-time-val" id="te-run-time">—</div>
+        <div class="tc-end-time-lbl">Run Time</div>
+      </div>
+      <div class="tc-end-time-box">
+        <div class="tc-end-time-val" id="te-total-time">—</div>
+        <div class="tc-end-time-lbl">Total Time</div>
+      </div>
+    </div>
+    <div class="tc-end-row">
+      <label>Good Quantity</label>
+      <input type="number" class="tc-end-input" id="te-good-qty" min="0" value="0" inputmode="numeric" oninput="tcEndUpdateScrapRow()">
+    </div>
+    <div class="tc-end-row">
+      <label>Scrap Quantity</label>
+      <input type="number" class="tc-end-input" id="te-scrap-qty" min="0" value="0" inputmode="numeric" oninput="tcEndUpdateScrapRow()">
+    </div>
+    <div class="tc-end-row" id="te-scrap-reason-row" style="display:none">
+      <label>Scrap Reason</label>
+      <select class="tc-end-input sm" id="te-scrap-reason">
+        <option value="">— Select reason —</option>
+        <option>Dimensional</option>
+        <option>Surface Finish</option>
+        <option>Material Defect</option>
+        <option>Tool Breakage</option>
+        <option>Operator Error</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="tc-end-row">
+      <label>Notes (optional)</label>
+      <textarea class="tc-end-input sm" id="te-notes" rows="2" placeholder="Any notes…" style="resize:vertical;min-height:60px"></textarea>
+    </div>
+    <div class="tc-end-actions">
+      <button class="tc-end-btn cancel" onclick="tcCloseEndModal()">Cancel</button>
+      <button class="tc-end-btn submit" onclick="tcSubmitTimecard()">✅ Submit Timecard</button>
     </div>
   </div>
 </div>
@@ -1751,7 +1998,7 @@ function setMode(m){
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',
     (m==='schedule'&&b.textContent.includes('Schedule'))||(m==='monitor'&&b.textContent.includes('Monitor'))||
     (m==='setup'&&b.textContent.includes('Setup'))||(m==='kpi'&&b.textContent.includes('KPI'))||
-    (m==='warnings'&&b.textContent.includes('Warnings'))));
+    (m==='warnings'&&b.textContent.includes('Warnings'))||(m==='timecards'&&b.textContent.includes('Timecards'))));
   document.querySelectorAll('.mode-content').forEach(el=>el.classList.remove('active'));
   document.getElementById('mode-'+m).classList.add('active');
   if(m==='monitor')renderMonitor();
@@ -1759,6 +2006,7 @@ function setMode(m){
   if(m==='kpi')renderKPI();
   if(m==='schedule')renderSchedule();
   if(m==='warnings')renderWarnings();
+  if(m==='timecards')renderTimecardViewer();
 }
 function setSetupTab(t){
   currentSetupTab=t;
@@ -6068,6 +6316,522 @@ function openScreen2(machineId){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  SHOP FLOOR TIMECARD SYSTEM
+// ══════════════════════════════════════════════════════════════
+const TC_STORAGE_KEY='timecards';
+let tcState={
+  status:'idle',        // 'idle'|'setup'|'run'|'paused'
+  currentJob:null,
+  operator:null,
+  startTime:null,       // ISO string
+  setupEndTime:null,    // ISO string — when setup→run occurred
+  pauseStart:null,      // ISO string
+  totalPausedMs:0,
+  timerInterval:null,
+};
+window._tcEmpList=[];
+
+function getTimecards(){return lsGet(TC_STORAGE_KEY,[]);}
+function saveTimecards(arr){lsSet(TC_STORAGE_KEY,arr);}
+
+function initKioskTimecard(){
+  // Restore saved state (survives page refresh)
+  const saved=lsGet('tc_state_'+(machineFilter||'unknown'),null);
+  if(saved&&saved.status&&saved.status!=='idle'){
+    tcState={...tcState,...saved,timerInterval:null};
+  }
+  // Restore saved operator
+  const savedOp=lsGet('tc_operator_'+(machineFilter||'unknown'),null);
+  if(savedOp)tcState.operator=savedOp;
+  tcRenderAll();
+  tcStartTimerTick();
+  // Prompt for operator if not set
+  if(!tcState.operator){setTimeout(()=>tcShowOperatorModal(),800);}
+}
+
+function tcSaveState(){
+  lsSet('tc_state_'+(machineFilter||'unknown'),{
+    status:tcState.status,currentJob:tcState.currentJob,operator:tcState.operator,
+    startTime:tcState.startTime,setupEndTime:tcState.setupEndTime,
+    pauseStart:tcState.pauseStart,totalPausedMs:tcState.totalPausedMs,
+  });
+}
+
+function tcRenderAll(){
+  tcRenderJobCard();
+  tcRenderButtons();
+  tcRenderQueue();
+  tcRenderHistory();
+  tcRenderShiftSummary();
+}
+
+function tcRenderJobCard(){
+  const j=tcState.currentJob;
+  const numEl=document.getElementById('tc-job-num');
+  const metaEl=document.getElementById('tc-job-meta');
+  const opBadge=document.getElementById('tc-job-op-badge');
+  const statusBig=document.getElementById('tc-status-big');
+  const statusIcon=document.getElementById('tc-status-icon');
+  const statusText=document.getElementById('tc-status-text');
+  const opDisplay=document.getElementById('tc-operator-display');
+  if(!numEl)return;
+
+  if(j){
+    numEl.textContent=j.id;
+    const dueStr=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'2-digit'}):'—';
+    metaEl.innerHTML=`<span><strong>${j.partDesc||'—'}</strong></span><span>Qty: <strong>${j.qty||'—'}</strong></span><span>Due: <strong>${dueStr}</strong></span>`;
+  }else{
+    numEl.textContent='No Job Selected';
+    metaEl.innerHTML=`<span style="color:var(--dim)">Tap a queued job below to load it</span>`;
+  }
+
+  const statusMap={
+    idle:{cls:'idle',icon:'⏸',text:'IDLE — Select a job to begin'},
+    setup:{cls:'setup',icon:'▶️',text:'RUNNING — SETUP'},
+    run:{cls:'run',icon:'▶️',text:'RUNNING — PRODUCTION'},
+    paused:{cls:'paused',icon:'⏸',text:'PAUSED'},
+  };
+  const s=statusMap[tcState.status]||statusMap.idle;
+  opBadge.className='tc-job-op '+s.cls;
+  opBadge.textContent=tcState.status.toUpperCase();
+  statusBig.className='tc-status-big '+s.cls;
+  statusIcon.textContent=s.icon;
+  statusText.textContent=s.text;
+
+  if(opDisplay){
+    opDisplay.textContent=tcState.operator?`👤 ${tcState.operator.name}`:'👤 No operator — tap to set';
+  }
+}
+
+function tcRenderButtons(){
+  const s=tcState.status;
+  const btnSetup=document.getElementById('tc-btn-setup');
+  const btnRun=document.getElementById('tc-btn-run');
+  const btnPause=document.getElementById('tc-btn-pause');
+  const btnEnd=document.getElementById('tc-btn-end');
+  if(!btnSetup)return;
+  btnSetup.disabled=(s!=='idle')||!tcState.currentJob;
+  btnRun.disabled=s!=='setup';
+  btnPause.disabled=s==='idle';
+  btnEnd.disabled=s==='idle';
+  btnPause.textContent=s==='paused'?'▶️ RESUME':'🟡 PAUSE';
+}
+
+function tcRenderQueue(){
+  const queueEl=document.getElementById('tc-queue-body');
+  const countEl=document.getElementById('tc-queue-count');
+  if(!queueEl)return;
+  const mId=machineFilter||'';
+  const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
+    const pa=typeof calcPrio==='function'?calcPrio(a):50;
+    const pb=typeof calcPrio==='function'?calcPrio(b):50;
+    if(pa!==pb)return pa-pb;
+    return (a.start||0)-(b.start||0);
+  });
+  if(countEl)countEl.textContent=`(${queue.length} job${queue.length!==1?'s':''})`;
+  if(!queue.length){
+    queueEl.innerHTML=`<div style="font-size:12px;color:var(--dim);padding:8px 4px">No jobs queued for this machine.</div>`;
+    return;
+  }
+  queueEl.innerHTML=queue.map((j,i)=>{
+    const isLoaded=tcState.currentJob&&tcState.currentJob.id===j.id;
+    const isNext=i===0&&!tcState.currentJob;
+    const dueDate=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short'}):'—';
+    const pClass=(j.priority||50)<=10?'prio-10':(j.priority||50)<=20?'prio-20':(j.priority||50)<=30?'prio-30':'';
+    return `<div class="tc-queue-item${isNext?' next-up':''}" onclick="tcLoadJob('${j.id}')">
+      <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;background:${isLoaded?'var(--green)':isNext?'rgba(52,199,89,.25)':'var(--s3)'};color:${isLoaded||isNext?'var(--green)':'var(--dim)'}">${i+1}</div>
+      <div class="tc-queue-num">${j.id}</div>
+      <div class="tc-queue-part">${j.partDesc||'—'}</div>
+      <div class="tc-queue-qty">×${j.qty||'—'}</div>
+      <div class="tc-queue-due">Due ${dueDate}</div>
+      ${isNext?'<span class="tc-next-badge">NEXT UP</span>':''}
+      ${isLoaded?'<span class="tc-next-badge" style="background:rgba(52,199,89,.3)">LOADED</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function tcRenderHistory(){
+  const histEl=document.getElementById('tc-history-body');
+  if(!histEl)return;
+  const all=getTimecards().filter(t=>t.machine===(machineFilter||'')).slice(-10).reverse();
+  if(!all.length){
+    histEl.innerHTML=`<div style="font-size:12px;color:var(--dim);padding:8px 4px">No timecards yet for this machine.</div>`;
+    return;
+  }
+  histEl.innerHTML=all.map(t=>{
+    const hasScrap=(t.scrapQty||0)>0;
+    const dt=t.timestamp?new Date(t.timestamp).toLocaleString('en-AU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    const runMin=t.runMinutes||0;
+    const runStr=runMin>=60?`${Math.floor(runMin/60)}h ${runMin%60}m run`:runMin+'min run';
+    return `<div class="tc-hist-item ${hasScrap?'has-scrap':'no-scrap'}">
+      <div class="tc-hist-job">${t.jobId||'—'}</div>
+      <div class="tc-hist-times">Setup: ${t.setupMinutes||0}m · ${runStr}</div>
+      <div class="tc-hist-qty">✅ ${t.goodQty||0}</div>
+      ${hasScrap?`<div class="tc-hist-scrap">❌ ${t.scrapQty} scrap</div>`:''}
+      <div style="font-size:10px;color:var(--dim2);margin-left:auto;white-space:nowrap">${dt}</div>
+    </div>`;
+  }).join('');
+}
+
+function tcRenderShiftSummary(){
+  const all=getTimecards();
+  const now=new Date();
+  const shiftStart=new Date(now);
+  shiftStart.setMinutes(0,0,0);
+  if(now.getHours()>=18)shiftStart.setHours(18);
+  else if(now.getHours()>=6)shiftStart.setHours(6);
+  else{shiftStart.setDate(shiftStart.getDate()-1);shiftStart.setHours(18);}
+  const thisShift=all.filter(t=>{
+    if(t.machine!==(machineFilter||''))return false;
+    return new Date(t.timestamp||0)>=shiftStart;
+  });
+  const jobsDone=thisShift.length;
+  const partsMade=thisShift.reduce((s,t)=>s+(t.goodQty||0),0);
+  const hours=thisShift.reduce((s,t)=>s+(t.totalMinutes||0),0)/60;
+  const otdEligible=thisShift.filter(t=>t.jobDue);
+  const otdOntime=otdEligible.filter(t=>new Date(t.endTime)<=new Date(t.jobDue)).length;
+  const otd=otdEligible.length?Math.round(otdOntime/otdEligible.length*100)+'%':'—';
+  const el_j=document.getElementById('tc-ss-jobs');
+  const el_p=document.getElementById('tc-ss-parts');
+  const el_h=document.getElementById('tc-ss-hours');
+  const el_o=document.getElementById('tc-ss-otd');
+  if(el_j)el_j.textContent=jobsDone;
+  if(el_p)el_p.textContent=partsMade;
+  if(el_h)el_h.textContent=hours.toFixed(1)+'h';
+  if(el_o){el_o.textContent=otd;el_o.style.color=otd==='—'?'var(--dim)':parseInt(otd)>=90?'var(--green)':parseInt(otd)>=75?'var(--yellow)':'var(--red)';}
+}
+
+function tcStartTimerTick(){
+  if(tcState.timerInterval)clearInterval(tcState.timerInterval);
+  tcState.timerInterval=setInterval(tcTickTimer,1000);
+}
+
+function tcTickTimer(){
+  const timerEl=document.getElementById('tc-timer');
+  if(!timerEl)return;
+  if(tcState.status==='idle'||!tcState.startTime){
+    timerEl.textContent='00:00:00';
+    return;
+  }
+  const now=Date.now();
+  let elapsed=now-new Date(tcState.startTime).getTime()-(tcState.totalPausedMs||0);
+  if(tcState.status==='paused'&&tcState.pauseStart){
+    elapsed-=(now-new Date(tcState.pauseStart).getTime());
+  }
+  elapsed=Math.max(0,elapsed);
+  const h=Math.floor(elapsed/3600000);
+  const m=Math.floor((elapsed%3600000)/60000);
+  const s=Math.floor((elapsed%60000)/1000);
+  timerEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function tcElapsedMs(){
+  if(!tcState.startTime)return 0;
+  const now=Date.now();
+  let elapsed=now-new Date(tcState.startTime).getTime()-(tcState.totalPausedMs||0);
+  if(tcState.status==='paused'&&tcState.pauseStart)elapsed-=(now-new Date(tcState.pauseStart).getTime());
+  return Math.max(0,elapsed);
+}
+
+function tcFmtMin(min){return min>=60?`${Math.floor(min/60)}h ${min%60}m`:min+'m';}
+
+function tcLoadJob(jobId){
+  if(tcState.status!=='idle'){toast('⚠️ End the current job before loading a new one');return;}
+  const j=jobs.find(jj=>jj.id===jobId);
+  if(!j)return;
+  tcState.currentJob=j;
+  tcSaveState();
+  tcRenderAll();
+  tcFlashBtn('tc-btn-setup');
+  toast(`📋 Loaded: ${j.id} — ${j.partDesc}`);
+}
+
+function tcStartSetup(){
+  if(!tcState.currentJob){toast('⚠️ Select a job first');return;}
+  if(!tcState.operator){tcShowOperatorModal();return;}
+  tcState.status='setup';
+  tcState.startTime=new Date().toISOString();
+  tcState.setupEndTime=null;
+  tcState.pauseStart=null;
+  tcState.totalPausedMs=0;
+  tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-setup');
+}
+
+function tcStartRun(){
+  if(tcState.status!=='setup')return;
+  tcState.setupEndTime=new Date().toISOString();
+  tcState.status='run';
+  tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-run');
+}
+
+function tcPause(){
+  if(tcState.status==='paused'){
+    // Resume
+    const paused=tcState.pauseStart?Date.now()-new Date(tcState.pauseStart).getTime():0;
+    tcState.totalPausedMs=(tcState.totalPausedMs||0)+paused;
+    tcState.pauseStart=null;
+    tcState.status=tcState.setupEndTime?'run':'setup';
+  }else if(tcState.status==='setup'||tcState.status==='run'){
+    tcState.pauseStart=new Date().toISOString();
+    tcState.status='paused';
+  }
+  tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-pause');
+}
+
+function tcOpenEndModal(){
+  if(tcState.status==='idle')return;
+  const now=Date.now();
+  const start=tcState.startTime?new Date(tcState.startTime).getTime():now;
+  const setupEnd=tcState.setupEndTime?new Date(tcState.setupEndTime).getTime():now;
+  let paused=tcState.totalPausedMs||0;
+  if(tcState.status==='paused'&&tcState.pauseStart)paused+=now-new Date(tcState.pauseStart).getTime();
+  const totalMs=Math.max(0,now-start-paused);
+  const setupMs=tcState.setupEndTime?Math.max(0,setupEnd-start):Math.max(0,totalMs);
+  const runMs=tcState.setupEndTime?Math.max(0,totalMs-(setupEnd-start)):0;
+  const setupMin=Math.round(setupMs/60000);
+  const runMin=Math.round(runMs/60000);
+  const totalMin=Math.round(totalMs/60000);
+  const te_s=document.getElementById('te-setup-time');
+  const te_r=document.getElementById('te-run-time');
+  const te_t=document.getElementById('te-total-time');
+  if(te_s)te_s.textContent=tcFmtMin(setupMin);
+  if(te_r)te_r.textContent=tcFmtMin(runMin);
+  if(te_t)te_t.textContent=tcFmtMin(totalMin);
+  const qEl=document.getElementById('te-good-qty');
+  const sEl=document.getElementById('te-scrap-qty');
+  if(qEl)qEl.value=tcState.currentJob?(tcState.currentJob.qty||0):0;
+  if(sEl)sEl.value=0;
+  tcEndUpdateScrapRow();
+  const notes=document.getElementById('te-notes');
+  if(notes)notes.value='';
+  const overlay=document.getElementById('tc-end-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+
+function tcEndUpdateScrapRow(){
+  const scrapQty=parseInt(document.getElementById('te-scrap-qty')?.value||0);
+  const row=document.getElementById('te-scrap-reason-row');
+  if(row)row.style.display=scrapQty>0?'block':'none';
+}
+
+function tcCloseEndModal(){
+  const overlay=document.getElementById('tc-end-overlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function tcSubmitTimecard(){
+  const now=Date.now();
+  const start=tcState.startTime?new Date(tcState.startTime).getTime():now;
+  const setupEnd=tcState.setupEndTime?new Date(tcState.setupEndTime).getTime():now;
+  let paused=tcState.totalPausedMs||0;
+  if(tcState.status==='paused'&&tcState.pauseStart)paused+=now-new Date(tcState.pauseStart).getTime();
+  const totalMs=Math.max(0,now-start-paused);
+  const setupMs=tcState.setupEndTime?Math.max(0,setupEnd-start):Math.max(0,totalMs);
+  const runMs=tcState.setupEndTime?Math.max(0,totalMs-(setupEnd-start)):0;
+  const setupMin=Math.round(setupMs/60000);
+  const runMin=Math.round(runMs/60000);
+  const totalMin=Math.round(totalMs/60000);
+
+  const goodQty=parseInt(document.getElementById('te-good-qty')?.value||0);
+  const scrapQty=parseInt(document.getElementById('te-scrap-qty')?.value||0);
+  const scrapReason=scrapQty>0?(document.getElementById('te-scrap-reason')?.value||''):'';
+  const notes=document.getElementById('te-notes')?.value||'';
+
+  const j=tcState.currentJob;
+  const record={
+    jobId:j?j.id:'UNKNOWN',
+    partDesc:j?j.partDesc:'',
+    machine:machineFilter||'',
+    operator:tcState.operator?tcState.operator.name:'Anonymous',
+    operatorId:tcState.operator?tcState.operator.id:null,
+    operation:j?(j.opSeq?.[0]||'machining'):'machining',
+    startTime:tcState.startTime,
+    setupEndTime:tcState.setupEndTime||tcState.startTime,
+    endTime:new Date().toISOString(),
+    setupMinutes:setupMin,
+    runMinutes:runMin,
+    totalMinutes:totalMin,
+    goodQty,scrapQty,scrapReason,notes,
+    jobDue:j?(j.due instanceof Date?j.due.toISOString():j.due):null,
+    timestamp:new Date().toISOString(),
+  };
+
+  const timecards=getTimecards();
+  timecards.push(record);
+  saveTimecards(timecards);
+
+  // Broadcast to server
+  try{broadcastChange('timecard_submitted',{machineId:machineFilter,jobId:record.jobId,goodQty,scrapQty,totalMinutes:totalMin});}catch(e){}
+
+  const setupStr=tcFmtMin(setupMin)+' setup';
+  const runStr=tcFmtMin(runMin)+' run';
+  toast(`✅ Timecard saved: ${record.jobId} — ${setupStr}, ${runStr}, ${goodQty} good${scrapQty>0?', '+scrapQty+' scrap':''}`);
+
+  // Reset state
+  const prevJob=tcState.currentJob;
+  tcState.status='idle';tcState.currentJob=null;tcState.startTime=null;
+  tcState.setupEndTime=null;tcState.pauseStart=null;tcState.totalPausedMs=0;
+  tcSaveState();tcCloseEndModal();tcRenderAll();
+
+  // Scrap push-in prompt
+  if(scrapQty>0){
+    setTimeout(()=>{
+      if(confirm(`${scrapQty} scrap part${scrapQty>1?'s':''} recorded.\nCreate a replacement push-in job?`)){
+        openScrapModal();
+        setTimeout(()=>{
+          const si=document.getElementById('scrap-job-search');
+          if(si&&prevJob){si.value=prevJob.id;onScrapJobSearch();}
+        },200);
+      }
+    },600);
+  }
+}
+
+function tcFlashBtn(btnId){
+  const btn=document.getElementById(btnId);
+  if(!btn)return;
+  btn.classList.add('tc-btn-flash');
+  setTimeout(()=>btn.classList.remove('tc-btn-flash'),300);
+}
+
+function tcToggleSection(section){
+  const bodyId=section==='queue'?'tc-queue-body':'tc-history-body';
+  const chevId=section==='queue'?'tc-queue-chevron':'tc-history-chevron';
+  const el=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  if(!el)return;
+  const shown=el.style.display!=='none';
+  el.style.display=shown?'none':'';
+  if(chev)chev.style.transform=shown?'rotate(-90deg)':'';
+}
+
+// ── Operator Modal ──
+function tcShowOperatorModal(){
+  const listEl=document.getElementById('op-emp-list');
+  if(!listEl)return;
+  const emps=getEmployees().filter(e=>e.active);
+  window._tcEmpList=emps;
+  listEl.innerHTML=emps.map((e,i)=>{
+    const initials=e.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    return `<button class="op-emp-btn" onclick="tcSelectOperatorByIdx(${i})">
+      <div class="op-emp-badge">${initials}</div>
+      <div class="op-emp-info"><div class="op-emp-name">${e.name}</div><div class="op-emp-shift">${e.shift} Shift</div></div>
+    </button>`;
+  }).join('');
+  const overlay=document.getElementById('op-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+
+function tcSelectOperatorByIdx(i){
+  tcSelectOperator(window._tcEmpList[i]||null);
+}
+
+function tcSelectOperator(emp){
+  const overlay=document.getElementById('op-overlay');
+  if(overlay)overlay.style.display='none';
+  if(emp){
+    tcState.operator=emp;
+    lsSet('tc_operator_'+(machineFilter||'unknown'),emp);
+    toast(`👤 Operator: ${emp.name}`);
+  }else{
+    tcState.operator={id:'anon',name:'Anonymous'};
+  }
+  tcSaveState();tcRenderJobCard();
+}
+
+// ── Timecards Viewer (main scheduler ⏱ Timecards tab) ──
+function renderTimecardViewer(){
+  const tbody=document.getElementById('tc-view-tbody');
+  const statsEl=document.getElementById('tc-view-stats');
+  const machSel=document.getElementById('tc-view-machine');
+  const opSel=document.getElementById('tc-view-operator');
+  if(!tbody)return;
+
+  const all=getTimecards();
+  const machines=[...new Set(all.map(t=>t.machine).filter(Boolean))].sort();
+  const operators=[...new Set(all.map(t=>t.operator).filter(Boolean))].sort();
+  const selMach=machSel?machSel.value:'';
+  const selOp=opSel?opSel.value:'';
+
+  if(machSel){
+    const prev=machSel.value;
+    machSel.innerHTML='<option value="">All Machines</option>'+machines.map(m=>`<option value="${m}"${m===prev?' selected':''}>${m}</option>`).join('');
+  }
+  if(opSel){
+    const prev=opSel.value;
+    opSel.innerHTML='<option value="">All Operators</option>'+operators.map(o=>`<option value="${o}"${o===prev?' selected':''}>${o}</option>`).join('');
+  }
+
+  const filtered=all.filter(t=>{
+    if(selMach&&t.machine!==selMach)return false;
+    if(selOp&&t.operator!==selOp)return false;
+    return true;
+  }).slice().reverse();
+
+  const totalJobs=filtered.length;
+  const totalParts=filtered.reduce((s,t)=>s+(t.goodQty||0),0);
+  const totalHours=filtered.reduce((s,t)=>s+(t.totalMinutes||0),0)/60;
+  const totalScrap=filtered.reduce((s,t)=>s+(t.scrapQty||0),0);
+  const fqr=totalParts+totalScrap>0?Math.round(totalParts/(totalParts+totalScrap)*100):100;
+
+  if(statsEl)statsEl.innerHTML=`
+    <div class="tc-view-card"><div class="tc-view-big">${totalJobs}</div><div class="tc-view-lbl">Timecards</div></div>
+    <div class="tc-view-card"><div class="tc-view-big">${totalParts}</div><div class="tc-view-lbl">Parts Made</div></div>
+    <div class="tc-view-card"><div class="tc-view-big" style="color:${totalScrap>0?'var(--red)':'var(--green)'}">${totalScrap}</div><div class="tc-view-lbl">Scrap</div></div>
+    <div class="tc-view-card"><div class="tc-view-big" style="color:${fqr>=95?'var(--green)':fqr>=80?'var(--yellow)':'var(--red)'}">${fqr}%</div><div class="tc-view-lbl">First Quality</div></div>
+    <div class="tc-view-card"><div class="tc-view-big">${totalHours.toFixed(1)}h</div><div class="tc-view-lbl">Hours Logged</div></div>`;
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="13" style="text-align:center;color:var(--dim);padding:20px">No timecards found${selMach||selOp?' with these filters.':'. Start tracking from a Pi kiosk station.'}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=filtered.map(t=>{
+    const hasScrap=(t.scrapQty||0)>0;
+    const dt=t.timestamp?new Date(t.timestamp).toLocaleString('en-AU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    const runMin=t.runMinutes||0;
+    const totalMin=t.totalMinutes||0;
+    return `<tr${hasScrap?' style="background:rgba(255,69,58,.05)"':''}>
+      <td style="font-weight:700;font-family:monospace">${t.jobId||'—'}</td>
+      <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.partDesc||'—'}</td>
+      <td>${t.machine||'—'}</td>
+      <td>${t.operator||'—'}</td>
+      <td style="font-size:11px">${t.operation||'—'}</td>
+      <td>${tcFmtMin(t.setupMinutes||0)}</td>
+      <td>${tcFmtMin(runMin)}</td>
+      <td style="font-weight:600">${tcFmtMin(totalMin)}</td>
+      <td style="color:var(--green);font-weight:600">${t.goodQty||0}</td>
+      <td style="color:${hasScrap?'var(--red)':'var(--dim)'};font-weight:${hasScrap?700:400}">${t.scrapQty||0}</td>
+      <td style="font-size:11px;color:var(--dim)">${t.scrapReason||'—'}</td>
+      <td style="font-size:11px;color:var(--dim);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.notes||'—'}</td>
+      <td style="font-size:11px;color:var(--dim2);white-space:nowrap">${dt}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportTimecards(){
+  const all=getTimecards();
+  if(!all.length){toast('No timecards to export');return;}
+  const headers=['Job ID','Part','Machine','Operator','Operation','Setup (min)','Run (min)','Total (min)','Good Qty','Scrap Qty','Scrap Reason','Notes','Date'];
+  const rows=all.map(t=>[
+    t.jobId||'',t.partDesc||'',t.machine||'',t.operator||'',t.operation||'',
+    t.setupMinutes||0,t.runMinutes||0,t.totalMinutes||0,
+    t.goodQty||0,t.scrapQty||0,t.scrapReason||'',t.notes||'',
+    t.timestamp?new Date(t.timestamp).toLocaleString('en-AU'):''
+  ].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=`nupress_timecards_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();toast('📥 Timecards exported');
+}
+
+function clearAllTimecards(){
+  if(!confirm('Delete ALL timecard records? This cannot be undone.'))return;
+  saveTimecards([]);renderTimecardViewer();toast('🗑️ All timecards cleared');
+}
+
+// ══════════════════════════════════════════════════════════════
 //  MONITOR ANIMATION — animate pie charts
 // ══════════════════════════════════════════════════════════════
 let monitorInterval=null;
@@ -6122,6 +6886,8 @@ if(isScreen2){
     applyKioskMode();
     // Start on Monitor tab for kiosk/Pi stations
     if(machineFilter)setMode('monitor');
+    // Initialize timecard system
+    setTimeout(()=>initKioskTimecard(),400);
   }
 
   // ── Show Pi stations panel on Monitor if in main scheduler mode ──
