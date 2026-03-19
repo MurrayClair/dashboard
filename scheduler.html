@@ -5800,24 +5800,51 @@ function qcSummaryClick(e){
   const gantt=document.getElementById('gantt-area');
   if(!gantt)return;
   _qcFocusActive=!_qcFocusActive;
+  if(_qcFocusActive){
+    // Find the latest quote due date to determine needed view range
+    const visQuotes=quotes.filter(q=>q.visible&&q.status!=='Lost');
+    if(visQuotes.length){
+      const latestDue=visQuotes.reduce((max,q)=>q.dueDate>max?q.dueDate:max,'');
+      const earliestDue=visQuotes.reduce((min,q)=>q.dueDate<min?q.dueDate:min,'9999');
+      const daysToLatest=Math.ceil((new Date(latestDue)-TODAY)/(24*3600000));
+      // Switch to a scale that shows the quote range
+      if(daysToLatest>90) setScale('month6');
+      else if(daysToLatest>42) setScale('month3');
+      else if(daysToLatest>14) setScale('week');
+      // else day view is fine
+    }
+    // After render, scroll to the first quote bar
+    setTimeout(()=>{
+      const firstQbar=document.querySelector('.qbar');
+      if(firstQbar){
+        const area=document.getElementById('gantt-area');
+        const barLeft=parseInt(firstQbar.style.left)||0;
+        area.scrollLeft=Math.max(0,barLeft-area.clientWidth/4);
+      }
+    },100);
+  }else{
+    // Restore day view
+    setScale('day');
+  }
   gantt.classList.toggle('gantt-quote-focus',_qcFocusActive);
   const sub=document.getElementById('qc-sum-subtitle');
   if(sub){
     const el=document.getElementById('qc-summary-sec');
     const totalOps=el?el._totalOps:0;
     const opMachines=el?el._opMachines:0;
-    sub.textContent=_qcFocusActive?`Showing ${totalOps} quote operations across ${opMachines} machines`:'';
+    sub.textContent=_qcFocusActive?`Showing ${totalOps} quote operations across ${opMachines} machines — view zoomed to show pipeline`:'';
   }
 }
 
 // Dismiss focus if user clicks elsewhere on the page
 document.addEventListener('click',function(e){
-  if(_qcFocusActive&&!e.target.closest('.qc-sum-card')){
+  if(_qcFocusActive&&!e.target.closest('.qc-sum-card')&&!e.target.closest('.qbar')){
     _qcFocusActive=false;
     const gantt=document.getElementById('gantt-area');
     if(gantt)gantt.classList.remove('gantt-quote-focus');
     const sub=document.getElementById('qc-sum-subtitle');
     if(sub)sub.textContent='';
+    setScale('day'); // restore day view
   }
 });
 
