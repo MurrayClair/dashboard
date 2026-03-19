@@ -650,6 +650,16 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
   <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
+  <select id="delay-reason" style="padding:5px 6px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;width:130px">
+    <option value="Machine Breakdown">Machine Breakdown</option>
+    <option value="Waiting on Material">Waiting on Material</option>
+    <option value="Quality Hold">Quality Hold</option>
+    <option value="Tooling Issue">Tooling Issue</option>
+    <option value="Staff Shortage">Staff Shortage</option>
+    <option value="Rework Required">Rework Required</option>
+    <option value="Subco Delay">Subco Delay</option>
+    <option value="Other">Other</option>
+  </select>
   <button class="btn danger" onclick="addJobDelay()">＋ Add Delay</button>
   <button class="btn success" onclick="completeCurrentJob()">✓ Complete Current</button>
   <div class="ctrl-sep"></div>
@@ -1744,21 +1754,26 @@ function scrollToJob(jobId){
 function completeCurrentJob(){const t=selectedMachine||MACHINES[0].id;const c=jobs.find(j=>j.machine===t&&j.status==='in-progress');if(!c){toast('No in-progress job on '+t);return;}c.status='complete';c.end=new Date(TODAY);c.delay=0;recalcCascade();renderSchedule();toast(`✅ Completed ${c.id} on ${t}`);}
 function addJobDelay(){
   if(!selectedMachine){toast('⚠️ Click a machine on the left first');return;}
-  // Find in-progress or first queued job on selected machine
   let targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='in-progress');
   if(!targetJob) targetJob=jobs.find(j=>j.machine===selectedMachine&&j.status==='queued');
   if(!targetJob){toast('⚠️ No active jobs on '+selectedMachine);return;}
-  const input=prompt(`Add delay to ${targetJob.id} — ${targetJob.partDesc}\nEnter hours:`);
+  const reason=document.getElementById('delay-reason').value;
+  const input=prompt(`Add delay to ${targetJob.id} — ${targetJob.partDesc}\nReason: ${reason}\n\nEnter hours:`);
   if(!input)return;
   const hours=parseFloat(input);
   if(isNaN(hours)||hours<=0){toast('❌ Invalid hours');return;}
   autoBookmark('Before delay: '+targetJob.id+' +'+hours+'h');
   targetJob.delay=(targetJob.delay||0)+hours;
   targetJob.end=new Date(targetJob.originalEnd.getTime()+targetJob.delay*3600000);
+  // Log delay for reporting
+  const delayLog=lsGet('delay_log',[]);
+  delayLog.push({jobId:targetJob.id,partDesc:targetJob.partDesc,machine:selectedMachine,customer:targetJob.customer||'',hours,reason,timestamp:new Date().toISOString(),totalDelay:targetJob.delay});
+  lsSet('delay_log',delayLog);
   recalcCascade();renderSchedule();
-  toast(`⚠️ Added ${hours}h delay to ${targetJob.id} (${targetJob.partDesc})`);
+  toast(`⚠️ ${hours}h delay — ${reason} — ${targetJob.id} (${targetJob.partDesc})`);
   broadcastChange('schedule_update',{});
 }
+function getDelayLog(){return lsGet('delay_log',[]);}
 function recoveryMove(jid,tm){const j=jobs.find(j=>j.id===jid);if(!j)return;j.machine=tm;j.start=new Date(TODAY);j.end=new Date(TODAY.getTime()+j.totalHours*3600000);j.delay=0;j.status='queued';recalcCascade();renderSchedule();toast(`🔄 Moved ${jid} to ${tm}`);}
 function recoveryOvertime(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;j.totalHours=Math.max(2,j.totalHours-SHIFT_HOURS);j.end=new Date(j.start.getTime()+j.totalHours*3600000);j.delay=Math.max(0,j.delay-SHIFT_HOURS);recalcCascade();renderSchedule();toast(`⏰ Overtime added to ${jid}`);}
 function recoverySplit(jid){const j=jobs.find(j=>j.id===jid);if(!j)return;const m=MACHINES.find(m=>m.id===j.machine);const alts=(COMPAT[m?.type]||[]).filter(m=>m!==j.machine);j.qty=Math.ceil(j.qty/2);j.totalHours=Math.ceil(j.totalHours/2);j.end=new Date(j.start.getTime()+j.totalHours*3600000);if(alts.length)jobs.push({...j,id:j.id+'-SPLIT',machine:alts[0],start:new Date(TODAY),end:new Date(TODAY.getTime()+j.totalHours*3600000),status:'queued',delay:0});recalcCascade();renderSchedule();toast(`✂️ Split ${jid}`);}
