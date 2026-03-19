@@ -1913,12 +1913,25 @@ function genJobs(){
       lsSet("delay_log",delayLog);
     }
   });
-  // Make ~20% of on-time jobs late (end > due)
-  jobs.filter(j=>j.status!=="complete"&&j.end<=j.due).forEach(j=>{
+  // Force ~20% of non-complete jobs to be genuinely LATE (end pushed past due date)
+  jobs.filter(j=>j.status!=="complete"&&!j.machine.startsWith('CMM')&&!j.id.includes('-SUBCO')).forEach(j=>{
     if(Math.random()<0.20){
-      const lateH=8+Math.floor(Math.random()*48);
-      j.delay=(j.delay||0)+lateH;
-      j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
+      // Push end date past the due date by 1-5 days
+      const lateDays=1+Math.floor(Math.random()*5);
+      const lateMs=lateDays*24*3600000;
+      j.end=new Date(j.due.getTime()+lateMs);
+      j.start=new Date(j.end.getTime()-j.totalHours*3600000);
+      j.originalEnd=new Date(j.end.getTime());
+      j.delay=(j.delay||0)+lateDays*24;
+      j.status='in-progress';
+    }
+  });
+  // Force ~15% to be AT-RISK (ending within 24h of due)
+  jobs.filter(j=>j.status!=="complete"&&j.end<=j.due&&!j.machine.startsWith('CMM')&&!j.id.includes('-SUBCO')).forEach(j=>{
+    if(Math.random()<0.15){
+      j.end=new Date(j.due.getTime()-Math.floor(Math.random()*12)*3600000);
+      j.start=new Date(j.end.getTime()-j.totalHours*3600000);
+      j.originalEnd=new Date(j.end.getTime());
     }
   });
   // Put 2 machines in breakdown for realism (only if user hasn't set any)
