@@ -477,6 +477,8 @@ table.dtbl select{width:auto;min-width:100px}
 .job.qbar-po{background:rgba(255,214,10,.18) !important;border-color:var(--yellow) !important;color:var(--yellow) !important}
 .job.qbar-li{background:rgba(90,200,250,.18) !important;border-color:var(--blue) !important;color:var(--blue) !important}
 .job.qbar-co{background:rgba(52,199,89,.18) !important;border-color:var(--green) !important;color:var(--green) !important}
+.gantt-quote-focus .job:not(.qbar){opacity:0.3 !important}
+.gantt-quote-focus .qbar{opacity:1 !important;border-width:2px !important}
 
 /* ─── CHAT PANEL ─── */
 .chat-bubble-btn{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(224,122,58,.4);font-family:inherit;transition:.2s;display:flex;align-items:center;gap:6px}
@@ -1309,11 +1311,11 @@ if(quotes.length===0){
       description:"K9 Thunder SPH Turret Ring Components — 24-month program, 50 units/month",
       status:"Submitted",
       operations:[
-        {machine:"INTE4004S",setupH:4,runHPerPc:2.5,qty:50},
-        {machine:"INTEJ400",setupH:3,runHPerPc:1.8,qty:50},
-        {machine:"DMU75",setupH:5,runHPerPc:3.2,qty:50},
-        {machine:"NTX2500",setupH:3,runHPerPc:2.0,qty:50},
-        {machine:"CMM1",setupH:1,runHPerPc:0.5,qty:50},
+        {machineId:"INTE4004S",setupHours:4,runHours:2.5,qty:50},
+        {machineId:"INTEJ400",setupHours:3,runHours:1.8,qty:50},
+        {machineId:"DMU75",setupHours:5,runHours:3.2,qty:50},
+        {machineId:"NTX2500",setupHours:3,runHours:2.0,qty:50},
+        {machineId:"CMM1",setupHours:1,runHours:0.5,qty:50},
       ],
       dueDate:"2026-06-15",
       value:480000,
@@ -1328,10 +1330,10 @@ if(quotes.length===0){
       description:"Boxer CRV Hull Brackets — 12 units",
       status:"Submitted",
       operations:[
-        {machine:"DMU75",setupH:6,runHPerPc:4.0,qty:12},
-        {machine:"INTE4004S",setupH:4,runHPerPc:3.5,qty:12},
-        {machine:"VRX730",setupH:5,runHPerPc:2.8,qty:12},
-        {machine:"CMM2",setupH:2,runHPerPc:1.0,qty:12},
+        {machineId:"DMU75",setupHours:6,runHours:4.0,qty:12},
+        {machineId:"INTE4004S",setupHours:4,runHours:3.5,qty:12},
+        {machineId:"VRX730",setupHours:5,runHours:2.8,qty:12},
+        {machineId:"CMM2",setupHours:2,runHours:1.0,qty:12},
       ],
       dueDate:"2026-05-30",
       value:185000,
@@ -1346,9 +1348,9 @@ if(quotes.length===0){
       description:"F/A-18 Hornet Legacy Support Brackets — 200pcs",
       status:"Draft",
       operations:[
-        {machine:"VCS530C",setupH:2,runHPerPc:0.8,qty:200},
-        {machine:"HCN8800",setupH:3,runHPerPc:0.6,qty:200},
-        {machine:"CMM1",setupH:1,runHPerPc:0.3,qty:200},
+        {machineId:"VCS530C",setupHours:2,runHours:0.8,qty:200},
+        {machineId:"HCN8800",setupHours:3,runHours:0.6,qty:200},
+        {machineId:"CMM1",setupHours:1,runHours:0.3,qty:200},
       ],
       dueDate:"2026-07-31",
       value:92000,
@@ -5777,14 +5779,170 @@ function qcRenderSummary(){
     machLoad[op.machineId]=(machLoad[op.machineId]||0)+(op.setupHours+op.runHours*op.qty)*(p/100);
   }));
   const overloaded=Object.entries(machLoad).filter(([,h])=>h>160).map(([id])=>id);
+  const totalOps=active.reduce((s,q)=>s+q.operations.length,0);
+  const opMachines=new Set(active.flatMap(q=>q.operations.map(op=>op.machineId))).size;
   el.innerHTML=`<div class="qc-sec-title">📈 Pipeline Summary</div>
   <div class="qc-sum-grid">
-    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--green)">$${(totalPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Total Pipeline</div></div>
-    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--yellow)">$${(weightedPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Weighted Pipeline</div></div>
-    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--blue)">${totalHours.toFixed(0)}h</div><div class="qc-sum-lbl">Total Hours</div></div>
-    <div class="qc-sum-card"><div class="qc-sum-val" style="color:var(--orange)">${weightedHours.toFixed(0)}h</div><div class="qc-sum-lbl">Weighted Hours</div></div>
+    <div class="qc-sum-card" style="cursor:pointer" onclick="qcSummaryClick(event)" ondblclick="qcSummaryDblClick()"><div class="qc-sum-val" style="color:var(--green)">$${(totalPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Total Pipeline</div></div>
+    <div class="qc-sum-card" style="cursor:pointer" onclick="qcSummaryClick(event)" ondblclick="qcSummaryDblClick()"><div class="qc-sum-val" style="color:var(--yellow)">$${(weightedPipeline/1000).toFixed(0)}k</div><div class="qc-sum-lbl">Weighted Pipeline</div></div>
+    <div class="qc-sum-card" style="cursor:pointer" onclick="qcSummaryClick(event)" ondblclick="qcSummaryDblClick()"><div class="qc-sum-val" style="color:var(--blue)">${totalHours.toFixed(0)}h</div><div class="qc-sum-lbl">Total Hours</div></div>
+    <div class="qc-sum-card" style="cursor:pointer" onclick="qcSummaryClick(event)" ondblclick="qcSummaryDblClick()"><div class="qc-sum-val" style="color:var(--orange)">${weightedHours.toFixed(0)}h</div><div class="qc-sum-lbl">Weighted Hours</div></div>
   </div>
+  <div id="qc-sum-subtitle" style="font-size:10px;color:var(--dim);margin-top:5px;min-height:14px"></div>
   ${overloaded.length?`<div class="qc-risk-row red" style="margin-top:8px">⚠️ Machines at capacity risk (>160h/mo weighted): ${overloaded.join(', ')}</div>`:''}`;
+  // store for subtitle
+  el._totalOps=totalOps;el._opMachines=opMachines;
+}
+
+let _qcFocusActive=false;
+function qcSummaryClick(e){
+  e.stopPropagation();
+  const gantt=document.getElementById('gantt-area');
+  if(!gantt)return;
+  _qcFocusActive=!_qcFocusActive;
+  gantt.classList.toggle('gantt-quote-focus',_qcFocusActive);
+  const sub=document.getElementById('qc-sum-subtitle');
+  if(sub){
+    const el=document.getElementById('qc-summary-sec');
+    const totalOps=el?el._totalOps:0;
+    const opMachines=el?el._opMachines:0;
+    sub.textContent=_qcFocusActive?`Showing ${totalOps} quote operations across ${opMachines} machines`:'';
+  }
+}
+
+// Dismiss focus if user clicks elsewhere on the page
+document.addEventListener('click',function(e){
+  if(_qcFocusActive&&!e.target.closest('.qc-sum-card')){
+    _qcFocusActive=false;
+    const gantt=document.getElementById('gantt-area');
+    if(gantt)gantt.classList.remove('gantt-quote-focus');
+    const sub=document.getElementById('qc-sum-subtitle');
+    if(sub)sub.textContent='';
+  }
+});
+
+function qcSummaryDblClick(){
+  const active=quotes.filter(q=>q.status!=='Lost');
+  const now=new Date(TODAY);
+  const months=[];
+  for(let m=0;m<6;m++){
+    const d=new Date(now.getFullYear(),now.getMonth()+m,1);
+    months.push(d.toISOString().slice(0,7));
+  }
+  // Build pipeline table rows
+  const tableRows=active.map(q=>{
+    const qh=q.operations.reduce((s,op)=>s+(op.setupHours||0)+(op.runHours||0)*op.qty,0);
+    const wv=(q.value*(q.probability/100));
+    const statusColor=q.status==='Submitted'?'var(--blue)':q.status==='Won'?'var(--green)':q.status==='Lost'?'var(--red)':'var(--dim)';
+    return `<tr>
+      <td style="font-weight:700">${q.quoteNum}</td>
+      <td>${q.customer}</td>
+      <td>$${(q.value/1000).toFixed(0)}k</td>
+      <td>${q.probability}%</td>
+      <td>$${(wv/1000).toFixed(0)}k</td>
+      <td>${qh.toFixed(0)}h</td>
+      <td><span style="color:${statusColor};font-weight:700">${q.status}</span></td>
+    </tr>`;
+  }).join('');
+  // Bottleneck analysis
+  const winAllLoad={};const weightedLoad={};
+  active.forEach(q=>{
+    const dueM=q.dueDate?q.dueDate.slice(0,7):months[months.length-1];
+    const tm=months.includes(dueM)?dueM:months[months.length-1];
+    q.operations.forEach(op=>{
+      const h=(op.setupHours||0)+(op.runHours||0)*op.qty;
+      winAllLoad[op.machineId]=(winAllLoad[op.machineId]||0)+h;
+      weightedLoad[op.machineId]=(weightedLoad[op.machineId]||0)+h*(q.probability/100);
+    });
+  });
+  const AVAIL=520;
+  const bottlenecks=Object.entries(winAllLoad).filter(([,h])=>h>AVAIL/6).sort((a,b)=>b[1]-a[1]);
+  const bnRows=bottlenecks.map(([id,h])=>{
+    const wh=(weightedLoad[id]||0).toFixed(0);
+    const over=h>AVAIL/6?'⚠️':'';
+    return `<tr><td style="font-weight:700">${id}</td><td>${h.toFixed(0)}h</td><td>${wh}h</td><td>${over} ${h>AVAIL/3?'<span style="color:var(--red)">CRITICAL</span>':h>AVAIL/6?'<span style="color:var(--yellow)">At Risk</span>':'OK'}</td></tr>`;
+  }).join('');
+  // Machine utilisation heatmap
+  const machIds=[...new Set(active.flatMap(q=>q.operations.map(op=>op.machineId)))];
+  const monthLoad={};
+  active.forEach(q=>{
+    const dueM=q.dueDate?q.dueDate.slice(0,7):months[months.length-1];
+    const tm=months.includes(dueM)?dueM:months[months.length-1];
+    q.operations.forEach(op=>{
+      if(!monthLoad[op.machineId])monthLoad[op.machineId]={};
+      const h=(op.setupHours||0)+(op.runHours||0)*op.qty;
+      monthLoad[op.machineId][tm]=(monthLoad[op.machineId][tm]||0)+h;
+    });
+  });
+  const monthlyAvail=AVAIL/6;
+  const heatHeaders=`<th>Machine</th>${months.map(m=>`<th>${m.slice(0,7)}</th>`).join('')}`;
+  const heatRows=machIds.map(id=>{
+    const cells=months.map(m=>{
+      const h=(monthLoad[id]&&monthLoad[id][m])||0;
+      const pct=h/monthlyAvail;
+      const bg=pct>0.9?'rgba(255,59,48,.35)':pct>0.6?'rgba(255,214,10,.35)':pct>0.1?'rgba(52,199,89,.25)':'var(--s2)';
+      return `<td style="background:${bg};text-align:center;font-size:10px;padding:3px 6px">${h>0?h.toFixed(0)+'h':'—'}</td>`;
+    }).join('');
+    return `<tr><td style="font-weight:700;font-size:10px;padding:3px 6px">${id}</td>${cells}</tr>`;
+  }).join('');
+  // Scenarios
+  const totalP=active.reduce((s,q)=>s+q.value,0);
+  const weightedP=active.reduce((s,q)=>s+q.value*(q.probability/100),0);
+  const totalH=active.reduce((s,q)=>s+q.operations.reduce((h,op)=>h+(op.setupHours||0)+(op.runHours||0)*op.qty,0),0);
+  const weightedH=active.reduce((s,q)=>s+(q.operations.reduce((h,op)=>h+(op.setupHours||0)+(op.runHours||0)*op.qty,0))*(q.probability/100),0);
+  // AI Recommendations
+  const recs=[];
+  const critMachs=Object.entries(winAllLoad).filter(([,h])=>h>AVAIL/3).map(([id])=>id);
+  if(critMachs.length){recs.push(`If all quotes are won, <b>${critMachs.join(', ')}</b> will be severely overloaded — consider subcontracting or night shift capacity.`);}
+  const conflictPairs=[];
+  for(let i=0;i<active.length;i++)for(let j=i+1;j<active.length;j++){
+    const mi=new Set(active[i].operations.map(o=>o.machineId));
+    const mj=new Set(active[j].operations.map(o=>o.machineId));
+    const shared=[...mi].filter(m=>mj.has(m));
+    if(shared.length)conflictPairs.push(`${active[i].quoteNum} + ${active[j].quoteNum} share <b>${shared.join(', ')}</b>`);
+  }
+  if(conflictPairs.length)recs.push(`Machine conflicts detected: ${conflictPairs.join('; ')}.`);
+  if(weightedP>0)recs.push(`Weighted pipeline $${(weightedP/1000).toFixed(0)}k represents ${(weightedP/totalP*100).toFixed(0)}% of total pipeline value — probability-weighted hours are ${weightedH.toFixed(0)}h.`);
+  const recsHtml=recs.length?recs.map(r=>`<li style="margin-bottom:6px">${r}</li>`).join(''):'<li>No significant capacity risks identified with current quote pipeline.</li>';
+
+  const html=`<div style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px" id="qc-report-modal" onclick="if(event.target.id==='qc-report-modal')document.getElementById('qc-report-modal').remove()">
+  <div style="background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:24px;width:900px;max-width:98vw;box-shadow:0 16px 64px rgba(0,0,0,.7);position:relative" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">📊 Pipeline & Capacity Report</div>
+    <button onclick="document.getElementById('qc-report-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--txt);font-size:20px;cursor:pointer;line-height:1">✕</button>
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Quote Pipeline</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px">
+      <thead><tr style="color:var(--dim);border-bottom:1px solid var(--brd)">${['Quote#','Customer','Value','Prob','Weighted','Hours','Status'].map(h=>`<th style="text-align:left;padding:4px 6px;font-weight:700">${h}</th>`).join('')}</tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Bottleneck Analysis (Win-All Scenario)</div>
+    ${bottlenecks.length?`<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px">
+      <thead><tr style="color:var(--dim);border-bottom:1px solid var(--brd)">${['Machine','Win-All Hours','Weighted Hours','Status'].map(h=>`<th style="text-align:left;padding:4px 6px;font-weight:700">${h}</th>`).join('')}</tr></thead>
+      <tbody>${bnRows}</tbody>
+    </table>`:'<div style="color:var(--dim);font-size:11px;margin-bottom:18px">No bottlenecks detected.</div>'}
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Scenario Comparison</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px">
+      <thead><tr style="color:var(--dim);border-bottom:1px solid var(--brd)">${['Scenario','Pipeline Value','Hours'].map(h=>`<th style="text-align:left;padding:4px 6px;font-weight:700">${h}</th>`).join('')}</tr></thead>
+      <tbody>
+        <tr><td style="padding:4px 6px">Current (no quotes won)</td><td>$0</td><td>0h</td></tr>
+        <tr><td style="padding:4px 6px">Weighted (probability-adjusted)</td><td style="color:var(--yellow)">$${(weightedP/1000).toFixed(0)}k</td><td style="color:var(--yellow)">${weightedH.toFixed(0)}h</td></tr>
+        <tr><td style="padding:4px 6px">Win-All scenario</td><td style="color:var(--green)">$${(totalP/1000).toFixed(0)}k</td><td style="color:var(--green)">${totalH.toFixed(0)}h</td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Machine Utilisation Heatmap (Quote Hours by Month)</div>
+    <div style="font-size:9px;color:var(--dim);margin-bottom:6px">🟢 &lt;60% &nbsp; 🟡 60–90% &nbsp; 🔴 &gt;90% of monthly capacity (${monthlyAvail.toFixed(0)}h available/machine)</div>
+    ${machIds.length?`<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:18px">
+      <thead><tr style="color:var(--dim);border-bottom:1px solid var(--brd)">${heatHeaders}</tr></thead>
+      <tbody>${heatRows}</tbody>
+    </table>`:'<div style="color:var(--dim);font-size:11px;margin-bottom:18px">No visible quote operations.</div>'}
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Recommendations</div>
+    <ul style="font-size:11px;line-height:1.6;margin:0 0 18px 16px;padding:0">${recsHtml}</ul>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+      <button class="btn" onclick="window.print()" style="font-size:11px;padding:5px 12px">📥 Download PDF</button>
+      <button class="btn" onclick="document.getElementById('qc-report-modal').remove()" style="font-size:11px;padding:5px 12px">Close</button>
+    </div>
+  </div>
+</div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
 }
 
 function qcCalcCurrentLoad(){
