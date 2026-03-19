@@ -6444,7 +6444,10 @@ function orLoadOrder(){
     </div>`;
   });
 
-  html+=`<button class="or-push-btn" onclick="orPushToMonday()">📌 Push to Monday.com for Review</button>`;
+  html+=`<div style="display:flex;gap:8px;margin-top:10px">
+    <button class="or-push-btn" onclick="orPushToMonday()" style="flex:1">📌 Push to Monday.com</button>
+    <button class="or-push-btn" onclick="orDownloadReport()" style="flex:1;border-color:rgba(52,199,89,.3);background:var(--green-d);color:var(--green)">📥 Download Report</button>
+  </div>`;
 
   document.getElementById('or-results-content').innerHTML=html;
   document.getElementById('or-results-sec').style.display='';
@@ -6479,6 +6482,76 @@ function orPushToMonday(){
   lsSet('nupress_order_reviews',reviews);
   showToast(`📌 Pushed to Monday.com: Order Review board — ${order.soNum}`);
   orRenderHistory();
+}
+
+function orDownloadReport(){
+  if(!orCurrentOrder||!orCurrentAnalysis){showToast('Load an order first.');return;}
+  const o=orCurrentOrder, a=orCurrentAnalysis;
+  const isDefence=OR_DEFENCE.includes(o.customer);
+  const {complexity}=_orRiskComplexity(a,isDefence);
+  const confirmed=a.filter(r=>r.statusClass==='green').length;
+  const atRisk=a.filter(r=>r.statusClass==='yellow').length;
+  const cannotMeet=a.filter(r=>r.statusClass==='red').length;
+  const totalVal=a.reduce((s,r)=>s+r.lineValue,0);
+  const totalH=a.reduce((s,r)=>s+r.hoursReq,0);
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NuPhoenix Order Review — ${o.soNum}</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:40px;color:#222;font-size:13px}
+    h1{font-size:22px;margin-bottom:4px} h2{font-size:16px;margin-top:24px;border-bottom:2px solid #333;padding-bottom:4px}
+    .meta{color:#666;font-size:12px;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;margin:12px 0} th,td{border:1px solid #ccc;padding:8px;text-align:left;font-size:12px}
+    th{background:#f0f0f0;font-weight:700} .green{color:#2d8a2d;font-weight:700} .yellow{color:#b8860b;font-weight:700} .red{color:#c0392b;font-weight:700}
+    .summary{display:flex;gap:16px;margin:12px 0;flex-wrap:wrap}
+    .sbox{border:1px solid #ccc;border-radius:6px;padding:12px 16px;min-width:120px;text-align:center}
+    .sbox .val{font-size:24px;font-weight:700} .sbox .lbl{font-size:10px;color:#666;text-transform:uppercase}
+    .risk-box{background:#fff8f0;border:1px solid #e0c090;border-radius:6px;padding:12px;margin:12px 0}
+    @media print{body{margin:20px} .no-print{display:none}}
+  </style></head><body>
+  <h1>🦅 NuPhoenix — Order Review & Capacity Check</h1>
+  <div class="meta">Generated: ${new Date().toLocaleString('en-AU')} | Report: NuPhoenix_OrderReview_${o.soNum}_${new Date().toISOString().split('T')[0]}.pdf</div>
+  <h2>Order Details</h2>
+  <table><tr><th>Sales Order</th><th>Customer</th><th>PO Reference</th><th>Lines</th><th>Total Value</th><th>Total Hours</th></tr>
+  <tr><td><b>${o.soNum}</b></td><td>${o.customer}</td><td>${o.poRef}</td><td>${a.length}</td><td>$${totalVal.toLocaleString()}</td><td>${totalH.toFixed(1)}h</td></tr></table>
+  <div class="summary">
+    <div class="sbox"><div class="val green">${confirmed}</div><div class="lbl">Confirmed</div></div>
+    <div class="sbox"><div class="val yellow">${atRisk}</div><div class="lbl">At Risk</div></div>
+    <div class="sbox"><div class="val red">${cannotMeet}</div><div class="lbl">Cannot Meet</div></div>
+    <div class="sbox"><div class="val">${a.length}</div><div class="lbl">Total Lines</div></div>
+  </div>
+  <h2>Line Item Analysis</h2>
+  <table><tr><th>Part Number</th><th>Description</th><th>Qty</th><th>Requested Date</th><th>Machine(s)</th><th>Hours</th><th>Status</th><th>Notes</th></tr>
+  ${a.map(r=>`<tr>
+    <td>${r.partNum}${r.isNewPart?' 🆕':''}${r.hasSubco?' 📦':''}</td>
+    <td>${r.partDesc}</td><td>${r.qty}</td><td>${r.reqDate}</td>
+    <td>${r.machines}</td><td>${r.hoursReq.toFixed(1)}</td>
+    <td class="${r.statusClass}">${r.status}</td>
+    <td>${r.reason||''}${r.earliestAlt?' Earliest: '+r.earliestAlt:''}</td>
+  </tr>`).join('')}</table>
+  ${isDefence?'<h2>⚠️ AS9102 Configuration Control</h2><p>This order contains defence/aerospace parts requiring AS9102 configuration review. All routing must be verified against First Article Inspection records before scheduling.</p>':''}
+  <h2>Risk Assessment</h2>
+  <div class="risk-box">
+    <b>Defence Customer:</b> ${isDefence?'Yes ⚠️':'No'}<br>
+    <b>AS9102 Parts:</b> ${isDefence?a.length:0} of ${a.length}<br>
+    <b>New Parts (never manufactured):</b> ${a.filter(r=>r.isNewPart).length} of ${a.length}<br>
+    <b>Subcontract Operations:</b> ${a.filter(r=>r.hasSubco).length} of ${a.length}<br>
+    <b>Tight Deliveries (&lt;4 weeks):</b> ${a.filter(r=>r.isTight).length} of ${a.length}<br>
+    <b>Estimated Review Complexity:</b> ${complexity}
+  </div>
+  ${cannotMeet>0?`<h2>Recommended Actions</h2><ul>
+    ${a.filter(r=>r.statusClass==='red').map(r=>`<li><b>${r.partNum}</b> — ${r.reason}. ${r.earliestAlt?'Earliest available: '+r.earliestAlt+'.':''} Consider: overtime, alternative machine routing, or renegotiating delivery date with customer.</li>`).join('')}
+  </ul>`:''}
+  <div style="margin-top:30px;padding-top:12px;border-top:2px solid #333;font-size:10px;color:#666">
+    NuPhoenix Scheduler — Capacity analysis auto-generated. Quality and engineering review pending human approval via Monday.com board.
+  </div>
+  </body></html>`;
+  // Download as printable HTML (user can print to PDF)
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a2=document.createElement('a');
+  a2.href=url;a2.download=`NuPhoenix_OrderReview_${o.soNum}_${new Date().toISOString().split('T')[0]}.html`;
+  document.body.appendChild(a2);a2.click();document.body.removeChild(a2);
+  URL.revokeObjectURL(url);
+  showToast(`📥 Downloaded: NuPhoenix_OrderReview_${o.soNum}.html`);
 }
 
 function orRenderHistory(){
