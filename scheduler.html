@@ -480,6 +480,53 @@ table.dtbl select{width:auto;min-width:100px}
 .gantt-quote-focus .job:not(.qbar){opacity:0.3 !important}
 .gantt-quote-focus .qbar{opacity:1 !important;border-width:2px !important}
 
+/* ─── ORDER REVIEW PANEL ─── */
+.or-panel{position:fixed;top:0;right:-460px;width:450px;height:100vh;background:var(--s1);border-left:1px solid var(--brd);z-index:451;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.6)}
+.or-panel.open{right:0}
+.or-hd{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--brd);background:var(--s2);gap:8px;flex-shrink:0}
+.or-hd-title{font-weight:700;font-size:14px;flex:1}
+.or-body{flex:1;overflow-y:auto}
+.or-sec{padding:14px 16px;border-bottom:1px solid var(--brd)}
+.or-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:10px}
+.or-input-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}
+.or-input-row input{flex:1;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:7px 10px;border-radius:var(--rs);font-size:12px;font-family:inherit}
+.or-summary-bar{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;font-size:11px}
+.or-summary-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+.or-sum-stat{display:flex;align-items:center;gap:4px;font-size:11px}
+.or-line-item{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;font-size:11px}
+.or-line-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.or-part-num{font-weight:700;font-size:12px;font-family:monospace}
+.or-traffic{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.or-traffic.green{background:var(--green-d);color:var(--green)}
+.or-traffic.yellow{background:var(--yellow-d);color:var(--yellow)}
+.or-traffic.red{background:var(--red-d);color:var(--red)}
+.or-line-meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--dim);font-size:10px;margin-bottom:4px}
+.or-line-flags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.or-flag{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700}
+.or-flag.as9102{background:rgba(255,159,10,.15);color:var(--orange);border:1px solid rgba(255,159,10,.3)}
+.or-flag.newpart{background:rgba(90,200,250,.15);color:var(--blue);border:1px solid rgba(90,200,250,.3)}
+.or-risk-box{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:10px;font-size:11px}
+.or-risk-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+.or-risk-row:last-child{border-bottom:none}
+.or-complexity{font-weight:700;padding:2px 9px;border-radius:4px;font-size:10px}
+.or-complexity.simple{background:var(--green-d);color:var(--green)}
+.or-complexity.standard{background:var(--yellow-d);color:var(--yellow)}
+.or-complexity.complex{background:var(--red-d);color:var(--red)}
+.or-hist-item{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:6px;overflow:hidden}
+.or-hist-hd{display:flex;align-items:center;gap:8px;padding:8px 11px;cursor:pointer;font-size:11px;user-select:none}
+.or-hist-so{font-weight:700;font-family:monospace;font-size:12px}
+.or-hist-cust{color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.or-hist-status{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.or-hist-status.pending{background:var(--yellow-d);color:var(--yellow)}
+.or-hist-status.inreview{background:var(--blue-d);color:var(--blue)}
+.or-hist-status.approved{background:var(--green-d);color:var(--green)}
+.or-hist-status.rejected{background:var(--red-d);color:var(--red)}
+.or-hist-status.acknowledged{background:var(--s3);color:var(--dim)}
+.or-hist-body{display:none;padding:8px 11px;border-top:1px solid var(--brd)}
+.or-hist-item.or-exp .or-hist-body{display:block}
+.or-push-btn{width:100%;padding:10px;border-radius:var(--rs);font-size:12px;font-weight:700;border:1px solid rgba(90,200,250,.3);background:var(--blue-d);color:var(--blue);cursor:pointer;font-family:inherit;transition:.15s;margin-top:10px}
+.or-push-btn:hover{background:var(--blue);color:#fff}
+
 /* ─── CHAT PANEL ─── */
 .chat-bubble-btn{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(224,122,58,.4);font-family:inherit;transition:.2s;display:flex;align-items:center;gap:6px}
 .chat-bubble-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
@@ -662,6 +709,7 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
   <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
   <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Quotes &amp; Capacity</button>
+  <button class="btn" onclick="openOrderReviewPanel()" style="background:rgba(52,199,89,.15);color:#34c759;border-color:rgba(52,199,89,.3)">📦 Order Review</button>
   <div class="ctrl-sep"></div>
   <div style="position:relative;display:flex;align-items:center;gap:4px">
     <input type="text" id="search-input" placeholder="Search job…" 
@@ -966,6 +1014,35 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
   </div>
 </div>
 
+<!-- ═══ ORDER REVIEW PANEL ═══ -->
+<div class="or-panel" id="or-panel">
+  <div class="or-hd">
+    <span style="font-size:16px">📦</span>
+    <div class="or-hd-title">Order Review &amp; Capacity Check</div>
+    <button class="chat-hd-btn" onclick="closeOrderReviewPanel()" title="Close" style="font-size:18px;margin-left:4px">✕</button>
+  </div>
+  <div class="or-body" id="or-body">
+    <!-- New Order -->
+    <div class="or-sec">
+      <div class="or-sec-title">📋 New Sales Order</div>
+      <div class="or-input-row">
+        <input type="text" id="or-so-input" placeholder="e.g. SO-26930" style="font-family:monospace" onkeydown="if(event.key==='Enter')orLoadOrder()">
+        <button class="btn" style="background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3);white-space:nowrap" onclick="orLoadOrder()">Load Order</button>
+      </div>
+    </div>
+    <!-- Results -->
+    <div class="or-sec" id="or-results-sec" style="display:none">
+      <div class="or-sec-title">📊 Capacity Analysis Results</div>
+      <div id="or-results-content"></div>
+    </div>
+    <!-- History -->
+    <div class="or-sec" style="border-bottom:none">
+      <div class="or-sec-title">🕐 Order Review History</div>
+      <div id="or-history-list"><div style="color:var(--dim);font-size:11px">No reviews yet.</div></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ REPORTS MODAL ═══ -->
 <div class="modal-overlay" id="reports-modal" style="display:none" onclick="if(event.target===this)closeReportsModal()">
   <div class="modal-box" style="width:580px;max-width:95vw">
@@ -1203,6 +1280,7 @@ function getM1Config(){return lsGet('m1config',{server:'NP-SQL01\\M1PROD',databa
   {name:'Customer Master',path:'dbo.ARCUST'},
   {name:'Sales Order Header',path:'dbo.SOHDR'},
   {name:'Sales Order Lines',path:'dbo.SOLINE'},
+  {name:'Sales Order Config Review',path:'dbo.SOCRV'},
   {name:'Inventory Transactions',path:'dbo.INTRAN'},
   {name:'Quote Header',path:'dbo.QTEHDR'},
   {name:'Quote Lines',path:'dbo.QTELIN'},
@@ -4253,6 +4331,10 @@ function parseCommand(cmd,raw){
   const toggleQMatch=cmd.match(/toggle quote\s+([^\s]+)/);
   if(toggleQMatch){const qn=toggleQMatch[1];const q=quotes.find(x=>x.quoteNum.toLowerCase().includes(qn.toLowerCase()));if(q){qcToggleVisible(q.id);openQuotesPanel();return{msg:`Toggled quote ${q.quoteNum} ${q.visible?'ON':'OFF'} on Gantt.`,type:'action'};}return{msg:`Quote "${qn}" not found.`};}
   if(cmd.includes('show capacity report')||cmd.includes('capacity report')||cmd.includes('risk report')){generateRiskReport();return{msg:'📥 Generating and downloading capacity risk report…',type:'action'};}
+  // Order Review
+  const orSOMatch=cmd.match(/(?:review order|capacity check)\s+(so-?[\d]+)/i);
+  if(orSOMatch){const soN=orSOMatch[1].toUpperCase().startsWith('SO-')?orSOMatch[1].toUpperCase():'SO-'+orSOMatch[1].replace(/\D/g,'');orOpenWithSO(soN);return{msg:`📦 Opening Order Review for ${soN}…`,type:'action'};}
+  if(cmd.includes('show order review')||cmd.includes('order review')||cmd.includes('open order review')){openOrderReviewPanel();return{msg:'Opening Order Review & Capacity Check panel.',type:'action'};}
   // Help / fallback
   return{msg:'I can help with:\n• priorities: "prioritise [customer/PO/job]"\n• "deprioritise [job]"\n• "show priority jobs"\n• "undo" or "revert to [bookmark name]"\n• "bookmark this as [name]"\n• "show bookmarks"\n• "push in scrap for [job]"\n• "show m1 warnings" — opens Warnings tab\n• "show time variances" — opens Time Review in KPI\n• "download daily priorities" / "download cmm queue as pdf" etc.\n• "show reports"\n• "show quotes" — opens Quotes & Capacity panel\n• "what if we win all" — max capacity scenario\n• "what if we win [customer]" — customer scenario\n• "toggle quote [number]" — show/hide on Gantt\n• "show capacity report" — download risk report'};
 }
@@ -6207,6 +6289,252 @@ ${recs.map(r=>`<div class="card y">💡 ${r}</div>`).join('')}
   a.click();
   URL.revokeObjectURL(a.href);
 }
+// ══════════════════════════════════════════════════════════════
+//  ORDER REVIEW & CAPACITY CHECK
+// ══════════════════════════════════════════════════════════════
+
+function _orSeededRand(seed){
+  return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+}
+function _orHashSO(soNum){let h=0;for(let i=0;i<soNum.length;i++){h=((h<<5)-h)+soNum.charCodeAt(i);h|=0;}return Math.abs(h);}
+const OR_CUSTOMERS=['EOS','Thales','BAE Systems','Rheinmetall','Rohde & Schwarz','Boeing','Hanwha'];
+const OR_DEFENCE=['EOS','Thales','BAE Systems','Rheinmetall','Hanwha','Boeing'];
+
+function _orSimulateOrder(soNum){
+  const rng=_orSeededRand(_orHashSO(soNum));
+  const customer=OR_CUSTOMERS[Math.floor(rng()*OR_CUSTOMERS.length)];
+  const poRef='PO-'+Math.floor(rng()*90000+10000);
+  const numLines=Math.floor(rng()*6)+3;
+  const today=new Date();
+  const pool=[...M1_REAL_JOBS].sort(()=>rng()-0.5).slice(0,numLines);
+  const lines=pool.map(src=>{
+    const qty=Math.floor(rng()*50)+1;
+    const weeksOut=Math.floor(rng()*14)+2;
+    const reqDate=new Date(today.getTime()+weeksOut*7*86400000).toISOString().split('T')[0];
+    const setupH=Math.max(1,Math.floor(rng()*4)+1);
+    const runH=Math.round((rng()*3+0.5)*10)/10;
+    const hoursReq=Math.round(setupH+runH*qty);
+    const isNewPart=rng()<0.25;
+    const types=[...new Set(src.opSeq.filter(o=>o!=='cmm'&&o!=='subco'))];
+    const machines=types.map(t=>{const ms=TYPE_MACHINES[t]||[];return ms[0]||t;});
+    return{partNum:src.id,partDesc:src.partDesc,qty,reqDate,opSeq:src.opSeq,machines,setupH,runH,hoursReq,hasSubco:src.hasSubco,needsCMM:src.needsCMM,isNewPart,lineValue:Math.round(hoursReq*(rng()*200+150))};
+  });
+  return{soNum,customer,poRef,lines};
+}
+
+function _orCalcLoad(machineId,endDate){
+  const today=new Date(), end=new Date(endDate);
+  const daysDiff=Math.max(1,(end-today)/86400000);
+  const workDays=Math.round(daysDiff*5/7);
+  const capH=workDays*16;
+  let bookedH=0;
+  [...jobs,...M1_REAL_JOBS].forEach(j=>{
+    if(j.machine===machineId){
+      const jDue=new Date(j.due);
+      if(jDue>=today&&jDue<=end) bookedH+=j.totalHours||8;
+    }
+  });
+  return{bookedH,capH,pct:capH>0?Math.min(130,Math.round(bookedH/capH*100)):80};
+}
+
+function _orAnalyse(order){
+  const today=new Date();
+  return order.lines.map(line=>{
+    const reqDate=new Date(line.reqDate);
+    const weeksOut=(reqDate-today)/(7*86400000);
+    let worstPct=0,bottleneck='',earliestAlt='';
+    line.machines.forEach(mid=>{
+      const l=_orCalcLoad(mid,line.reqDate);
+      if(l.pct>worstPct){worstPct=l.pct;bottleneck=mid;
+        const avH=Math.max(1,16*(1-l.pct/100));
+        const daysNeeded=Math.ceil(line.hoursReq/avH*1.4);
+        earliestAlt=new Date(today.getTime()+daysNeeded*86400000).toISOString().split('T')[0];
+      }
+    });
+    const isTight=weeksOut<4;
+    let status,statusClass,reason='';
+    if(worstPct>90){
+      status='🔴 CANNOT MEET';statusClass='red';
+      reason=`${bottleneck} loaded at ${worstPct}% — Earliest: ${earliestAlt}`;
+    } else if(worstPct>75||isTight){
+      status='🟡 AT RISK';statusClass='yellow';
+      reason=worstPct>75?`${bottleneck} at ${worstPct}% capacity — tight schedule`:'Delivery <4 weeks from today — limited buffer';
+    } else {
+      status='🟢 CONFIRMED';statusClass='green';reason='';
+    }
+    return{...line,worstPct,bottleneck,earliestAlt,status,statusClass,reason,isTight};
+  });
+}
+
+function _orRiskComplexity(analysis,isDefence){
+  const cannotMeet=analysis.filter(r=>r.statusClass==='red').length;
+  const atRisk=analysis.filter(r=>r.statusClass==='yellow').length;
+  const newParts=analysis.filter(r=>r.isNewPart).length;
+  const tight=analysis.filter(r=>r.isTight).length;
+  const score=(cannotMeet*3)+(atRisk*2)+(newParts*2)+(isDefence?analysis.length:0)+tight;
+  if(score>=10)return{complexity:'Complex (30–120 days)',cls:'complex'};
+  if(score>=4)return{complexity:'Standard (5–30 days)',cls:'standard'};
+  return{complexity:'Simple (1–5 days)',cls:'simple'};
+}
+
+let orCurrentOrder=null,orCurrentAnalysis=null;
+
+function orLoadOrder(){
+  const raw=document.getElementById('or-so-input').value.trim();
+  if(!raw){showToast('Enter a Sales Order number first.');return;}
+  const soNum=raw.toUpperCase().startsWith('SO-')?raw.toUpperCase():'SO-'+raw.replace(/\D/g,'');
+  document.getElementById('or-so-input').value=soNum;
+  orCurrentOrder=_orSimulateOrder(soNum);
+  orCurrentAnalysis=_orAnalyse(orCurrentOrder);
+  const order=orCurrentOrder, analysis=orCurrentAnalysis;
+  const confirmed=analysis.filter(r=>r.statusClass==='green').length;
+  const atRisk=analysis.filter(r=>r.statusClass==='yellow').length;
+  const cannotMeet=analysis.filter(r=>r.statusClass==='red').length;
+  const totalValue=analysis.reduce((s,r)=>s+r.lineValue,0);
+  const totalHours=analysis.reduce((s,r)=>s+r.hoursReq,0);
+  const isDefence=OR_DEFENCE.includes(order.customer);
+  const newParts=analysis.filter(r=>r.isNewPart).length;
+  const subcoLines=analysis.filter(r=>r.hasSubco).length;
+  const tightLines=analysis.filter(r=>r.isTight).length;
+  const {complexity,cls}=_orRiskComplexity(analysis,isDefence);
+
+  let html=`<div class="or-summary-bar">
+    <div style="font-weight:700;font-size:12px;margin-bottom:6px">📦 ${soNum} — ${order.customer} &nbsp;<span style="font-size:10px;color:var(--dim);font-weight:400">PO: ${order.poRef}</span></div>
+    <div class="or-summary-row">
+      <span class="or-sum-stat">🟢 <b style="color:var(--green)">${confirmed} confirmed</b></span>
+      <span class="or-sum-stat">🟡 <b style="color:var(--yellow)">${atRisk} at risk</b></span>
+      <span class="or-sum-stat">🔴 <b style="color:var(--red)">${cannotMeet} cannot meet</b></span>
+    </div>
+    <div class="or-summary-row" style="margin-bottom:0">
+      <span class="or-sum-stat">💰 <b>$${totalValue.toLocaleString()}</b></span>
+      <span class="or-sum-stat">⏱ <b>${totalHours}h total</b></span>
+      <span class="or-sum-stat">📄 <b>${analysis.length} lines</b></span>
+    </div>
+  </div>
+  <div class="or-risk-box">
+    <div style="font-weight:700;font-size:11px;margin-bottom:8px">⚠️ Risk Assessment</div>
+    <div class="or-risk-row"><span>Defence customer (AS9102)</span><span>${isDefence?'<b style="color:var(--orange)">Yes</b>':'No'}</span></div>
+    <div class="or-risk-row"><span>AS9102 parts</span><span>${isDefence?`<b>${analysis.length} of ${analysis.length}</b>`:'0'}</span></div>
+    <div class="or-risk-row"><span>New parts (never made)</span><span>${newParts>0?`<b style="color:var(--blue)">${newParts} of ${analysis.length}</b>`:'None'}</span></div>
+    <div class="or-risk-row"><span>Subcontract operations</span><span>${subcoLines>0?`<b>${subcoLines} of ${analysis.length}</b>`:'None'}</span></div>
+    <div class="or-risk-row"><span>Tight deliveries (&lt;4 weeks)</span><span>${tightLines>0?`<b style="color:var(--yellow)">${tightLines} of ${analysis.length}</b>`:'None'}</span></div>
+    <div class="or-risk-row"><span>Review complexity</span><span><span class="or-complexity ${cls}">${complexity}</span></span></div>
+  </div>`;
+
+  analysis.forEach(r=>{
+    const flags=[];
+    if(isDefence)flags.push('<span class="or-flag as9102">⚠️ AS9102 — Config review required</span>');
+    if(r.isNewPart)flags.push('<span class="or-flag newpart">🆕 New Part — Engineering review required</span>');
+    const borderCol=r.statusClass==='red'?'rgba(255,69,58,.35)':r.statusClass==='yellow'?'rgba(255,214,10,.35)':'var(--brd)';
+    html+=`<div class="or-line-item" style="border-color:${borderCol}">
+      <div class="or-line-head">
+        <div><span class="or-part-num">${r.partNum}</span><div style="font-size:10px;color:var(--dim);margin-top:1px">${r.partDesc}</div></div>
+        <span class="or-traffic ${r.statusClass}">${r.status}</span>
+      </div>
+      <div class="or-line-meta">
+        <span>Qty: <b>${r.qty}</b></span>
+        <span>Req: <b>${r.reqDate}</b></span>
+        <span>Machines: <b>${r.machines.join(', ')||'TBC'}</b></span>
+        <span>Hours: <b>${r.hoursReq}h</b></span>
+        <span>Load: <b>${r.worstPct}%</b></span>
+      </div>
+      ${r.reason?`<div style="font-size:10px;color:var(--dim);margin-top:3px">ℹ️ ${r.reason}</div>`:''}
+      ${r.earliestAlt&&r.statusClass==='red'?`<div style="font-size:10px;color:var(--orange);margin-top:2px;font-weight:600">📅 Earliest Available: ${r.earliestAlt}</div>`:''}
+      ${flags.length?`<div class="or-line-flags">${flags.join('')}</div>`:''}
+    </div>`;
+  });
+
+  html+=`<button class="or-push-btn" onclick="orPushToMonday()">📌 Push to Monday.com for Review</button>`;
+
+  document.getElementById('or-results-content').innerHTML=html;
+  document.getElementById('or-results-sec').style.display='';
+  showToast(`📦 Loaded ${soNum} — ${order.lines.length} line items analysed`);
+}
+
+function orPushToMonday(){
+  if(!orCurrentOrder||!orCurrentAnalysis){showToast('Load an order first.');return;}
+  const order=orCurrentOrder, analysis=orCurrentAnalysis;
+  const isDefence=OR_DEFENCE.includes(order.customer);
+  const {complexity}=_orRiskComplexity(analysis,isDefence);
+  const review={
+    id:'or-'+Date.now(),
+    soNum:order.soNum,customer:order.customer,poRef:order.poRef,
+    date:new Date().toISOString().split('T')[0],
+    status:'Pending',
+    totalLines:analysis.length,
+    confirmed:analysis.filter(r=>r.statusClass==='green').length,
+    atRisk:analysis.filter(r=>r.statusClass==='yellow').length,
+    cannotMeet:analysis.filter(r=>r.statusClass==='red').length,
+    totalValue:analysis.reduce((s,r)=>s+r.lineValue,0),
+    totalHours:analysis.reduce((s,r)=>s+r.hoursReq,0),
+    as9102:isDefence,
+    newParts:analysis.filter(r=>r.isNewPart).length,
+    subco:analysis.filter(r=>r.hasSubco).length,
+    tight:analysis.filter(r=>r.isTight).length,
+    complexity,
+    lines:analysis.map(r=>({partNum:r.partNum,partDesc:r.partDesc,qty:r.qty,reqDate:r.reqDate,machines:r.machines,hoursReq:r.hoursReq,statusClass:r.statusClass,status:r.status,reason:r.reason,earliestAlt:r.earliestAlt,isNewPart:r.isNewPart,hasSubco:r.hasSubco}))
+  };
+  const reviews=lsGet('nupress_order_reviews',[]);
+  reviews.unshift(review);
+  lsSet('nupress_order_reviews',reviews);
+  showToast(`📌 Pushed to Monday.com: Order Review board — ${order.soNum}`);
+  orRenderHistory();
+}
+
+function orRenderHistory(){
+  const reviews=lsGet('nupress_order_reviews',[]);
+  const el=document.getElementById('or-history-list');
+  if(!el)return;
+  if(!reviews.length){el.innerHTML='<div style="color:var(--dim);font-size:11px">No reviews yet. Load an order and push to Monday.com.</div>';return;}
+  const statusCls={Pending:'pending','In Review':'inreview',Approved:'approved',Rejected:'rejected',Acknowledged:'acknowledged'};
+  el.innerHTML=reviews.map(r=>`
+    <div class="or-hist-item" id="orh-${r.id}">
+      <div class="or-hist-hd" onclick="document.getElementById('orh-${r.id}').classList.toggle('or-exp')">
+        <span class="or-hist-so">${r.soNum}</span>
+        <span class="or-hist-cust">${r.customer}</span>
+        <span style="font-size:10px;color:var(--dim);flex-shrink:0">${r.date}</span>
+        <span class="or-hist-status ${statusCls[r.status]||'pending'}">${r.status}</span>
+      </div>
+      <div class="or-hist-body">
+        <div style="margin-bottom:8px;display:flex;gap:10px;flex-wrap:wrap;font-size:10px">
+          <span>🟢 ${r.confirmed} confirmed</span><span>🟡 ${r.atRisk} at risk</span><span>🔴 ${r.cannotMeet} cannot meet</span>
+          <span>💰 $${(r.totalValue||0).toLocaleString()}</span><span>⏱ ${r.totalHours}h</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:10px;color:var(--dim)">Status:</span>
+          <select onchange="orSetStatus('${r.id}',this.value)" style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:3px 6px;border-radius:var(--rs);font-size:10px;font-family:inherit">
+            ${['Pending','In Review','Approved','Rejected','Acknowledged'].map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        ${(r.lines||[]).slice(0,10).map(l=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:10px"><span style="font-family:monospace;color:var(--dim)">${l.partNum}</span><span style="flex:1;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.partDesc.substring(0,28)}</span><span>${l.status}</span></div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function orSetStatus(id,status){
+  const reviews=lsGet('nupress_order_reviews',[]);
+  const r=reviews.find(x=>x.id===id);
+  if(r){r.status=status;lsSet('nupress_order_reviews',reviews);}
+  orRenderHistory();
+}
+
+function openOrderReviewPanel(){
+  document.getElementById('or-panel').classList.add('open');
+  orRenderHistory();
+}
+
+function closeOrderReviewPanel(){
+  document.getElementById('or-panel').classList.remove('open');
+}
+
+function orOpenWithSO(soNum){
+  openOrderReviewPanel();
+  setTimeout(()=>{
+    document.getElementById('or-so-input').value=soNum;
+    orLoadOrder();
+  },50);
+}
+
 </script>
 </body>
 </html>
