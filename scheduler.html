@@ -1899,40 +1899,35 @@ function genJobs(){
       mq['SUBCO']=subcoEnd.getTime()+3600000;
     }
   });
-  // ── SIMULATION LAYER — randomise on each refresh ──
-  // ── Seeded PRNG for consistent demo simulation ──
-  let _seed=42;
-  function sRand(){_seed=((_seed*1103515245+12345)&0x7fffffff);return _seed/0x7fffffff;}
-
-  // Apply delays to ~30% of in-progress/queued jobs for a busy-looking demo
-  const activeJobs=jobs.filter(j=>j.status!=="complete");
-  activeJobs.forEach((j,i)=>{
-    if(sRand()<0.30){
-      const delayH=2+Math.floor(sRand()*10);
+  // ── SIMULATION LAYER — add realistic delays and issues ──
+  // Apply delays to ~25% of in-progress/queued jobs
+  jobs.filter(j=>j.status!=="complete").forEach(j=>{
+    if(Math.random()<0.25){
+      const delayH=2+Math.floor(Math.random()*10);
       const reasons=getDelayReasons();
-      const reason=reasons[Math.floor(sRand()*reasons.length)];
+      const reason=reasons[Math.floor(Math.random()*reasons.length)];
       j.delay=(j.delay||0)+delayH;
       j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
       const delayLog=lsGet("delay_log",[]);
-      delayLog.push({jobId:j.id,partDesc:j.partDesc,machine:j.machine,customer:j.customer||"",hours:delayH,reason,timestamp:new Date(Date.now()-sRand()*86400000).toISOString(),totalDelay:j.delay});
+      delayLog.push({jobId:j.id,partDesc:j.partDesc,machine:j.machine,customer:j.customer||"",hours:delayH,reason,timestamp:new Date(Date.now()-Math.random()*86400000).toISOString(),totalDelay:j.delay});
       lsSet("delay_log",delayLog);
     }
   });
-  // Make ~25% of on-time jobs late (end > due) for visible red blocks
+  // Make ~20% of on-time jobs late (end > due)
   jobs.filter(j=>j.status!=="complete"&&j.end<=j.due).forEach(j=>{
-    if(sRand()<0.25){
-      const lateH=8+Math.floor(sRand()*48);
+    if(Math.random()<0.20){
+      const lateH=8+Math.floor(Math.random()*48);
       j.delay=(j.delay||0)+lateH;
       j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
     }
   });
-  // Put 2 machines in breakdown for demo realism (only if user hasn't set any)
+  // Put 2 machines in breakdown for realism (only if user hasn't set any)
   const breakdowns=getBreakdowns();
   const cncIds=CNC_MACHINES.map(m=>m.id);
   if(Object.keys(breakdowns).filter(k=>breakdowns[k].active).length===0){
     for(let i=0;i<2;i++){
-      const mid=cncIds[Math.floor(sRand()*cncIds.length)];
-      const expDate=new Date(Date.now()+(2+Math.floor(sRand()*4))*86400000);
+      const mid=cncIds[Math.floor(Math.random()*cncIds.length)];
+      const expDate=new Date(Date.now()+(2+Math.floor(Math.random()*4))*86400000);
       breakdowns[mid]={active:true,expectedAvailable:expDate.toISOString().split("T")[0],timestamp:new Date().toISOString()};
     }
     setBreakdowns(breakdowns);
@@ -6856,6 +6851,8 @@ if(isScreen2){
   // Also fire now if DOM is already ready
   if(document.readyState!=='loading')applyScreen2Mode();
 }else{
+  // Clear stale demo data on each load so simulation is always fresh
+  try{Object.keys(localStorage).filter(k=>k.startsWith('nupress_')&&k!=='nupress_current_user').forEach(k=>localStorage.removeItem(k));}catch(e){}
   genJobs();
   populateDelayReasons();
 
