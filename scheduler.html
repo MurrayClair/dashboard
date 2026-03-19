@@ -7901,19 +7901,12 @@ function attemptLogin() {
 
   // In production: POST /api/auth/login
   // For demo: accept specific accounts or any non-empty credentials
-  const demoAccounts = {
-    admin:     { password: 'admin',     role: 'admin',     name: 'Administrator' },
-    scheduler: { password: 'scheduler', role: 'scheduler', name: 'Production Scheduler' },
-    operator:  { password: 'operator',  role: 'operator',  name: 'Machine Operator' },
-    viewer:    { password: 'viewer',    role: 'viewer',    name: 'Viewer' }
-  };
-
-  const account = demoAccounts[username.toLowerCase()];
-  if (account && password === account.password) {
-    currentUser = { username, role: account.role, name: account.name };
+  // Simplified test credentials until operational
+  if (username.toLowerCase() === 'test' && password === 'test') {
+    currentUser = { username: 'test', role: 'admin', name: 'Test User' };
   } else {
-    // Accept any credentials for demo
-    currentUser = { username, role: 'scheduler', name: username };
+    showLoginError('Invalid username or password');
+    return;
   }
 
   const rememberMe = document.getElementById('login-remember').checked;
