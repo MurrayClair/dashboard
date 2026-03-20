@@ -2046,12 +2046,12 @@ function renderStats(){
   const breakdowns=getBreakdowns();
   const breakdownCount=Object.keys(breakdowns).filter(mId=>breakdowns[mId].active).length;
   document.getElementById('stats-bar').innerHTML=`
-    <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
-    <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
-    <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
-    <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
-    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
-    <div class="st"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
+    <div class="st" onclick="setFilter('all')" style="cursor:pointer" title="Show all jobs"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
+    <div class="st" onclick="setFilter('all')" style="cursor:pointer" title="Show all jobs"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
+    <div class="st" onclick="setFilter('at-risk')" style="cursor:pointer" title="Click to view at-risk jobs"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
+    <div class="st" onclick="setFilter('late')" style="cursor:pointer" title="Click to view late jobs"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
+    <div class="st" onclick="setFilter('cmm')" style="cursor:pointer" title="Click to view CMM queue"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
+    <div class="st" style="cursor:default"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
 }
 
 function renderGantt(fm,fj){
