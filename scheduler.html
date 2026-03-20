@@ -630,6 +630,51 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 .kiosk-shift-badge.night{background:rgba(90,200,250,.15);color:var(--blue)}
 .kiosk-machine-label{font-size:13px;font-weight:700;color:var(--accent);background:rgba(224,122,58,.12);padding:4px 12px;border-radius:var(--rs);border:1px solid rgba(224,122,58,.3);flex-shrink:0}
 
+/* ─── MACHINE TOGGLE ─── */
+.kiosk-machine-select{font-size:12px;font-weight:700;color:var(--accent);background:rgba(224,122,58,.12);padding:4px 8px;border-radius:var(--rs);border:1px solid rgba(224,122,58,.3);cursor:pointer;font-family:inherit;display:none;max-width:130px}
+.kiosk-machine-select.override{color:var(--yellow);background:rgba(255,214,10,.12);border-color:rgba(255,214,10,.3)}
+.kiosk-machine-reset{font-size:10px;font-weight:700;color:var(--yellow);background:rgba(255,214,10,.12);padding:3px 8px;border-radius:var(--rs);border:1px solid rgba(255,214,10,.3);cursor:pointer;font-family:inherit;display:none}
+
+/* ─── ATTENDANCE / KIOSK TABS ─── */
+.tc-tab-bar{display:flex;gap:0;background:var(--s2);border-bottom:1px solid var(--brd);flex-shrink:0}
+.tc-tab-btn{flex:1;padding:12px 8px;font-size:13px;font-weight:700;border:none;background:transparent;color:var(--dim);cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;transition:.15s}
+.tc-tab-btn.active{color:var(--txt);border-bottom-color:var(--accent)}
+/* PIN pad */
+.att-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1100;display:none;align-items:center;justify-content:center}
+.att-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:28px;width:min(400px,96vw);max-height:92vh;overflow-y:auto}
+.att-title{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
+.att-sub{font-size:13px;color:var(--dim);text-align:center;margin-bottom:20px}
+.att-pin-display{font-size:36px;font-weight:800;text-align:center;letter-spacing:14px;margin:12px 0 18px;color:var(--txt);background:var(--s2);border:1px solid var(--brd);border-radius:10px;padding:12px 20px;font-family:monospace}
+.att-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
+.att-pin-btn{height:64px;border-radius:10px;font-size:26px;font-weight:700;border:1px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;transition:.1s;font-family:inherit;touch-action:manipulation}
+.att-pin-btn:active{background:var(--s3);transform:scale(.96)}
+.att-pin-btn.clear{font-size:17px;color:var(--red);border-color:rgba(255,69,58,.3);background:var(--red-d)}
+.att-pin-btn.submit{font-size:15px;color:var(--green);border-color:rgba(52,199,89,.3);background:var(--green-d)}
+.att-pin-error{color:var(--red);font-size:13px;text-align:center;min-height:22px;margin-top:6px;font-weight:600}
+/* Role select */
+.att-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.att-role-btn{height:76px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;transition:.1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-family:inherit;touch-action:manipulation}
+.att-role-btn:active{background:var(--s3)}
+.att-role-icon{font-size:22px}
+/* Active shift in attendance tab */
+.att-person-card{background:var(--s2);border:1px solid var(--brd);border-radius:10px;padding:12px;margin-bottom:10px}
+.att-shift-action-btn{height:52px;border-radius:8px;font-size:14px;font-weight:700;border:1px solid;cursor:pointer;font-family:inherit;flex:1;touch-action:manipulation}
+/* Who's In panel */
+.whos-in-panel{margin-top:16px;border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;background:var(--s1)}
+.whos-in-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--brd);cursor:pointer;user-select:none;transition:.15s}
+.whos-in-hd:hover{background:var(--s3)}
+.whos-in-hd-title{font-weight:700;font-size:13px;flex:1}
+.whos-in-body{padding:12px;display:flex;flex-wrap:wrap;gap:12px}
+.whos-in-group{min-width:170px;flex:1}
+.whos-in-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--brd)}
+.whos-in-emp{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.whos-in-emp:last-child{border-bottom:none}
+.whos-in-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--s3);color:var(--txt)}
+.whos-in-name{font-size:12px;font-weight:600}
+.whos-in-meta{font-size:10px;color:var(--dim)}
+.whos-in-break{font-size:10px;color:var(--yellow);font-weight:600}
+.whos-in-empty{font-size:12px;color:var(--dim);padding:8px;font-style:italic}
+
 /* ─── WS CONNECTION STATUS BAR ─── */
 .ws-status-bar{display:none;align-items:center;gap:10px;padding:5px 16px;background:var(--s1);border-top:1px solid var(--brd);font-size:11px;flex-shrink:0}
 .ws-status-bar.visible{display:flex}
@@ -880,6 +925,8 @@ body.kiosk-mode .floor-pool{display:none}
   </div>
   <button class="btn" id="reports-btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
   <span id="kiosk-machine-label" class="kiosk-machine-label" style="display:none"></span>
+  <select id="kiosk-machine-select" class="kiosk-machine-select" onchange="switchKioskMachine(this.value)" title="Switch machine"></select>
+  <button id="kiosk-machine-reset" class="kiosk-machine-reset" onclick="resetKioskMachine()" title="Reset to default machine">↺ Reset</button>
   <div class="kiosk-clock" id="kiosk-clock" style="display:none">
     <span id="kiosk-time">--:--</span>
     <span class="kiosk-shift-badge day" id="kiosk-shift-badge">Day</span>
@@ -1017,12 +1064,29 @@ body.kiosk-mode .floor-pool{display:none}
       </div>
       <div class="pi-stations-body" id="pi-stations-body" style="display:none"></div>
     </div>
+    <!-- Who's In Panel (attendance) -->
+    <div class="whos-in-panel" id="whos-in-panel">
+      <div class="whos-in-hd" onclick="toggleWhosInPanel()">
+        <span>👥</span>
+        <span class="whos-in-hd-title">Who's In</span>
+        <span id="whos-in-count" style="font-size:10px;color:var(--dim);font-weight:400">0 clocked in</span>
+        <span id="whos-in-chevron" style="color:var(--dim);margin-left:8px;transition:transform .2s">▼</span>
+      </div>
+      <div class="whos-in-body" id="whos-in-body"></div>
+    </div>
     <!-- Legacy card view (hidden by default) -->
     <div id="monitor-legacy" style="display:none">
       <div class="machine-grid" id="monitor-grid"></div>
     </div>
     <!-- ═══ KIOSK TIMECARD PANEL ═══ (only visible in kiosk mode) -->
     <div id="kiosk-tc-wrap" class="tc-wrap">
+      <!-- Tab bar -->
+      <div class="tc-tab-bar">
+        <button class="tc-tab-btn active" id="tc-tab-timecard" onclick="attSwitchTab('timecard')">⏱ Timecard</button>
+        <button class="tc-tab-btn" id="tc-tab-attendance" onclick="attSwitchTab('attendance')">👥 Clock In/Out</button>
+      </div>
+      <!-- Timecard tab panel -->
+      <div id="tc-panel-timecard">
       <!-- Shift summary bar -->
       <div class="tc-shift-bar">
         <div class="tc-shift-stat"><div class="tsv" id="tc-ss-jobs">0</div><div class="tsl">Jobs Done</div></div>
@@ -1066,6 +1130,11 @@ body.kiosk-mode .floor-pool{display:none}
           <span class="tc-section-chevron" id="tc-history-chevron" style="transform:rotate(-90deg)">▼</span>
         </div>
         <div id="tc-history-body" class="tc-history-list" style="display:none"></div>
+      </div>
+      </div><!-- /tc-panel-timecard -->
+      <!-- Attendance tab panel -->
+      <div id="tc-panel-attendance" style="display:none;padding:16px">
+        <div id="att-panel-body"></div>
       </div>
     </div>
   </div>
@@ -1291,6 +1360,41 @@ body.kiosk-mode .floor-pool{display:none}
       <button class="tc-end-btn cancel" onclick="tcCloseEndModal()">Cancel</button>
       <button class="tc-end-btn submit" onclick="tcSubmitTimecard()">✅ Submit Timecard</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══ ATTENDANCE: PIN PAD OVERLAY ═══ -->
+<div class="att-overlay" id="att-pin-overlay" style="display:none">
+  <div class="att-card">
+    <div class="att-title">👋 Clock In / Out</div>
+    <div class="att-sub">Enter your 4-digit PIN</div>
+    <div class="att-pin-display" id="att-pin-display">· · · ·</div>
+    <div class="att-pin-grid">
+      <button class="att-pin-btn" onclick="attPinDigit(1)">1</button>
+      <button class="att-pin-btn" onclick="attPinDigit(2)">2</button>
+      <button class="att-pin-btn" onclick="attPinDigit(3)">3</button>
+      <button class="att-pin-btn" onclick="attPinDigit(4)">4</button>
+      <button class="att-pin-btn" onclick="attPinDigit(5)">5</button>
+      <button class="att-pin-btn" onclick="attPinDigit(6)">6</button>
+      <button class="att-pin-btn" onclick="attPinDigit(7)">7</button>
+      <button class="att-pin-btn" onclick="attPinDigit(8)">8</button>
+      <button class="att-pin-btn" onclick="attPinDigit(9)">9</button>
+      <button class="att-pin-btn clear" onclick="attPinClear()">CLR</button>
+      <button class="att-pin-btn" onclick="attPinDigit(0)">0</button>
+      <button class="att-pin-btn clear" onclick="attPinBackspace()">⌫</button>
+    </div>
+    <div class="att-pin-error" id="att-pin-error"></div>
+    <button onclick="attClosePinPad()" style="width:100%;margin-top:12px;padding:12px;border-radius:8px;border:1px solid var(--brd);background:var(--s2);color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══ ATTENDANCE: ROLE SELECT OVERLAY ═══ -->
+<div class="att-overlay" id="att-role-overlay" style="display:none">
+  <div class="att-card">
+    <div class="att-title">Select Your Role</div>
+    <div class="att-sub" id="att-role-emp-name" style="font-size:15px;font-weight:700;color:var(--txt)"></div>
+    <div class="att-role-grid" id="att-role-list"></div>
+    <button onclick="attCloseRoleSelect()" style="width:100%;margin-top:4px;padding:12px;border-radius:8px;border:1px solid var(--brd);background:var(--s2);color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
   </div>
 </div>
 
@@ -2973,6 +3077,7 @@ function renderMonitor(){
   renderFloorGrid();
   renderFloorPool();
   renderTieLines();
+  try{renderWhosIn();}catch(e){}
 }
 
 function renderFloorGrid(){
@@ -6244,6 +6349,8 @@ function applyKioskMode(){
   // Show WS status bar
   const bar=document.getElementById('ws-status-bar');
   if(bar)bar.classList.add('visible');
+  // Machine toggle
+  setTimeout(()=>initMachineToggle(),50);
 }
 
 function applyMachineFilter(){
@@ -6358,12 +6465,12 @@ function saveTimecards(arr){lsSet(TC_STORAGE_KEY,arr);}
 
 function initKioskTimecard(){
   // Restore saved state (survives page refresh)
-  const saved=lsGet('tc_state_'+(machineFilter||'unknown'),null);
+  const saved=lsGet('tc_state_'+(getKioskMachine()||'unknown'),null);
   if(saved&&saved.status&&saved.status!=='idle'){
     tcState={...tcState,...saved,timerInterval:null};
   }
   // Restore saved operator
-  const savedOp=lsGet('tc_operator_'+(machineFilter||'unknown'),null);
+  const savedOp=lsGet('tc_operator_'+(getKioskMachine()||'unknown'),null);
   if(savedOp)tcState.operator=savedOp;
   tcRenderAll();
   tcStartTimerTick();
@@ -6372,7 +6479,7 @@ function initKioskTimecard(){
 }
 
 function tcSaveState(){
-  lsSet('tc_state_'+(machineFilter||'unknown'),{
+  lsSet('tc_state_'+(getKioskMachine()||'unknown'),{
     status:tcState.status,currentJob:tcState.currentJob,operator:tcState.operator,
     startTime:tcState.startTime,setupEndTime:tcState.setupEndTime,
     pauseStart:tcState.pauseStart,totalPausedMs:tcState.totalPausedMs,
@@ -6443,7 +6550,7 @@ function tcRenderQueue(){
   const queueEl=document.getElementById('tc-queue-body');
   const countEl=document.getElementById('tc-queue-count');
   if(!queueEl)return;
-  const mId=machineFilter||'';
+  const mId=getKioskMachine();
   const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
     const pa=typeof calcPrio==='function'?calcPrio(a):50;
     const pb=typeof calcPrio==='function'?calcPrio(b):50;
@@ -6475,7 +6582,7 @@ function tcRenderQueue(){
 function tcRenderHistory(){
   const histEl=document.getElementById('tc-history-body');
   if(!histEl)return;
-  const all=getTimecards().filter(t=>t.machine===(machineFilter||'')).slice(-10).reverse();
+  const all=getTimecards().filter(t=>t.machine===getKioskMachine()).slice(-10).reverse();
   if(!all.length){
     histEl.innerHTML=`<div style="font-size:12px;color:var(--dim);padding:8px 4px">No timecards yet for this machine.</div>`;
     return;
@@ -6504,7 +6611,7 @@ function tcRenderShiftSummary(){
   else if(now.getHours()>=6)shiftStart.setHours(6);
   else{shiftStart.setDate(shiftStart.getDate()-1);shiftStart.setHours(18);}
   const thisShift=all.filter(t=>{
-    if(t.machine!==(machineFilter||''))return false;
+    if(t.machine!==getKioskMachine())return false;
     return new Date(t.timestamp||0)>=shiftStart;
   });
   const jobsDone=thisShift.length;
@@ -6663,7 +6770,7 @@ function tcSubmitTimecard(){
   const record={
     jobId:j?j.id:'UNKNOWN',
     partDesc:j?j.partDesc:'',
-    machine:machineFilter||'',
+    machine:getKioskMachine(),
     operator:tcState.operator?tcState.operator.name:'Anonymous',
     operatorId:tcState.operator?tcState.operator.id:null,
     operation:j?(j.opSeq?.[0]||'machining'):'machining',
@@ -6753,7 +6860,7 @@ function tcSelectOperator(emp){
   if(overlay)overlay.style.display='none';
   if(emp){
     tcState.operator=emp;
-    lsSet('tc_operator_'+(machineFilter||'unknown'),emp);
+    lsSet('tc_operator_'+(getKioskMachine()||'unknown'),emp);
     toast(`👤 Operator: ${emp.name}`);
   }else{
     tcState.operator={id:'anon',name:'Anonymous'};
@@ -6882,7 +6989,8 @@ if(isScreen2){
   // Clear stale demo data on each load so simulation is always fresh
   try{
     const keys=[];
-    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('nupress_')&&k!=='nupress_current_user')keys.push(k);}
+    const _lsKeep=new Set(['nupress_current_user','nupress_attendance','nupress_emp_pins','nupress_kiosk_machine_override']);
+    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('nupress_')&&!_lsKeep.has(k))keys.push(k);}
     keys.forEach(k=>localStorage.removeItem(k));
   }catch(e){}
   try{
@@ -8180,6 +8288,356 @@ async function sendLoginChat() {
 
   // Fallback
   setTimeout(() => addLoginChatMsg('agent', 'I\'m only able to help with login and password issues at this screen. Please sign in to access the full NuPhoenix assistant.'), 300);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  MACHINE TOGGLE (Feature 2)
+// ══════════════════════════════════════════════════════════════
+window.kioskMachineOverride=null;
+
+function getKioskMachine(){return window.kioskMachineOverride||machineFilter||'';}
+
+function initMachineToggle(){
+  if(!machineFilter&&!isKiosk)return;
+  const sel=document.getElementById('kiosk-machine-select');
+  if(!sel)return;
+  const allMachines=typeof CNC_MACHINES!=='undefined'?CNC_MACHINES:(typeof MACHINES!=='undefined'?MACHINES:[]);
+  sel.innerHTML=allMachines.map(m=>`<option value="${m.id}">${m.id}</option>`).join('');
+  // Read persisted override
+  const override=lsGet('kiosk_machine_override',null);
+  if(override&&override!==machineFilter){
+    window.kioskMachineOverride=override;
+    sel.value=override;
+    sel.classList.add('override');
+    const rst=document.getElementById('kiosk-machine-reset');
+    if(rst)rst.style.display='inline-block';
+    // Update label to show override warning
+    const label=document.getElementById('kiosk-machine-label');
+    if(label)label.textContent=override+' ⚠';
+  }else{
+    sel.value=machineFilter||allMachines[0]?.id||'';
+  }
+  sel.style.display='inline-block';
+}
+
+function switchKioskMachine(machineId){
+  if(machineId===machineFilter){resetKioskMachine();return;}
+  window.kioskMachineOverride=machineId;
+  lsSet('kiosk_machine_override',machineId);
+  const sel=document.getElementById('kiosk-machine-select');
+  const rst=document.getElementById('kiosk-machine-reset');
+  if(sel)sel.classList.add('override');
+  if(rst)rst.style.display='inline-block';
+  const label=document.getElementById('kiosk-machine-label');
+  if(label)label.textContent=machineId+' ⚠';
+  tcRenderAll();
+  toast(`⚡ Machine switched to ${machineId}`);
+}
+
+function resetKioskMachine(){
+  window.kioskMachineOverride=null;
+  lsSet('kiosk_machine_override',null);
+  const sel=document.getElementById('kiosk-machine-select');
+  const rst=document.getElementById('kiosk-machine-reset');
+  if(sel){sel.value=machineFilter||'';sel.classList.remove('override');}
+  if(rst)rst.style.display='none';
+  const label=document.getElementById('kiosk-machine-label');
+  if(label)label.textContent=machineFilter||'';
+  tcRenderAll();
+  toast(`↺ Reset to default machine: ${machineFilter}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UNIVERSAL ATTENDANCE SYSTEM (Feature 1)
+// ══════════════════════════════════════════════════════════════
+const ATT_STORAGE_KEY='attendance';
+function getAttendance(){return lsGet(ATT_STORAGE_KEY,[]);}
+function saveAttendance(arr){lsSet(ATT_STORAGE_KEY,arr);}
+
+const ATT_ROLES=[
+  {id:'cnc',label:'CNC Operator',icon:'⚙️'},
+  {id:'forklift',label:'Forklift Driver',icon:'🏗️'},
+  {id:'qa',label:'QA Inspector',icon:'🔬'},
+  {id:'cleaner',label:'Cleaner',icon:'🧹'},
+  {id:'maintenance',label:'Maintenance',icon:'🔧'},
+  {id:'office',label:'Office',icon:'💼'},
+  {id:'other',label:'Other',icon:'👤'},
+];
+
+// Default PIN: numeric portion of employee ID zero-padded to 4 digits
+// e.g. E001→0001, E010→0010
+function getEmpDefaultPin(emp){
+  const pins=lsGet('emp_pins',{});
+  if(pins[emp.id])return pins[emp.id];
+  const digits=emp.id.replace(/\D/g,'');
+  return digits.slice(-4).padStart(4,'0');
+}
+
+let _attPinBuffer='';
+let _attPinEmp=null;
+
+function attShowPinPad(){
+  _attPinBuffer='';
+  _attPinEmp=null;
+  _attUpdatePinDisplay();
+  const err=document.getElementById('att-pin-error');
+  if(err)err.textContent='';
+  const overlay=document.getElementById('att-pin-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+
+function attClosePinPad(){
+  const overlay=document.getElementById('att-pin-overlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function attPinDigit(d){
+  if(_attPinBuffer.length>=4)return;
+  _attPinBuffer+=String(d);
+  _attUpdatePinDisplay();
+  if(_attPinBuffer.length===4)setTimeout(_attPinCheck,180);
+}
+
+function attPinBackspace(){
+  _attPinBuffer=_attPinBuffer.slice(0,-1);
+  _attUpdatePinDisplay();
+}
+
+function attPinClear(){
+  _attPinBuffer='';
+  _attUpdatePinDisplay();
+  const err=document.getElementById('att-pin-error');
+  if(err)err.textContent='';
+}
+
+function _attUpdatePinDisplay(){
+  const el=document.getElementById('att-pin-display');
+  if(!el)return;
+  const filled='●'.repeat(_attPinBuffer.length);
+  const empty=Array(4-_attPinBuffer.length).fill('·').join(' ');
+  el.textContent=filled+(filled&&empty?' ':'')+empty;
+}
+
+function _attPinCheck(){
+  const emps=getEmployees().filter(e=>e.active);
+  const found=emps.find(e=>getEmpDefaultPin(e)===_attPinBuffer);
+  if(!found){
+    const err=document.getElementById('att-pin-error');
+    if(err)err.textContent='PIN not recognised. Try again.';
+    _attPinBuffer='';
+    _attUpdatePinDisplay();
+    return;
+  }
+  _attPinEmp=found;
+  attClosePinPad();
+  attShowRoleSelect();
+}
+
+function attShowRoleSelect(){
+  const nameEl=document.getElementById('att-role-emp-name');
+  if(nameEl)nameEl.textContent='Welcome, '+(_attPinEmp?_attPinEmp.name:'');
+  const listEl=document.getElementById('att-role-list');
+  if(listEl){
+    listEl.innerHTML=ATT_ROLES.map(r=>
+      `<button class="att-role-btn" onclick="attClockOn('${r.id}')">
+        <span class="att-role-icon">${r.icon}</span>
+        <span>${r.label}</span>
+      </button>`
+    ).join('');
+  }
+  const overlay=document.getElementById('att-role-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+
+function attCloseRoleSelect(){
+  const overlay=document.getElementById('att-role-overlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function attClockOn(roleId){
+  if(!_attPinEmp)return;
+  attCloseRoleSelect();
+  const role=ATT_ROLES.find(r=>r.id===roleId)||{id:roleId,label:roleId};
+  const record={
+    id:Date.now().toString(),
+    empId:_attPinEmp.id,
+    name:_attPinEmp.name,
+    role:role.label,
+    roleId,
+    clockOn:new Date().toISOString(),
+    breaks:[],
+    clockOff:null,
+    kioskMachine:getKioskMachine()||'unknown',
+  };
+  const att=getAttendance();
+  att.push(record);
+  saveAttendance(att);
+  if(roleId==='cnc'){
+    toast(`✅ ${record.name} clocked on — CNC Operator`);
+    // Pre-fill timecard operator and switch to timecard tab
+    tcSelectOperator(_attPinEmp);
+    attSwitchTab('timecard');
+  }else{
+    toast(`✅ ${record.name} clocked on — ${record.role}`);
+    attRenderPanel();
+  }
+  try{renderWhosIn();}catch(e){}
+}
+
+function attStartBreak(attId){
+  const att=getAttendance();
+  const rec=att.find(r=>r.id===attId);
+  if(!rec||rec.clockOff)return;
+  // Only one open break at a time
+  const lastBreak=rec.breaks[rec.breaks.length-1];
+  if(lastBreak&&!lastBreak.end){toast('Already on break');return;}
+  rec.breaks.push({start:new Date().toISOString(),end:null});
+  saveAttendance(att);
+  attRenderPanel();
+  try{renderWhosIn();}catch(e){}
+  toast(`☕ ${rec.name} on break`);
+}
+
+function attEndBreak(attId){
+  const att=getAttendance();
+  const rec=att.find(r=>r.id===attId);
+  if(!rec)return;
+  const lastBreak=rec.breaks[rec.breaks.length-1];
+  if(lastBreak&&!lastBreak.end)lastBreak.end=new Date().toISOString();
+  saveAttendance(att);
+  attRenderPanel();
+  try{renderWhosIn();}catch(e){}
+  toast(`✅ ${rec.name} back from break`);
+}
+
+function attClockOff(attId){
+  const att=getAttendance();
+  const rec=att.find(r=>r.id===attId);
+  if(!rec||rec.clockOff)return;
+  // Close any open break
+  const lastBreak=rec.breaks[rec.breaks.length-1];
+  if(lastBreak&&!lastBreak.end)lastBreak.end=new Date().toISOString();
+  rec.clockOff=new Date().toISOString();
+  saveAttendance(att);
+  attRenderPanel();
+  try{renderWhosIn();}catch(e){}
+  // Show shift summary
+  const totalMs=new Date(rec.clockOff)-new Date(rec.clockOn);
+  const breakMs=rec.breaks.reduce((s,b)=>s+(b.end?new Date(b.end)-new Date(b.start):0),0);
+  const netMs=Math.max(0,totalMs-breakMs);
+  const fmtH=ms=>{const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);return h>0?`${h}h ${m}m`:`${m}m`;};
+  toast(`👋 ${rec.name} clocked off · Total: ${fmtH(totalMs)} · Net: ${fmtH(netMs)}`);
+}
+
+function attRenderPanel(){
+  const bodyEl=document.getElementById('att-panel-body');
+  if(!bodyEl)return;
+  const kiosk=getKioskMachine()||'unknown';
+  const att=getAttendance();
+  const active=att.filter(r=>!r.clockOff&&r.kioskMachine===kiosk);
+  let html=`<div style="margin-bottom:16px">
+    <button onclick="attShowPinPad()" style="width:100%;height:72px;background:rgba(52,199,89,.15);color:var(--green);border:2px solid rgba(52,199,89,.4);border-radius:12px;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;touch-action:manipulation">
+      👋 CLOCK IN
+    </button>
+  </div>`;
+  if(active.length){
+    html+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:10px">On Shift at this station (${active.length})</div>`;
+    html+=active.map(rec=>{
+      const now=Date.now();
+      const elapsedMs=now-new Date(rec.clockOn).getTime();
+      const lastBreak=rec.breaks[rec.breaks.length-1];
+      const onBreak=lastBreak&&!lastBreak.end;
+      const initials=rec.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      const h=Math.floor(elapsedMs/3600000),m=Math.floor((elapsedMs%3600000)/60000);
+      const elapsed=h>0?`${h}h ${m}m`:`${m}m`;
+      return `<div class="att-person-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${initials}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:15px">${rec.name}</div>
+            <div style="font-size:11px;color:var(--dim)">${rec.role} · ${elapsed}</div>
+            ${onBreak?`<div style="font-size:11px;color:var(--yellow);font-weight:600">☕ ON BREAK</div>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          ${onBreak
+            ?`<button onclick="attEndBreak('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(52,199,89,.3);color:var(--green);background:rgba(52,199,89,.12)">✅ Back from Break</button>`
+            :`<button onclick="attStartBreak('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(255,214,10,.3);color:var(--yellow);background:var(--yellow-d)">☕ Start Break</button>`
+          }
+          <button onclick="attClockOff('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(255,69,58,.3);color:var(--red);background:var(--red-d)">👋 Clock Off</button>
+        </div>
+      </div>`;
+    }).join('');
+  }else{
+    html+=`<div style="font-size:12px;color:var(--dim);text-align:center;padding:12px 0">No one currently clocked in at this station.</div>`;
+  }
+  bodyEl.innerHTML=html;
+}
+
+function attSwitchTab(tab){
+  const tcPanel=document.getElementById('tc-panel-timecard');
+  const attPanel=document.getElementById('tc-panel-attendance');
+  const tcBtn=document.getElementById('tc-tab-timecard');
+  const attBtn=document.getElementById('tc-tab-attendance');
+  if(!tcPanel||!attPanel)return;
+  if(tab==='attendance'){
+    tcPanel.style.display='none';
+    attPanel.style.display='';
+    if(tcBtn)tcBtn.classList.remove('active');
+    if(attBtn)attBtn.classList.add('active');
+    attRenderPanel();
+  }else{
+    tcPanel.style.display='';
+    attPanel.style.display='none';
+    if(tcBtn)tcBtn.classList.add('active');
+    if(attBtn)attBtn.classList.remove('active');
+  }
+}
+
+// ── Who's In panel (Monitor mode) ──
+function renderWhosIn(){
+  const body=document.getElementById('whos-in-body');
+  const countEl=document.getElementById('whos-in-count');
+  if(!body)return;
+  const att=getAttendance();
+  const active=att.filter(r=>!r.clockOff);
+  if(countEl)countEl.textContent=active.length+' clocked in';
+  if(!active.length){
+    body.innerHTML=`<div class="whos-in-empty">Nobody clocked in yet.</div>`;
+    return;
+  }
+  // Group by role
+  const byRole={};
+  active.forEach(r=>{if(!byRole[r.role])byRole[r.role]=[];byRole[r.role].push(r);});
+  body.innerHTML=Object.entries(byRole).map(([role,people])=>{
+    const roleIcon=ATT_ROLES.find(r=>r.label===role)?.icon||'👤';
+    return `<div class="whos-in-group">
+      <div class="whos-in-group-title">${roleIcon} ${role} (${people.length})</div>
+      ${people.map(p=>{
+        const initials=p.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        const since=new Date(p.clockOn).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+        const lastBreak=p.breaks[p.breaks.length-1];
+        const onBreak=lastBreak&&!lastBreak.end;
+        return `<div class="whos-in-emp">
+          <div class="whos-in-badge">${initials}</div>
+          <div>
+            <div class="whos-in-name">${p.name}</div>
+            <div class="whos-in-meta">In ${since} · ${p.kioskMachine}</div>
+            ${onBreak?`<div class="whos-in-break">☕ On Break</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function toggleWhosInPanel(){
+  const body=document.getElementById('whos-in-body');
+  const chev=document.getElementById('whos-in-chevron');
+  if(!body)return;
+  const shown=body.style.display!=='none';
+  body.style.display=shown?'none':'';
+  if(chev)chev.style.transform=shown?'rotate(-90deg)':'';
 }
 
 </script>
