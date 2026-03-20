@@ -7958,6 +7958,9 @@ function showLoginOverlay() {
   setTimeout(() => { const el = document.getElementById('login-user'); if (el) el.focus(); }, 50);
 }
 
+var loginChatOpen = false;
+var loginChatInitialized = false;
+
 function hideLoginOverlay() {
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('login-chat-bubble').style.display = 'none';
@@ -8070,8 +8073,8 @@ function applyUserRole(role) {
 // ══════════════════════════════════════════════════════════════
 //  LOGIN CHAT WIDGET
 // ══════════════════════════════════════════════════════════════
-let loginChatOpen = false;
-let loginChatInitialized = false;
+// loginChatOpen and loginChatInitialized declared earlier (before hideLoginOverlay uses them)
+
 
 const LOGIN_CHAT_RULES = [
   { patterns: ['forgot password','forgot my password','reset password','password reset'], response: 'Click "Forgot Password?" above, or contact your administrator.' },
