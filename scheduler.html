@@ -2007,6 +2007,15 @@ function genMonitorData(){
 //  MODE SWITCHING
 // ══════════════════════════════════════════════════════════════
 function setMode(m){
+  // Close all overlay panels when switching modes (especially back to Schedule)
+  try{
+    closeFilterPanel();
+    closeLightbox();
+    closeReportsModal();
+    closeQuotesPanel();
+    closeOrderReviewPanel();
+    const chatPanel=document.getElementById('chat-panel');if(chatPanel)chatPanel.classList.remove('open');
+  }catch(e){}
   currentMode=m;
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',
     (m==='schedule'&&b.textContent.includes('Schedule'))||(m==='monitor'&&b.textContent.includes('Monitor'))||
