@@ -805,6 +805,21 @@ body.kiosk-mode .floor-pool{display:none}
 .tc-hist-qty{font-weight:600;white-space:nowrap}
 .tc-hist-scrap{color:var(--red);font-weight:700;white-space:nowrap}
 
+/* Kiosk pie chart timer */
+#tc-pie-container{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:20px 16px 14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
+#tc-pie-container.overtimed{border-color:rgba(255,69,58,.5);background:rgba(255,69,58,.06)}
+#tc-pie-container.warning{border-color:rgba(255,159,10,.4);background:rgba(255,159,10,.05)}
+#tc-pie-label-row{display:flex;align-items:center;gap:16px;width:100%;justify-content:center}
+#tc-pie-svg-wrap svg{display:block}
+#tc-pie-elapsed{font-size:52px;font-weight:800;font-family:monospace;letter-spacing:3px;line-height:1;color:var(--txt)}
+#tc-pie-elapsed.green{color:var(--green)}
+#tc-pie-elapsed.orange{color:var(--orange)}
+#tc-pie-elapsed.red{color:var(--red)}
+#tc-pie-std{font-size:15px;color:var(--dim);font-weight:600;text-align:center}
+#tc-pie-pcs{font-size:28px;font-weight:800;color:var(--txt);text-align:center;letter-spacing:1px}
+#tc-pie-pcs .pcs-done{color:var(--green)}
+#tc-pie-sparkline{display:flex;flex-direction:column;align-items:center;gap:4px}
+
 /* Operator selection overlay */
 .op-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center}
 .op-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:32px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -1107,6 +1122,18 @@ body.kiosk-mode .floor-pool{display:none}
           <span class="tc-timer" id="tc-timer">00:00:00</span>
         </div>
         <div style="font-size:12px;color:var(--dim);cursor:pointer" id="tc-operator-display" onclick="tcShowOperatorModal()">👤 No operator — tap to set</div>
+      </div>
+      <!-- Pie chart timer — prominently displayed for operator to 'chase the clock' -->
+      <div id="tc-pie-container" style="display:none">
+        <div id="tc-pie-label-row">
+          <div id="tc-pie-svg-wrap"></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">
+            <div id="tc-pie-elapsed">00:00:00</div>
+            <div id="tc-pie-std"></div>
+            <div id="tc-pie-pcs" style="display:none"></div>
+          </div>
+        </div>
+        <div id="tc-pie-sparkline" style="display:none"></div>
       </div>
       <!-- Action buttons -->
       <div class="tc-btns">
@@ -6492,6 +6519,7 @@ function tcRenderAll(){
   tcRenderQueue();
   tcRenderHistory();
   tcRenderShiftSummary();
+  tcRenderPieTimer();
 }
 
 function tcRenderJobCard(){
@@ -6652,6 +6680,145 @@ function tcTickTimer(){
   const m=Math.floor((elapsed%3600000)/60000);
   const s=Math.floor((elapsed%60000)/1000);
   timerEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  tcRenderPieTimer();
+}
+
+// ── PIE CHART TIMER ──────────────────────────────────────────────────────────
+// Returns standard setup/run times in minutes derived from job totalHours/qty
+function tcGetStdTimes(j){
+  if(!j)return{stdSetupMin:30,stdRunMin:60};
+  const totalMin=j.totalHours*60;
+  // Setup ≈ 20% of total, run ≈ 80%; minimum sensible values
+  const stdSetupMin=Math.max(10,Math.round(totalMin*0.20));
+  const stdRunMin=Math.max(15,Math.round(totalMin*0.80));
+  return{stdSetupMin,stdRunMin};
+}
+
+// Returns {elapsedMin, stdMin, phase} for the *current* phase only
+function tcGetPieData(){
+  const j=tcState.currentJob;
+  const st=tcState.status;
+  if(!j||st==='idle')return null;
+  const{stdSetupMin,stdRunMin}=tcGetStdTimes(j);
+  const totalElapsedMs=tcElapsedMs();
+  if(st==='setup'||(st==='paused'&&!tcState.setupEndTime)){
+    return{elapsedMin:totalElapsedMs/60000,stdMin:stdSetupMin,phase:'setup',j,stdSetupMin,stdRunMin};
+  }
+  // run or paused-after-run: show only run elapsed (total minus setup duration)
+  const setupDurMs=tcState.setupEndTime
+    ?Math.max(0,new Date(tcState.setupEndTime).getTime()-new Date(tcState.startTime).getTime())
+    :0;
+  const runElapsedMs=Math.max(0,totalElapsedMs-setupDurMs);
+  return{elapsedMin:runElapsedMs/60000,stdMin:stdRunMin,phase:'run',j,stdSetupMin,stdRunMin};
+}
+
+function tcGenLargePieSVG(elapsedMin,stdMin,status){
+  const size=210,cx=size/2,cy=size/2,radius=88,strokeW=14;
+  if(status==='idle'||status==='paused'){
+    const col=status==='paused'?'var(--yellow)':'var(--dim2)';
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="${strokeW}"/><text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${status.toUpperCase()}</text></svg>`;
+  }
+  const pct=Math.min(elapsedMin/Math.max(stdMin,1),1.5);
+  const clampPct=Math.min(pct,1);
+  const overTime=pct>1;
+  const warnZone=pct>0.75&&!overTime;
+  const col=overTime?'var(--red)':warnZone?'var(--orange)':'var(--green)';
+  const angle=clampPct*360;
+  const rad2=angle*Math.PI/180;
+  const largeArc=angle>180?1:0;
+  const ex=cx+radius*Math.sin(rad2),ey=cy-radius*Math.cos(rad2);
+  let arc='';
+  if(angle>=360){arc=`<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${col}" stroke-width="${strokeW}"/>`;}
+  else if(angle>0){arc=`<path d="M${cx},${cy-radius} A${radius},${radius} 0 ${largeArc},1 ${ex},${ey}" fill="none" stroke="${col}" stroke-width="${strokeW}" stroke-linecap="round"/>`;}
+  // Overtime inner ring
+  let otRing='';
+  if(overTime){
+    const otR=radius-20;
+    const otPct=Math.min(pct-1,1);
+    const otAngle=otPct*360;const otRad=otAngle*Math.PI/180;
+    const otLarge=otAngle>180?1:0;
+    const otEx=cx+otR*Math.sin(otRad),otEy=cy-otR*Math.cos(otRad);
+    if(otAngle>=360)otRing=`<circle cx="${cx}" cy="${cy}" r="${otR}" fill="none" stroke="var(--red)" stroke-width="5" opacity=".5"/>`;
+    else otRing=`<path d="M${cx},${cy-otR} A${otR},${otR} 0 ${otLarge},1 ${otEx},${otEy}" fill="none" stroke="var(--red)" stroke-width="5" stroke-linecap="round" opacity=".5"/>`;
+  }
+  const pctLabel=overTime?`+${Math.round((pct-1)*100)}%`:`${Math.round(pct*100)}%`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="${strokeW}"/>${arc}${otRing}<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="42" font-weight="800" fill="${col}">${pctLabel}</text><text x="${cx}" y="${cy+28}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--dim)">${status.toUpperCase()}</text></svg>`;
+}
+
+function tcRenderPieTimer(){
+  const container=document.getElementById('tc-pie-container');
+  if(!container)return;
+  const j=tcState.currentJob;
+  const st=tcState.status;
+  if(st==='idle'||!j){container.style.display='none';return;}
+  container.style.display='flex';
+
+  const data=tcGetPieData();
+  if(!data)return;
+  const{elapsedMin,stdMin,phase,stdSetupMin,stdRunMin}=data;
+  const pct=elapsedMin/Math.max(stdMin,1);
+  const overTime=pct>1,warnZone=pct>0.75&&!overTime;
+
+  // Update container accent
+  container.className=overTime?'overtimed':warnZone?'warning':'';
+  container.id='tc-pie-container';
+
+  // SVG
+  const svgWrap=document.getElementById('tc-pie-svg-wrap');
+  if(svgWrap)svgWrap.innerHTML=tcGenLargePieSVG(elapsedMin,stdMin,st);
+
+  // Large elapsed clock
+  const elEl=document.getElementById('tc-pie-elapsed');
+  if(elEl){
+    const totalMs=elapsedMin*60000;
+    const ph=Math.floor(totalMs/3600000),pm=Math.floor((totalMs%3600000)/60000),ps=Math.floor((totalMs%60000)/1000);
+    elEl.textContent=`${String(ph).padStart(2,'0')}:${String(pm).padStart(2,'0')}:${String(ps).padStart(2,'0')}`;
+    elEl.className=overTime?'red':warnZone?'orange':'green';
+  }
+
+  // Standard time reference
+  const stdEl=document.getElementById('tc-pie-std');
+  if(stdEl){
+    if(phase==='setup'){
+      const sm=stdSetupMin;
+      stdEl.textContent=`Std Setup: ${sm>=60?Math.floor(sm/60)+'h '+(sm%60)+'m':sm+'min'}`;
+    }else{
+      const perPiece=Math.round((stdRunMin/Math.max(j.qty,1))*10)/10;
+      stdEl.textContent=`Std Run: ${perPiece}min/pc × ${j.qty} pcs`;
+    }
+  }
+
+  // Pieces counter in run mode (estimated from elapsed vs per-piece std)
+  const pcsEl=document.getElementById('tc-pie-pcs');
+  if(pcsEl){
+    if(phase==='run'&&j.qty>1){
+      const minPerPiece=stdRunMin/Math.max(j.qty,1);
+      const estPcs=Math.min(Math.floor(elapsedMin/Math.max(minPerPiece,0.1)),j.qty);
+      pcsEl.style.display='block';
+      pcsEl.innerHTML=`<span class="pcs-done">${estPcs}</span> / ${j.qty} <span style="font-size:16px;color:var(--dim);font-weight:600">pcs</span>`;
+    }else{
+      pcsEl.style.display='none';
+    }
+  }
+
+  // Benchmark sparkline (last 6 completed timecards for this job/part)
+  const sparkEl=document.getElementById('tc-pie-sparkline');
+  if(sparkEl){
+    const history=getTimecards().filter(t=>t.jobId===j.id||t.partId===j.partId||t.partId===j.id).slice(-6);
+    if(history.length>=2){
+      const vals=phase==='setup'?history.map(t=>t.setupMinutes||0):history.map(t=>t.runMinutes||0);
+      const maxV=Math.max(...vals,1);
+      const bars=vals.map(v=>{
+        const bh=Math.round((v/maxV)*44);
+        const bc=v<=stdMin?'var(--green)':v<=stdMin*1.25?'var(--orange)':'var(--red)';
+        return `<div style="width:16px;height:${bh}px;background:${bc};border-radius:3px;align-self:flex-end" title="${Math.round(v)}min"></div>`;
+      }).join('');
+      sparkEl.innerHTML=`<div style="font-size:11px;color:var(--dim);font-weight:600;letter-spacing:.5px;text-transform:uppercase">Last ${history.length} runs</div><div style="display:flex;gap:4px;align-items:flex-end;height:44px">${bars}</div>`;
+      sparkEl.style.display='flex';
+    }else{
+      sparkEl.style.display='none';
+    }
+  }
 }
 
 function tcElapsedMs(){
