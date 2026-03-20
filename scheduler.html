@@ -6864,6 +6864,12 @@ if(isScreen2){
   // Also fire now if DOM is already ready
   if(document.readyState!=='loading')applyScreen2Mode();
 }else{
+  // ── Forward declarations (must be before renderSchedule call) ──
+  var qcScenarioProbOverrides=null;
+  var qcEditingId=null;
+  var _qcFocusActive=false;
+  var orCurrentOrder=null,orCurrentAnalysis=null;
+
   // Clear stale demo data on each load so simulation is always fresh
   try{
     const keys=[];
@@ -6950,8 +6956,8 @@ if(isScreen2){
 //  QUOTES & CAPACITY PLANNING
 // ══════════════════════════════════════════════════════════════
 // quotes initialized early — see top of script
-let qcScenarioProbOverrides=null; // null = use stored probabilities
-let qcEditingId=null;
+// qcScenarioProbOverrides declared in init block
+// qcEditingId declared in init block
 
 function saveQuotesData(){lsSet('quotes',quotes);}
 
@@ -7185,7 +7191,7 @@ function qcRenderSummary(){
   el._totalOps=totalOps;el._opMachines=opMachines;
 }
 
-let _qcFocusActive=false;
+// _qcFocusActive declared in init block
 function qcSummaryClick(e){
   e.stopPropagation();
   const gantt=document.getElementById('gantt-area');
@@ -7686,7 +7692,7 @@ function _orRiskComplexity(analysis,isDefence){
   return{complexity:'Simple (1–5 days)',cls:'simple'};
 }
 
-let orCurrentOrder=null,orCurrentAnalysis=null;
+// orCurrentOrder, orCurrentAnalysis declared in init block
 
 function orLoadOrder(){
   const raw=document.getElementById('or-so-input').value.trim();
