@@ -616,9 +616,38 @@ table.dtbl select{width:auto;min-width:100px}
 body.kiosk-mode{font-size:15px}
 body.kiosk-mode .app-header{padding:12px 20px}
 body.kiosk-mode .app-header .logo{font-size:18px}
-body.kiosk-mode .mode-btn{font-size:14px;padding:8px 18px}
-body.kiosk-mode .stats .st-v{font-size:22px}
-body.kiosk-mode .stats .st-l{font-size:10px}
+/* Hide ALL mode-nav tabs in kiosk — no Monitor, Schedule, Setup etc */
+body.kiosk-mode .mode-nav{display:none!important}
+/* Hide stats bar (Active Jobs, On Time, At Risk, Late, CMM Queue, Breakdown) */
+body.kiosk-mode .stats{display:none!important}
+/* Hide the Shop Floor Allocation Board header + management buttons */
+body.kiosk-mode .floor-header{display:none!important}
+/* Hide floor pool (unassigned workers panel) */
+body.kiosk-mode .floor-pool{display:none!important}
+/* Hide the floor plan / allocation board SVG area */
+body.kiosk-mode .floor-plan{display:none!important}
+body.kiosk-mode .floor-svg-wrap{display:none!important}
+/* Hide Pi stations panel in kiosk */
+body.kiosk-mode .pi-stations-panel{display:none!important}
+/* Hide legacy card view grid (management monitor cards) */
+body.kiosk-mode #monitor-legacy{display:none!important}
+body.kiosk-mode #monitor-grid{display:none!important}
+/* Hide the entire floor grid (allocation board machine cards) */
+body.kiosk-mode #floor-grid-wrap{display:none!important}
+body.kiosk-mode .floor-grid{display:none!important}
+body.kiosk-mode .floor-svg-overlay{display:none!important}
+/* Hide staffing analysis */
+body.kiosk-mode #staffing-panel{display:none!important}
+/* Hide Logout button and user badge */
+body.kiosk-mode .user-badge{display:none!important}
+body.kiosk-mode .logout-btn{display:none!important}
+/* Hide reports and NJR dashboard button (management only) */
+body.kiosk-mode #reports-btn{display:none!important}
+body.kiosk-mode #njr-dashboard-btn{display:none!important}
+/* Hide CNC01 label button — machine is in the header logo */
+body.kiosk-mode .kiosk-machine-label{display:none!important}
+/* Make sure the kiosk timecard panels are visible and prominent */
+body.kiosk-mode .tc-wrap{display:block!important}
 body.kiosk-mode .mcard{padding:18px}
 body.kiosk-mode .mcard-name{font-size:16px}
 body.kiosk-mode .mcard-status{font-size:12px;padding:4px 10px}
@@ -629,51 +658,6 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 .kiosk-shift-badge.day{background:rgba(255,214,10,.2);color:var(--yellow)}
 .kiosk-shift-badge.night{background:rgba(90,200,250,.15);color:var(--blue)}
 .kiosk-machine-label{font-size:13px;font-weight:700;color:var(--accent);background:rgba(224,122,58,.12);padding:4px 12px;border-radius:var(--rs);border:1px solid rgba(224,122,58,.3);flex-shrink:0}
-
-/* ─── MACHINE TOGGLE ─── */
-.kiosk-machine-select{font-size:12px;font-weight:700;color:var(--accent);background:rgba(224,122,58,.12);padding:4px 8px;border-radius:var(--rs);border:1px solid rgba(224,122,58,.3);cursor:pointer;font-family:inherit;display:none;max-width:130px}
-.kiosk-machine-select.override{color:var(--yellow);background:rgba(255,214,10,.12);border-color:rgba(255,214,10,.3)}
-.kiosk-machine-reset{font-size:10px;font-weight:700;color:var(--yellow);background:rgba(255,214,10,.12);padding:3px 8px;border-radius:var(--rs);border:1px solid rgba(255,214,10,.3);cursor:pointer;font-family:inherit;display:none}
-
-/* ─── ATTENDANCE / KIOSK TABS ─── */
-.tc-tab-bar{display:flex;gap:0;background:var(--s2);border-bottom:1px solid var(--brd);flex-shrink:0}
-.tc-tab-btn{flex:1;padding:12px 8px;font-size:13px;font-weight:700;border:none;background:transparent;color:var(--dim);cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;transition:.15s}
-.tc-tab-btn.active{color:var(--txt);border-bottom-color:var(--accent)}
-/* PIN pad */
-.att-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1100;display:none;align-items:center;justify-content:center}
-.att-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:28px;width:min(400px,96vw);max-height:92vh;overflow-y:auto}
-.att-title{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
-.att-sub{font-size:13px;color:var(--dim);text-align:center;margin-bottom:20px}
-.att-pin-display{font-size:36px;font-weight:800;text-align:center;letter-spacing:14px;margin:12px 0 18px;color:var(--txt);background:var(--s2);border:1px solid var(--brd);border-radius:10px;padding:12px 20px;font-family:monospace}
-.att-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
-.att-pin-btn{height:64px;border-radius:10px;font-size:26px;font-weight:700;border:1px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;transition:.1s;font-family:inherit;touch-action:manipulation}
-.att-pin-btn:active{background:var(--s3);transform:scale(.96)}
-.att-pin-btn.clear{font-size:17px;color:var(--red);border-color:rgba(255,69,58,.3);background:var(--red-d)}
-.att-pin-btn.submit{font-size:15px;color:var(--green);border-color:rgba(52,199,89,.3);background:var(--green-d)}
-.att-pin-error{color:var(--red);font-size:13px;text-align:center;min-height:22px;margin-top:6px;font-weight:600}
-/* Role select */
-.att-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.att-role-btn{height:76px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;transition:.1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-family:inherit;touch-action:manipulation}
-.att-role-btn:active{background:var(--s3)}
-.att-role-icon{font-size:22px}
-/* Active shift in attendance tab */
-.att-person-card{background:var(--s2);border:1px solid var(--brd);border-radius:10px;padding:12px;margin-bottom:10px}
-.att-shift-action-btn{height:52px;border-radius:8px;font-size:14px;font-weight:700;border:1px solid;cursor:pointer;font-family:inherit;flex:1;touch-action:manipulation}
-/* Who's In panel */
-.whos-in-panel{margin-top:16px;border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;background:var(--s1)}
-.whos-in-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--brd);cursor:pointer;user-select:none;transition:.15s}
-.whos-in-hd:hover{background:var(--s3)}
-.whos-in-hd-title{font-weight:700;font-size:13px;flex:1}
-.whos-in-body{padding:12px;display:flex;flex-wrap:wrap;gap:12px}
-.whos-in-group{min-width:170px;flex:1}
-.whos-in-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--brd)}
-.whos-in-emp{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.whos-in-emp:last-child{border-bottom:none}
-.whos-in-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--s3);color:var(--txt)}
-.whos-in-name{font-size:12px;font-weight:600}
-.whos-in-meta{font-size:10px;color:var(--dim)}
-.whos-in-break{font-size:10px;color:var(--yellow);font-weight:600}
-.whos-in-empty{font-size:12px;color:var(--dim);padding:8px;font-style:italic}
 
 /* ─── WS CONNECTION STATUS BAR ─── */
 .ws-status-bar{display:none;align-items:center;gap:10px;padding:5px 16px;background:var(--s1);border-top:1px solid var(--brd);font-size:11px;flex-shrink:0}
@@ -736,16 +720,15 @@ body.kiosk-mode .floor-card .fc-id{font-size:14px}
 .job-flash{animation:job-flash .4s ease 3}
 
 /* ─── KIOSK TIMECARD PANEL ─── */
-.tc-wrap{padding:12px 12px 20px;display:none}
-body.kiosk-mode .tc-wrap{display:block}
-body.kiosk-mode .floor-pool{display:none}
+.tc-wrap{padding:6px 10px 10px;display:none}
+/* kiosk overrides for tc-wrap and floor-pool are in the main kiosk CSS block above */
 
-.tc-shift-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:12px}
+.tc-shift-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:8px}
 .tc-shift-stat{text-align:center}
 .tc-shift-stat .tsv{font-size:22px;font-weight:700;line-height:1.1}
 .tc-shift-stat .tsl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
-.tc-job-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.tc-job-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px}
 .tc-job-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .tc-job-num{font-size:18px;font-weight:800;font-family:monospace;color:var(--txt)}
 .tc-job-op{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
@@ -758,7 +741,7 @@ body.kiosk-mode .floor-pool{display:none}
 .tc-job-meta span{color:var(--dim)}
 .tc-job-meta strong{color:var(--txt)}
 
-.tc-status-big{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--rs);margin-bottom:10px;font-size:16px;font-weight:700;transition:.3s}
+.tc-status-big{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs);margin-bottom:6px;font-size:14px;font-weight:700;transition:.3s}
 .tc-status-big.idle{background:var(--s3);color:var(--dim)}
 .tc-status-big.setup{background:rgba(255,159,10,.15);color:var(--orange);border:1px solid rgba(255,159,10,.25)}
 .tc-status-big.run{background:rgba(90,200,250,.15);color:var(--blue);border:1px solid rgba(90,200,250,.25)}
@@ -767,7 +750,7 @@ body.kiosk-mode .floor-pool{display:none}
 .tc-timer{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;margin-left:auto;font-family:monospace}
 @keyframes tc-tick{50%{opacity:.7}}
 
-.tc-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tc-btns{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
 .tc-btn{min-height:64px;border-radius:10px;font-size:17px;font-weight:700;border:2px solid transparent;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .tc-btn:active{transform:scale(.97);filter:brightness(1.2)}
 .tc-btn.setup{background:rgba(52,199,89,.2);color:var(--green);border-color:rgba(52,199,89,.4)}
@@ -782,7 +765,7 @@ body.kiosk-mode .floor-pool{display:none}
 @keyframes tc-btn-flash{0%{filter:brightness(1)}50%{filter:brightness(2.5) saturate(2)}100%{filter:brightness(1)}}
 .tc-btn-flash{animation:tc-btn-flash .25s ease}
 
-.tc-queue-section{margin-bottom:14px}
+.tc-queue-section{margin-bottom:6px}
 .tc-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;user-select:none;padding:4px 0}
 .tc-section-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
 .tc-section-chevron{color:var(--dim);transition:transform .2s;font-size:11px}
@@ -805,20 +788,39 @@ body.kiosk-mode .floor-pool{display:none}
 .tc-hist-qty{font-weight:600;white-space:nowrap}
 .tc-hist-scrap{color:var(--red);font-weight:700;white-space:nowrap}
 
-/* Kiosk pie chart timer */
-#tc-pie-container{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:20px 16px 14px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
-#tc-pie-container.overtimed{border-color:rgba(255,69,58,.5);background:rgba(255,69,58,.06)}
-#tc-pie-container.warning{border-color:rgba(255,159,10,.4);background:rgba(255,159,10,.05)}
-#tc-pie-label-row{display:flex;align-items:center;gap:16px;width:100%;justify-content:center}
-#tc-pie-svg-wrap svg{display:block}
-#tc-pie-elapsed{font-size:52px;font-weight:800;font-family:monospace;letter-spacing:3px;line-height:1;color:var(--txt)}
-#tc-pie-elapsed.green{color:var(--green)}
-#tc-pie-elapsed.orange{color:var(--orange)}
-#tc-pie-elapsed.red{color:var(--red)}
-#tc-pie-std{font-size:15px;color:var(--dim);font-weight:600;text-align:center}
-#tc-pie-pcs{font-size:28px;font-weight:800;color:var(--txt);text-align:center;letter-spacing:1px}
-#tc-pie-pcs .pcs-done{color:var(--green)}
-#tc-pie-sparkline{display:flex;flex-direction:column;align-items:center;gap:4px}
+/* ─── KIOSK PAYROLL SECTION (COMPACT) ─── */
+.tc-section-hd2{display:none}
+.tc-payroll-section{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-payroll-row{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.tc-payroll-row label,.tc-clockon-row label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.tc-payroll-row select,.tc-clockon-row select{flex:1;background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:5px 8px;border-radius:var(--rs);font-size:12px;font-family:inherit;min-width:0}
+.tc-payroll-btns{display:flex;gap:6px;flex-shrink:0}
+.tc-payroll-btn{height:34px;padding:0 14px;border-radius:var(--rs);font-size:12px;font-weight:800;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:4px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;white-space:nowrap}
+.tc-payroll-btn:active:not(:disabled){transform:scale(.97)}
+.tc-payroll-btn.clock-in{background:rgba(52,199,89,.2);color:var(--green);border-color:rgba(52,199,89,.4)}
+.tc-payroll-btn.clock-in:not(:disabled):hover{background:var(--green);color:#000}
+.tc-payroll-btn.clock-out{background:rgba(255,69,58,.18);color:var(--red);border-color:rgba(255,69,58,.4)}
+.tc-payroll-btn.clock-out:not(:disabled):hover{background:var(--red);color:#fff}
+.tc-payroll-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.tc-payroll-status{font-size:10px;padding:4px 8px;border-radius:var(--rs);background:var(--s3);color:var(--dim);white-space:nowrap;flex-shrink:0}
+.tc-payroll-status.clocked-in{background:rgba(52,199,89,.12);color:var(--green);border:1px solid rgba(52,199,89,.25)}
+
+/* ─── KIOSK CLOCK ON SECTION ─── */
+.tc-clockon-section{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:6px 10px;margin-bottom:6px;transition:opacity .25s}
+.tc-clockon-section.disabled{opacity:.4;pointer-events:none}
+.tc-clockon-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:nowrap}
+.tc-clockon-btns{display:flex;gap:6px;margin-top:4px;margin-bottom:2px}
+.kiosk-docs-panel{background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;margin-top:8px}
+.kiosk-docs-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:8px}
+.kiosk-doc-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:6px;cursor:pointer;transition:.15s}
+.kiosk-doc-item:last-child{margin-bottom:0}
+.kiosk-doc-item:hover{border-color:var(--blue);background:var(--blue-d)}
+.kiosk-doc-icon{font-size:20px;flex-shrink:0}
+.kiosk-doc-name{font-size:12px;font-weight:600;flex:1}
+.kiosk-doc-type{font-size:10px;color:var(--dim);padding:2px 6px;background:var(--s3);border-radius:10px;white-space:nowrap}
+.kiosk-breakdown-row{margin-bottom:6px}
+.kiosk-breakdown-btn{min-height:48px;width:100%;border-radius:10px;font-size:14px;font-weight:700;background:rgba(255,69,58,.12);color:var(--red);border:2px solid rgba(255,69,58,.3);cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent}
+.kiosk-breakdown-btn:hover,.kiosk-breakdown-btn:active{background:rgba(255,69,58,.25);border-color:var(--red)}
 
 /* Operator selection overlay */
 .op-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center}
@@ -861,6 +863,228 @@ body.kiosk-mode .floor-pool{display:none}
 .tc-view-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;text-align:center}
 .tc-view-big{font-size:24px;font-weight:700;line-height:1.2}
 .tc-view-lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* ─── KIOSK NJR FLASH ALERT BAR ─── */
+.kiosk-njr-alert{display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:var(--red);color:#fff;font-size:14px;font-weight:800;text-align:center;padding:10px 20px;letter-spacing:.5px;cursor:pointer;animation:njr-flash 1s ease-in-out infinite;box-shadow:0 2px 20px rgba(255,69,58,.6)}
+.kiosk-njr-alert.active{display:block}
+@keyframes njr-flash{0%,100%{opacity:1;background:var(--red)}50%{opacity:.7;background:#c0392b}}
+
+/* ─── KIOSK PHASE / DOCS BUTTON ROW ─── */
+.tc-phase-btns{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.tc-phase-btn{flex:1;min-height:52px;border-radius:10px;font-size:15px;font-weight:700;border:2px solid transparent;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tc-phase-btn:active{transform:scale(.97)}
+.tc-phase-btn.prod{background:rgba(90,200,250,.2);color:var(--blue);border-color:rgba(90,200,250,.4)}
+.tc-phase-btn.prod:not(:disabled):hover{background:var(--blue);color:#000}
+.tc-phase-btn.docs{background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)}
+.tc-phase-btn.docs:not(:disabled):hover{background:rgba(191,90,242,.3)}
+.tc-phase-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* ─── PAUSE DROPDOWN ─── */
+.pause-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:900;display:flex;align-items:center;justify-content:center}
+.pause-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;padding:28px;width:440px;max-width:97vw;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.pause-card-title{font-size:18px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.pause-reason-btn{width:100%;padding:14px 16px;margin-bottom:8px;border-radius:10px;font-size:15px;font-weight:700;border:2px solid rgba(255,214,10,.35);background:rgba(255,214,10,.12);color:var(--yellow);cursor:pointer;font-family:inherit;transition:.15s;text-align:left;display:flex;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent}
+.pause-reason-btn:hover{background:rgba(255,214,10,.25);border-color:var(--yellow)}
+.pause-reason-code{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(255,214,10,.25);color:var(--yellow);white-space:nowrap;margin-left:auto;flex-shrink:0}
+.pause-cancel-btn{width:100%;padding:12px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--brd);background:var(--s3);color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s;margin-top:4px}
+.pause-cancel-btn:hover{color:var(--txt);border-color:var(--brd2)}
+.docs-tab{padding:8px 14px;border-radius:var(--rs);font-size:11px;font-weight:700;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s;flex:1;text-align:center}
+.docs-tab:hover{color:var(--txt);border-color:var(--brd2)}
+.docs-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ─── KIOSK NJR PANEL ─── */
+.kiosk-njr-panel{background:var(--s2);border:2px solid rgba(255,69,58,.4);border-radius:var(--r);padding:14px;margin-bottom:12px;transition:border-color .3s}
+.kiosk-njr-panel.njr-ready{border-color:rgba(52,199,89,.5);background:rgba(52,199,89,.06)}
+.kiosk-njr-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.kiosk-njr-badge{font-size:12px;font-weight:800;padding:4px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.kiosk-njr-badge.not-ready{background:rgba(255,69,58,.2);color:var(--red);border:1px solid rgba(255,69,58,.4)}
+.kiosk-njr-badge.ready{background:rgba(52,199,89,.2);color:var(--green);border:1px solid rgba(52,199,89,.4)}
+.kiosk-njr-job{font-size:13px;font-weight:700;color:var(--txt)}
+.kiosk-njr-sub{font-size:11px;color:var(--dim);margin-top:1px}
+.kiosk-njr-checklist{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.njr-check-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--brd);border-radius:var(--rs);cursor:pointer;transition:.15s;background:var(--s3);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.njr-check-item:hover{border-color:var(--green);background:rgba(52,199,89,.07)}
+.njr-check-item.checked{background:rgba(52,199,89,.1);border-color:rgba(52,199,89,.4)}
+.njr-check-box{width:22px;height:22px;border-radius:5px;border:2px solid var(--dim);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:.15s;background:var(--s2)}
+.njr-check-item.checked .njr-check-box{border-color:var(--green);background:var(--green);color:#000}
+.njr-check-label{font-size:14px;font-weight:600;flex:1}
+.njr-check-time{font-size:10px;color:var(--dim2);white-space:nowrap}
+.kiosk-njr-confirm-btn{width:100%;min-height:52px;border-radius:10px;font-size:15px;font-weight:700;border:2px solid transparent;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent}
+.kiosk-njr-confirm-btn:not(:disabled){background:rgba(52,199,89,.2);color:var(--green);border-color:rgba(52,199,89,.4)}
+.kiosk-njr-confirm-btn:not(:disabled):hover{background:var(--green);color:#000}
+.kiosk-njr-confirm-btn:disabled{opacity:.35;cursor:not-allowed;background:var(--s3);color:var(--dim);border-color:var(--brd)}
+.kiosk-njr-docs-btn{width:100%;padding:9px 12px;border-radius:var(--rs);font-size:12px;font-weight:700;border:1px solid rgba(191,90,242,.3);background:rgba(191,90,242,.1);color:#bf5af2;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+.kiosk-njr-docs-btn:hover{background:rgba(191,90,242,.2)}
+
+/* ─── GRAB MACHINE BUTTON / SPLIT SCREEN ─── */
+.kiosk-grab-btn{position:relative;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--rs);font-size:12px;font-weight:700;border:1px solid rgba(90,200,250,.3);background:rgba(90,200,250,.1);color:var(--blue);cursor:pointer;font-family:inherit;transition:.15s;flex-shrink:0}
+.kiosk-grab-btn:hover{background:rgba(90,200,250,.2)}
+.kiosk-grab-dropdown{position:absolute;top:calc(100% + 4px);right:0;background:var(--s1);border:1px solid var(--brd);border-radius:var(--rs);min-width:160px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+.kiosk-grab-dropdown.open{display:block}
+.kiosk-grab-option{padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--brd)}
+.kiosk-grab-option:last-child{border-bottom:none}
+.kiosk-grab-option:hover{background:var(--blue-d);color:var(--blue)}
+.kiosk-release-btn{padding:4px 10px;border-radius:var(--rs);font-size:11px;font-weight:700;border:1px solid rgba(255,69,58,.3);background:rgba(255,69,58,.1);color:var(--red);cursor:pointer;font-family:inherit;transition:.15s;display:none}
+.kiosk-release-btn:hover{background:rgba(255,69,58,.2)}
+.kiosk-split-wrap{display:flex;gap:0;flex:1;overflow:hidden}
+.kiosk-split-panel{flex:1;overflow-y:auto;border-right:2px solid var(--brd)}
+.kiosk-split-panel:last-child{border-right:none}
+.kiosk-split-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);padding:6px 12px 0;border-bottom:1px solid var(--brd);background:var(--s1);margin-bottom:8px}
+
+/* ─── NJR DASHBOARD PANEL (main scheduler) ─── */
+.njr-dashboard-panel{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:none;align-items:center;justify-content:center}
+.njr-dashboard-panel.open{display:flex}
+.njr-dashboard-card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;width:900px;max-width:97vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.7);display:flex;flex-direction:column}
+.njr-dash-hd{display:flex;align-items:center;gap:10px;padding:18px 24px;border-bottom:1px solid var(--brd);flex-shrink:0}
+.njr-dash-title{font-size:18px;font-weight:700;flex:1}
+.njr-dash-body{padding:20px 24px;overflow-y:auto}
+.njr-global-score{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.njr-score-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:14px;text-align:center}
+.njr-score-val{font-size:28px;font-weight:800;line-height:1.1}
+.njr-score-lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.njr-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px}
+.njr-table th{background:var(--s2);padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);text-align:left;font-weight:700;position:sticky;top:0}
+.njr-table td{padding:8px 10px;border:1px solid var(--brd);vertical-align:middle}
+.njr-table tr.below-target td{background:rgba(255,69,58,.06)}
+.njr-score-chip{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700;font-size:11px}
+.njr-score-chip.good{background:var(--green-d);color:var(--green)}
+.njr-score-chip.warn{background:var(--yellow-d);color:var(--yellow)}
+.njr-score-chip.bad{background:var(--red-d);color:var(--red)}
+
+/* ─── PAUSE REASONS ADMIN (Setup tab) ─── */
+.pause-admin-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.pause-admin-table th{background:var(--s2);padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);text-align:left}
+.pause-admin-table td{padding:8px 10px;border:1px solid var(--brd);vertical-align:middle}
+.pause-admin-table tr:hover td{background:var(--s3)}
+
+/* ═══════════════════════════════════════════════════════
+   KIOSK V3 — Clean Operator UI
+   ═══════════════════════════════════════════════════════ */
+
+/* Kiosk tc-wrap: full-height flex column */
+body.kiosk-mode .tc-wrap{display:flex!important;flex-direction:column;gap:10px;padding:12px;height:calc(100vh - 110px);overflow-y:auto;box-sizing:border-box}
+
+/* ─── 6 ACTION BUTTONS GRID ─── */
+.kiosk-idle-grid{display:flex;gap:6px;flex-shrink:0;flex-wrap:nowrap}
+.kiosk-idle-btn{height:36px;padding:0 12px;border-radius:var(--rs);font-size:12px;font-weight:700;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:.12s;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;white-space:nowrap;flex:1}
+.kiosk-idle-btn:active{transform:scale(.96);filter:brightness(1.15)}
+.kiosk-idle-btn.k-green{background:rgba(52,199,89,.18);color:var(--green);border-color:rgba(52,199,89,.4)}
+.kiosk-idle-btn.k-green:hover{background:rgba(52,199,89,.3);border-color:var(--green)}
+.kiosk-idle-btn.k-red{background:rgba(255,69,58,.16);color:var(--red);border-color:rgba(255,69,58,.38)}
+.kiosk-idle-btn.k-red:hover{background:rgba(255,69,58,.28);border-color:var(--red)}
+.kiosk-idle-btn.k-blue{background:rgba(90,200,250,.15);color:var(--blue);border-color:rgba(90,200,250,.38)}
+.kiosk-idle-btn.k-blue:hover{background:rgba(90,200,250,.28);border-color:var(--blue)}
+.kiosk-idle-btn.k-purple{background:rgba(191,90,242,.14);color:#bf5af2;border-color:rgba(191,90,242,.35)}
+.kiosk-idle-btn.k-purple:hover{background:rgba(191,90,242,.26);border-color:#bf5af2}
+.kiosk-idle-btn.k-orange{background:rgba(255,159,10,.14);color:var(--orange);border-color:rgba(255,159,10,.35)}
+.kiosk-idle-btn.k-orange:hover{background:rgba(255,159,10,.26);border-color:var(--orange)}
+.kiosk-idle-btn.k-njr{background:rgba(255,69,58,.12);color:var(--red);border-color:rgba(255,69,58,.32);font-size:16px;letter-spacing:1px}
+.kiosk-idle-btn.k-njr.njr-ready{background:rgba(52,199,89,.14);color:var(--green);border-color:rgba(52,199,89,.38)}
+.kiosk-idle-btn.k-njr:hover{background:rgba(255,69,58,.24)}
+
+/* ─── ACTIVE JOB PHASE CARD ─── */
+.kiosk-phase-card{background:var(--s2);border:2px solid var(--brd);border-radius:16px;padding:16px;flex-shrink:0}
+.kiosk-phase-card.kpc-setup{border-color:rgba(255,159,10,.35);background:rgba(255,159,10,.04)}
+.kiosk-phase-card.kpc-run{border-color:rgba(90,200,250,.35);background:rgba(90,200,250,.04)}
+.kiosk-phase-card.kpc-paused{border-color:rgba(255,214,10,.35);background:rgba(255,214,10,.04)}
+
+.kpc-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.kpc-phase-badge{font-size:11px;font-weight:800;padding:3px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}
+.kpc-phase-badge.setup{background:rgba(255,159,10,.2);color:var(--orange);border:1px solid rgba(255,159,10,.4)}
+.kpc-phase-badge.run{background:rgba(90,200,250,.2);color:var(--blue);border:1px solid rgba(90,200,250,.4)}
+.kpc-phase-badge.paused{background:rgba(255,214,10,.18);color:var(--yellow);border:1px solid rgba(255,214,10,.35)}
+.kpc-job-num{font-size:20px;font-weight:900;font-family:monospace;color:var(--txt);flex:1}
+.kpc-meta{font-size:13px;color:var(--dim);margin-bottom:4px;line-height:1.5}
+.kpc-meta strong{color:var(--txt)}
+.kpc-operator{font-size:13px;color:var(--dim);margin-bottom:12px}
+
+/* ─── SVG RING CHART ─── */
+.kpc-ring-area{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:14px}
+.kpc-ring-svg{width:180px;height:180px;flex-shrink:0}
+.ring-bg{fill:none;stroke:var(--s3);stroke-width:18}
+.ring-fill{fill:none;stroke-width:18;stroke-linecap:round;transition:stroke-dasharray .8s ease,stroke .5s ease;transform-origin:center;transform:rotate(-90deg)}
+.ring-fill.ring-green{stroke:var(--green)}
+.ring-fill.ring-yellow{stroke:var(--yellow)}
+.ring-fill.ring-red{stroke:var(--red)}
+.ring-time{fill:var(--txt);font-size:22px;font-weight:800;font-family:monospace;dominant-baseline:middle}
+.ring-label{fill:var(--dim);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;dominant-baseline:middle}
+.ring-std{fill:var(--dim2);font-size:10px;dominant-baseline:middle}
+
+/* Locked setup time display (run card) */
+.kpc-setup-locked{font-size:13px;font-weight:700;color:var(--dim);background:var(--s3);padding:6px 12px;border-radius:var(--rs);margin-bottom:10px;display:inline-flex;align-items:center;gap:6px}
+.kpc-setup-locked .locked-time{color:var(--txt);font-family:monospace}
+.kpc-setup-locked .locked-check{color:var(--green)}
+
+/* START PRODUCTION button inside ring area */
+.kiosk-start-prod-btn{min-height:52px;padding:0 28px;border-radius:12px;font-size:16px;font-weight:800;border:2px solid rgba(52,199,89,.5);background:rgba(52,199,89,.2);color:var(--green);cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;letter-spacing:.3px}
+.kiosk-start-prod-btn:hover{background:rgba(52,199,89,.35);border-color:var(--green)}
+.kiosk-start-prod-btn:active{transform:scale(.97)}
+
+/* ─── PHASE ACTION BUTTONS ─── */
+.kpc-actions{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.kpc-btn{flex:1;min-height:52px;border-radius:10px;font-size:15px;font-weight:700;border:2px solid transparent;cursor:pointer;font-family:inherit;transition:.12s;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kpc-btn:active{transform:scale(.97)}
+.kpc-btn.pause{background:rgba(255,214,10,.15);color:var(--yellow);border-color:rgba(255,214,10,.38)}
+.kpc-btn.pause:hover{background:rgba(255,214,10,.28)}
+.kpc-btn.resume{background:rgba(52,199,89,.15);color:var(--green);border-color:rgba(52,199,89,.38)}
+.kpc-btn.resume:hover{background:rgba(52,199,89,.28)}
+.kpc-btn.end{background:rgba(255,69,58,.15);color:var(--red);border-color:rgba(255,69,58,.38)}
+.kpc-btn.end:hover{background:rgba(255,69,58,.28)}
+.kpc-btn.docs{background:rgba(191,90,242,.12);color:#bf5af2;border-color:rgba(191,90,242,.3)}
+.kpc-btn.docs:hover{background:rgba(191,90,242,.24)}
+
+/* ─── PARTS MADE / SCRAPPED COUNTERS ─── */
+.kpc-counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.kpc-counter-group label{display:block;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpc-counter-ctrl{display:flex;align-items:center;gap:0;border:2px solid var(--brd);border-radius:var(--rs);overflow:hidden;background:var(--s3)}
+.kpc-counter-ctrl button{width:44px;min-height:44px;border:none;background:var(--s2);color:var(--txt);font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;transition:.12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kpc-counter-ctrl button:hover{background:var(--s3);color:var(--accent)}
+.kpc-counter-ctrl button:active{background:var(--accent);color:#fff}
+.kpc-counter-ctrl input[type=number]{flex:1;min-width:0;background:transparent;border:none;color:var(--txt);font-size:22px;font-weight:800;font-family:monospace;text-align:center;padding:6px 2px;outline:none;-moz-appearance:textfield}
+.kpc-counter-ctrl input[type=number]::-webkit-inner-spin-button,.kpc-counter-ctrl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.kpc-qty-target{font-size:11px;color:var(--dim);margin-left:4px}
+
+/* ─── KIOSK EMPLOYEE / PAYROLL OVERLAY ─── */
+.kiosk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1200;display:flex;align-items:center;justify-content:center}
+.kiosk-overlay-card{background:var(--s1);border:1px solid var(--brd);border-radius:18px;padding:28px;width:460px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.7)}
+.kiosk-overlay-title{font-size:20px;font-weight:800;text-align:center;margin-bottom:6px}
+.kiosk-overlay-sub{font-size:13px;color:var(--dim);text-align:center;margin-bottom:22px}
+.kp-emp-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:380px;overflow-y:auto}
+.kp-emp-btn{padding:14px 16px;border-radius:12px;font-size:16px;font-weight:700;border:2px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;font-family:inherit;transition:.12s;text-align:left;display:flex;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kp-emp-btn:hover{border-color:var(--accent);background:rgba(224,122,58,.12)}
+.kp-emp-btn.clocked-in{border-color:rgba(52,199,89,.45);background:rgba(52,199,89,.08)}
+.kp-emp-btn.clocked-in:hover{border-color:var(--green);background:rgba(52,199,89,.18)}
+.kp-emp-badge{width:42px;height:42px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.kp-emp-badge.in{background:var(--green);color:#000}
+.kp-emp-badge.out{background:var(--s3);color:var(--dim)}
+.kp-emp-name{font-size:15px;font-weight:700}
+.kp-emp-status{font-size:11px;margin-top:2px}
+.kp-emp-status.in{color:var(--green)}
+.kp-emp-status.out{color:var(--dim)}
+.kp-cancel-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:600;border:2px solid var(--brd);background:var(--s3);color:var(--dim);cursor:pointer;font-family:inherit;transition:.12s;-webkit-tap-highlight-color:transparent}
+.kp-cancel-btn:hover{color:var(--txt);border-color:var(--brd2)}
+
+/* ─── KIOSK CLOCK ON OVERLAY (job queue) ─── */
+.kiosk-clockon-card{width:540px;max-width:98vw}
+.kco-queue-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:420px;overflow-y:auto}
+.kco-queue-item{background:var(--s2);border:2px solid var(--brd);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kco-queue-item:hover{border-color:var(--blue);background:var(--blue-d)}
+.kco-queue-item.next-up{border-color:rgba(52,199,89,.4);background:rgba(52,199,89,.06)}
+.kco-item-top{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.kco-item-num{font-size:15px;font-weight:800;font-family:monospace;color:var(--txt)}
+.kco-item-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.kco-item-status.in-setup{background:rgba(255,159,10,.2);color:var(--orange)}
+.kco-item-status.in-run{background:rgba(90,200,250,.2);color:var(--blue)}
+.kco-item-status.queued{background:var(--s3);color:var(--dim)}
+.kco-item-badge{font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;background:rgba(52,199,89,.18);color:var(--green);margin-left:auto}
+.kco-item-part{font-size:13px;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap}
+.kco-item-part strong{color:var(--txt)}
+
+/* ─── KIOSK NJR OVERLAY ─── */
+.kiosk-njr-overlay-inner{max-height:420px;overflow-y:auto;margin-bottom:14px}
+
+/* ─── KIOSK SHIFT SUMMARY (bottom bar) ─── */
+body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -926,6 +1150,11 @@ body.kiosk-mode .floor-pool{display:none}
   </div>
 </div>
 
+<!-- ═══ KIOSK NJR ALERT BAR ═══ -->
+<div id="kiosk-njr-alert-bar" class="kiosk-njr-alert" onclick="kioskNjrAlertClick()">
+  🔴 NJR ALERT — Next Job Readiness below 75% target — Tap to review checklist
+</div>
+
 <div class="app">
 <!-- ═══ HEADER ═══ -->
 <div class="app-header">
@@ -938,10 +1167,16 @@ body.kiosk-mode .floor-pool{display:none}
     <button class="mode-btn" onclick="setMode('warnings')" id="warnings-mode-btn">⚠️ Warnings</button>
     <button class="mode-btn" id="timecards-mode-btn" onclick="setMode('timecards')">⏱ Timecards</button>
   </div>
+  <!-- NJR button visible only in non-kiosk mode -->
+  <button class="btn" id="njr-dashboard-btn" onclick="openNjrDashboard()" style="display:none;background:rgba(52,199,89,.1);color:var(--green);border-color:rgba(52,199,89,.3);white-space:nowrap">📊 NJR</button>
   <button class="btn" id="reports-btn" onclick="openReportsModal()" style="background:rgba(90,200,250,.1);color:var(--blue);border-color:rgba(90,200,250,.3);margin-left:4px;white-space:nowrap">📥 Reports</button>
   <span id="kiosk-machine-label" class="kiosk-machine-label" style="display:none"></span>
-  <select id="kiosk-machine-select" class="kiosk-machine-select" onchange="switchKioskMachine(this.value)" title="Switch machine"></select>
-  <button id="kiosk-machine-reset" class="kiosk-machine-reset" onclick="resetKioskMachine()" title="Reset to default machine">↺ Reset</button>
+  <!-- Kiosk: Grab Another Machine button -->
+  <div id="kiosk-grab-wrap" style="display:none;position:relative">
+    <button class="kiosk-grab-btn" id="kiosk-grab-btn" onclick="toggleGrabDropdown()">+ Grab Machine ▾</button>
+    <div class="kiosk-grab-dropdown" id="kiosk-grab-dropdown"></div>
+  </div>
+  <button class="kiosk-release-btn" id="kiosk-release-btn" onclick="releaseGrabbedMachine()">✕ Release</button>
   <div class="kiosk-clock" id="kiosk-clock" style="display:none">
     <span id="kiosk-time">--:--</span>
     <span class="kiosk-shift-badge day" id="kiosk-shift-badge">Day</span>
@@ -1079,90 +1314,180 @@ body.kiosk-mode .floor-pool{display:none}
       </div>
       <div class="pi-stations-body" id="pi-stations-body" style="display:none"></div>
     </div>
-    <!-- Who's In Panel (attendance) -->
-    <div class="whos-in-panel" id="whos-in-panel">
-      <div class="whos-in-hd" onclick="toggleWhosInPanel()">
-        <span>👥</span>
-        <span class="whos-in-hd-title">Who's In</span>
-        <span id="whos-in-count" style="font-size:10px;color:var(--dim);font-weight:400">0 clocked in</span>
-        <span id="whos-in-chevron" style="color:var(--dim);margin-left:8px;transition:transform .2s">▼</span>
-      </div>
-      <div class="whos-in-body" id="whos-in-body"></div>
-    </div>
     <!-- Legacy card view (hidden by default) -->
     <div id="monitor-legacy" style="display:none">
       <div class="machine-grid" id="monitor-grid"></div>
     </div>
-    <!-- ═══ KIOSK TIMECARD PANEL ═══ (only visible in kiosk mode) -->
+    <!-- ═══ KIOSK TIMECARD PANEL V3 ═══ (only visible in kiosk mode) -->
     <div id="kiosk-tc-wrap" class="tc-wrap">
-      <!-- Tab bar -->
-      <div class="tc-tab-bar">
-        <button class="tc-tab-btn active" id="tc-tab-timecard" onclick="attSwitchTab('timecard')">⏱ Timecard</button>
-        <button class="tc-tab-btn" id="tc-tab-attendance" onclick="attSwitchTab('attendance')">👥 Clock In/Out</button>
+
+      <!-- ── 6 ACTION BUTTONS ── -->
+      <div class="kiosk-idle-grid">
+        <button class="kiosk-idle-btn k-green" onclick="kioskClockInBtn()">🟢 Clock In</button>
+        <button class="kiosk-idle-btn k-red" onclick="kioskClockOutBtn()">🔴 Clock Out</button>
+        <button class="kiosk-idle-btn k-blue" id="kiosk-btn-clockon" onclick="kioskClockOnBtn()">▶ Clock On</button>
+        <button class="kiosk-idle-btn k-purple" onclick="tcOpenDocsViewer()">📄 Docs</button>
+        <button class="kiosk-idle-btn k-orange" onclick="tcKioskBreakdown()">🔧 Breakdown</button>
+        <button class="kiosk-idle-btn k-njr" id="kiosk-btn-njr" onclick="kioskNjrBtn()">NJR</button>
       </div>
-      <!-- Timecard tab panel -->
-      <div id="tc-panel-timecard">
-      <!-- Shift summary bar -->
+
+      <!-- ── SETUP CARD (visible during setup phase) ── -->
+      <div id="kiosk-setup-card" class="kiosk-phase-card kpc-setup" style="display:none">
+        <div class="kpc-header">
+          <span class="kpc-phase-badge setup" id="kpc-setup-badge">SETUP</span>
+          <span class="kpc-job-num" id="kpc-setup-job-num">—</span>
+        </div>
+        <div class="kpc-meta" id="kpc-setup-meta">—</div>
+        <div class="kpc-operator" id="kpc-setup-op">👤 —</div>
+        <div class="kpc-ring-area">
+          <svg class="kpc-ring-svg" id="kpc-setup-ring-svg" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="80"/>
+            <circle class="ring-fill ring-green" id="kpc-setup-ring-fill" cx="100" cy="100" r="80" stroke-dasharray="0 502.65"/>
+            <text class="ring-time" id="kpc-setup-ring-time" x="100" y="94" text-anchor="middle">00:00:00</text>
+            <text class="ring-label" x="100" y="116" text-anchor="middle">SETUP</text>
+            <text class="ring-std" id="kpc-setup-ring-std" x="100" y="132" text-anchor="middle">std —</text>
+          </svg>
+          <button class="kiosk-start-prod-btn" id="kpc-start-prod-btn" onclick="tcStartProduction()">▶ START PRODUCTION</button>
+        </div>
+        <div class="kpc-actions">
+          <button class="kpc-btn pause" id="kpc-setup-pause-btn" onclick="tcShowPauseDropdown()">⏸ PAUSE ▾</button>
+          <button class="kpc-btn docs" onclick="tcOpenDocsViewer()">📄 DOCS</button>
+        </div>
+        <div class="kpc-counters">
+          <div class="kpc-counter-group">
+            <label>Parts Made</label>
+            <div class="kpc-counter-ctrl">
+              <button onclick="kioskAdjCounter('parts',-1)">−</button>
+              <input type="number" id="kpc-parts-made" value="0" min="0" inputmode="numeric" onchange="kioskSaveCounters()">
+              <button onclick="kioskAdjCounter('parts',1)">+</button>
+            </div>
+          </div>
+          <div class="kpc-counter-group">
+            <label>Scrapped</label>
+            <div class="kpc-counter-ctrl">
+              <button onclick="kioskAdjCounter('scrap',-1)">−</button>
+              <input type="number" id="kpc-scrap-made" value="0" min="0" inputmode="numeric" onchange="kioskSaveCounters()">
+              <button onclick="kioskAdjCounter('scrap',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RUN CARD (visible during production phase) ── -->
+      <div id="kiosk-run-card" class="kiosk-phase-card kpc-run" style="display:none">
+        <div class="kpc-header">
+          <span class="kpc-phase-badge run" id="kpc-run-badge">PRODUCTION</span>
+          <span class="kpc-job-num" id="kpc-run-job-num">—</span>
+        </div>
+        <div class="kpc-meta" id="kpc-run-meta">—</div>
+        <div class="kpc-operator" id="kpc-run-op">👤 —</div>
+        <div class="kpc-setup-locked" id="kpc-run-setup-locked">
+          <span>Setup:</span>
+          <span class="locked-time" id="kpc-run-setup-time">—</span>
+          <span class="locked-check">✓</span>
+        </div>
+        <div class="kpc-ring-area">
+          <svg class="kpc-ring-svg" id="kpc-run-ring-svg" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="80"/>
+            <circle class="ring-fill ring-green" id="kpc-run-ring-fill" cx="100" cy="100" r="80" stroke-dasharray="0 502.65"/>
+            <text class="ring-time" id="kpc-run-ring-time" x="100" y="94" text-anchor="middle">00:00:00</text>
+            <text class="ring-label" x="100" y="116" text-anchor="middle">RUN</text>
+            <text class="ring-std" id="kpc-run-ring-std" x="100" y="132" text-anchor="middle">std —</text>
+          </svg>
+        </div>
+        <div class="kpc-actions">
+          <button class="kpc-btn pause" id="kpc-run-pause-btn" onclick="tcShowPauseDropdown()">⏸ PAUSE ▾</button>
+          <button class="kpc-btn end" onclick="tcOpenEndModal()">🔴 END JOB</button>
+          <button class="kpc-btn docs" onclick="tcOpenDocsViewer()">📄 DOCS</button>
+        </div>
+        <div class="kpc-counters">
+          <div class="kpc-counter-group">
+            <label>Parts Made <span class="kpc-qty-target" id="kpc-run-qty-target"></span></label>
+            <div class="kpc-counter-ctrl">
+              <button onclick="kioskAdjCounter('parts',-1)">−</button>
+              <input type="number" id="kpc-run-parts-made" value="0" min="0" inputmode="numeric" onchange="kioskSaveCounters()">
+              <button onclick="kioskAdjCounter('parts',1)">+</button>
+            </div>
+          </div>
+          <div class="kpc-counter-group">
+            <label>Scrapped</label>
+            <div class="kpc-counter-ctrl">
+              <button onclick="kioskAdjCounter('scrap',-1)">−</button>
+              <input type="number" id="kpc-run-scrap-made" value="0" min="0" inputmode="numeric" onchange="kioskSaveCounters()">
+              <button onclick="kioskAdjCounter('scrap',1)">+</button>
+            </div>
+          </div>
+        </div>
+        <!-- NJR Panel — inline in run card -->
+        <div class="kiosk-njr-panel" id="kiosk-njr-panel" style="display:none">
+          <div class="kiosk-njr-header">
+            <span class="kiosk-njr-badge not-ready" id="njr-status-badge">🔴 NOT READY</span>
+            <div>
+              <div class="kiosk-njr-job" id="njr-next-job-label">Next Job: —</div>
+              <div class="kiosk-njr-sub" id="njr-next-job-sub">—</div>
+            </div>
+          </div>
+          <button class="kiosk-njr-docs-btn" onclick="tcOpenDocsViewer('njr')">📄 VIEW NEXT JOB SETUP DOCS</button>
+          <div class="kiosk-njr-checklist" id="njr-checklist">
+            <div class="njr-check-item" id="njr-item-material" onclick="njrToggleItem('material')">
+              <div class="njr-check-box" id="njr-box-material"></div>
+              <div class="njr-check-label">Material at machine</div>
+              <div class="njr-check-time" id="njr-time-material"></div>
+            </div>
+            <div class="njr-check-item" id="njr-item-fixtures" onclick="njrToggleItem('fixtures')">
+              <div class="njr-check-box" id="njr-box-fixtures"></div>
+              <div class="njr-check-label">Fixtures at machine</div>
+              <div class="njr-check-time" id="njr-time-fixtures"></div>
+            </div>
+            <div class="njr-check-item" id="njr-item-tooling" onclick="njrToggleItem('tooling')">
+              <div class="njr-check-box" id="njr-box-tooling"></div>
+              <div class="njr-check-label">Tooling at machine</div>
+              <div class="njr-check-time" id="njr-time-tooling"></div>
+            </div>
+            <div class="njr-check-item" id="njr-item-cncProgram" onclick="njrToggleItem('cncProgram')">
+              <div class="njr-check-box" id="njr-box-cncProgram"></div>
+              <div class="njr-check-label">CNC program loaded/verified</div>
+              <div class="njr-check-time" id="njr-time-cncProgram"></div>
+            </div>
+          </div>
+          <button class="kiosk-njr-confirm-btn" id="njr-confirm-btn" onclick="njrConfirmReady()" disabled>✅ NEXT JOB READY — ALL MUSTERED</button>
+        </div>
+      </div>
+
+      <!-- ── SHIFT SUMMARY BAR (always visible at bottom) ── -->
       <div class="tc-shift-bar">
         <div class="tc-shift-stat"><div class="tsv" id="tc-ss-jobs">0</div><div class="tsl">Jobs Done</div></div>
         <div class="tc-shift-stat"><div class="tsv" id="tc-ss-parts">0</div><div class="tsl">Parts Made</div></div>
         <div class="tc-shift-stat"><div class="tsv" id="tc-ss-hours">0.0h</div><div class="tsl">Hours Logged</div></div>
         <div class="tc-shift-stat"><div class="tsv" id="tc-ss-otd" style="color:var(--green)">—</div><div class="tsl">OTD</div></div>
       </div>
-      <!-- Current job card -->
-      <div class="tc-job-card">
-        <div class="tc-job-head">
-          <span class="tc-job-num" id="tc-job-num">No Job Selected</span>
-          <span class="tc-job-op idle" id="tc-job-op-badge">IDLE</span>
+
+      <!-- ── HIDDEN LEGACY ELEMENTS (referenced by existing JS — do not remove) ── -->
+      <div style="display:none" aria-hidden="true">
+        <select id="payroll-emp-select" onchange="renderPayrollStatus()"><option value="">—</option></select>
+        <button id="payroll-clock-in-btn" onclick="payrollClockIn()"></button>
+        <button id="payroll-clock-out-btn" onclick="payrollClockOut()" disabled></button>
+        <div id="payroll-status-display"></div>
+        <div id="tc-clockon-section" class="tc-clockon-section">
+          <select id="clockon-machine-select" onchange="onClockOnMachineChange()"></select>
+          <select id="clockon-job-select" onchange="onClockOnJobChange()"></select>
+          <select id="clockon-op-select"></select>
+          <div id="kiosk-docs-panel"></div>
         </div>
-        <div class="tc-job-meta" id="tc-job-meta"><span style="color:var(--dim)">Tap a queued job below to load it</span></div>
-        <div class="tc-status-big idle" id="tc-status-big">
-          <span id="tc-status-icon">⏸</span>
-          <span id="tc-status-text">IDLE — Select a job to begin</span>
-          <span class="tc-timer" id="tc-timer">00:00:00</span>
-        </div>
-        <div style="font-size:12px;color:var(--dim);cursor:pointer" id="tc-operator-display" onclick="tcShowOperatorModal()">👤 No operator — tap to set</div>
+        <span id="tc-job-num"></span>
+        <span id="tc-job-op-badge"></span>
+        <div id="tc-job-meta"></div>
+        <div id="tc-status-big"><span id="tc-status-icon"></span><span id="tc-status-text"></span><span id="tc-timer">00:00:00</span></div>
+        <div id="tc-operator-display"></div>
+        <button id="tc-phase-docs-btn"></button>
+        <button id="tc-btn-run" onclick="tcStartProduction()"></button>
+        <button id="tc-btn-setup" onclick="tcStartSetup()"></button>
+        <button id="tc-btn-pause" onclick="tcShowPauseDropdown()"></button>
+        <button id="tc-btn-end" onclick="tcOpenEndModal()"></button>
+        <div id="tc-queue-body"></div><span id="tc-queue-count"></span>
+        <div id="tc-history-body"></div><span id="tc-history-chevron"></span><span id="tc-queue-chevron"></span>
       </div>
-      <!-- Pie chart timer — prominently displayed for operator to 'chase the clock' -->
-      <div id="tc-pie-container" style="display:none">
-        <div id="tc-pie-label-row">
-          <div id="tc-pie-svg-wrap"></div>
-          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">
-            <div id="tc-pie-elapsed">00:00:00</div>
-            <div id="tc-pie-std"></div>
-            <div id="tc-pie-pcs" style="display:none"></div>
-          </div>
-        </div>
-        <div id="tc-pie-sparkline" style="display:none"></div>
-      </div>
-      <!-- Action buttons -->
-      <div class="tc-btns">
-        <button class="tc-btn setup" id="tc-btn-setup" onclick="tcStartSetup()">🟢 START SETUP</button>
-        <button class="tc-btn run" id="tc-btn-run" onclick="tcStartRun()" disabled>🔵 START RUN</button>
-        <button class="tc-btn pause" id="tc-btn-pause" onclick="tcPause()" disabled>🟡 PAUSE</button>
-        <button class="tc-btn end" id="tc-btn-end" onclick="tcOpenEndModal()" disabled>🔴 END JOB</button>
-      </div>
-      <!-- Job queue -->
-      <div class="tc-queue-section">
-        <div class="tc-section-hd" onclick="tcToggleSection('queue')">
-          <div class="tc-section-title">📋 Job Queue <span id="tc-queue-count" style="font-size:11px;color:var(--dim);font-weight:400">(0 jobs)</span></div>
-          <span class="tc-section-chevron" id="tc-queue-chevron">▼</span>
-        </div>
-        <div id="tc-queue-body" class="tc-queue-list"></div>
-      </div>
-      <!-- History (collapsed by default) -->
-      <div class="tc-queue-section">
-        <div class="tc-section-hd" onclick="tcToggleSection('history')">
-          <div class="tc-section-title">📜 Recent Timecards</div>
-          <span class="tc-section-chevron" id="tc-history-chevron" style="transform:rotate(-90deg)">▼</span>
-        </div>
-        <div id="tc-history-body" class="tc-history-list" style="display:none"></div>
-      </div>
-      </div><!-- /tc-panel-timecard -->
-      <!-- Attendance tab panel -->
-      <div id="tc-panel-attendance" style="display:none;padding:16px">
-        <div id="att-panel-body"></div>
-      </div>
+
     </div>
   </div>
   <div class="floor-pool" id="floor-pool">
@@ -1196,6 +1521,7 @@ body.kiosk-mode .floor-pool{display:none}
     <button class="setup-tab" onclick="setSetupTab('delays')">⏱ Delay Reasons</button>
     <button class="setup-tab" onclick="setSetupTab('recovery')">🔐 Password Recovery</button>
     <button class="setup-tab" onclick="setSetupTab('integrations')">🔗 Integrations</button>
+    <button class="setup-tab" id="pause-reasons-tab-btn" onclick="setSetupTab('pausereasons')">⏱ Pause Reasons</button>
     <!-- API Keys merged into Integrations tab -->
   </div>
   <div class="setup-body" id="setup-body">
@@ -1209,6 +1535,7 @@ body.kiosk-mode .floor-pool{display:none}
     <div class="setup-page" id="sp-recovery"></div>
     <div class="setup-page" id="sp-integrations"></div>
     <div class="setup-page" id="sp-apikeys"></div>
+    <div class="setup-page" id="sp-pausereasons"></div>
   </div>
 </div>
 </div>
@@ -1291,6 +1618,159 @@ body.kiosk-mode .floor-pool{display:none}
   </div>
 </div><!-- /.app -->
 
+<!-- ═══ PAUSE REASONS OVERLAY ═══ -->
+<div class="pause-overlay" id="pause-overlay" style="display:none">
+  <div class="pause-card">
+    <div class="pause-card-title">⏸ Select Pause Reason</div>
+    <div id="pause-reasons-list"></div>
+    <button class="pause-cancel-btn" onclick="closePauseOverlay()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══ NJR DASHBOARD PANEL ═══ -->
+<div class="njr-dashboard-panel" id="njr-dashboard-panel" onclick="if(event.target===this)closeNjrDashboard()">
+  <div class="njr-dashboard-card">
+    <div class="njr-dash-hd">
+      <span style="font-size:20px">📊</span>
+      <div class="njr-dash-title">Next Job Ready — KPI Dashboard</div>
+      <button class="btn" onclick="closeNjrDashboard()" style="font-size:11px">✕ Close</button>
+    </div>
+    <div class="njr-dash-body" id="njr-dash-body">
+      <div style="color:var(--dim);text-align:center;padding:20px">Loading NJR data…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DOCS STUB OVERLAY ═══ -->
+<div class="pause-overlay" id="docs-stub-overlay" style="display:none" onclick="if(event.target===this)closeDocsStub()">
+  <div class="pause-card" style="max-width:700px;max-height:85vh;overflow-y:auto">
+    <div class="pause-card-title">📄 Document Viewer — <span id="docs-job-title">Job</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="docs-tab active" onclick="showDocTab('setup')" id="doc-tab-setup">📋 Setup Sheets</button>
+      <button class="docs-tab" onclick="showDocTab('inspect')" id="doc-tab-inspect">📐 In-Process Record</button>
+      <button class="docs-tab" onclick="showDocTab('traveller')" id="doc-tab-traveller">📦 M1 Job Traveller</button>
+      <button class="docs-tab" onclick="showDocTab('instructions')" id="doc-tab-instructions">📝 Work Instructions</button>
+    </div>
+    <div id="doc-content-setup" class="doc-content">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px">
+        <div style="text-align:center;margin-bottom:12px;font-size:16px;font-weight:800;color:var(--accent)">SETUP SHEET</div>
+        <svg viewBox="0 0 600 400" style="width:100%;background:#111;border-radius:6px;border:1px solid #333">
+          <rect x="20" y="20" width="560" height="360" fill="none" stroke="#444" stroke-width="1"/>
+          <text x="300" y="50" text-anchor="middle" fill="#e07a3a" font-size="14" font-weight="bold">NUPRESS GROUP — SETUP SHEET</text>
+          <line x1="20" y1="60" x2="580" y2="60" stroke="#444"/>
+          <text x="40" y="82" fill="#aaa" font-size="11">Part: FLANGE MOUNT ASSEMBLY</text>
+          <text x="40" y="100" fill="#aaa" font-size="11">Job: 27001-0001-001</text>
+          <text x="300" y="82" fill="#aaa" font-size="11">Machine: CNC01</text>
+          <text x="300" y="100" fill="#aaa" font-size="11">Material: AL 6061-T6 Ø150×80</text>
+          <line x1="20" y1="115" x2="580" y2="115" stroke="#444"/>
+          <text x="300" y="140" text-anchor="middle" fill="#666" font-size="12" font-weight="bold">BALLOONED DRAWING</text>
+          <rect x="80" y="155" width="440" height="180" rx="8" fill="#0a0a0a" stroke="#333"/>
+          <circle cx="200" cy="245" r="60" fill="none" stroke="#5ac8fa" stroke-width="2"/>
+          <circle cx="200" cy="245" r="40" fill="none" stroke="#5ac8fa" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="200" y1="180" x2="200" y2="310" stroke="#333" stroke-width="0.5"/>
+          <line x1="135" y1="245" x2="265" y2="245" stroke="#333" stroke-width="0.5"/>
+          <rect x="320" y="180" width="160" height="100" rx="4" fill="none" stroke="#5ac8fa" stroke-width="1.5"/>
+          <line x1="320" y1="230" x2="480" y2="230" stroke="#5ac8fa" stroke-width="0.5"/>
+          <line x1="400" y1="180" x2="400" y2="280" stroke="#5ac8fa" stroke-width="0.5"/>
+          <circle cx="168" cy="200" r="8" fill="#e07a3a"/><text x="168" y="204" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">1</text>
+          <circle cx="245" cy="260" r="8" fill="#e07a3a"/><text x="245" y="264" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">2</text>
+          <circle cx="360" cy="205" r="8" fill="#e07a3a"/><text x="360" y="209" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">3</text>
+          <circle cx="440" cy="255" r="8" fill="#e07a3a"/><text x="440" y="259" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">4</text>
+          <text x="300" y="360" text-anchor="middle" fill="#666" font-size="10">Dims in mm · Tol ±0.05 unless noted · All edges deburred</text>
+        </svg>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Tool 1:</span> <span style="color:#e8e8e8">Ø63 Face Mill — Sandvik R245</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Tool 2:</span> <span style="color:#e8e8e8">Ø20 End Mill — Carbide 4-flute</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Tool 3:</span> <span style="color:#e8e8e8">Ø10.2 Drill — Through coolant</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Tool 4:</span> <span style="color:#e8e8e8">M12×1.75 Tap — Spiral flute</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Fixture:</span> <span style="color:#e8e8e8">Kurt D688 Vise + Soft Jaws #SJ-FL01</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Program:</span> <span style="color:#e8e8e8">O2700 (Ver 3.2 — 14 Mar 2026)</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="doc-content-inspect" class="doc-content" style="display:none">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px">
+        <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--accent)">IN-PROCESS INSPECTION RECORD</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px">
+          <thead><tr style="background:#222">
+            <th style="border:1px solid #444;padding:6px;text-align:left;color:#888">Balloon</th>
+            <th style="border:1px solid #444;padding:6px;text-align:left;color:#888">Feature</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Nominal</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Tol +</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Tol −</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Part 1</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Part 5</th>
+            <th style="border:1px solid #444;padding:6px;text-align:center;color:#888">Part 10</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="border:1px solid #333;padding:5px;color:#e07a3a;font-weight:700;text-align:center">①</td><td style="border:1px solid #333;padding:5px;color:#ddd">OD Ø150</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">150.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#34c759">+0.025</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ff453a">−0.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#5ac8fa">150.012</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#5ac8fa">150.018</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;color:#e07a3a;font-weight:700;text-align:center">②</td><td style="border:1px solid #333;padding:5px;color:#ddd">Bore Ø80 H7</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">80.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#34c759">+0.030</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ff453a">−0.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#5ac8fa">80.015</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;color:#e07a3a;font-weight:700;text-align:center">③</td><td style="border:1px solid #333;padding:5px;color:#ddd">Bolt PCD Ø120</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">120.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#34c759">+0.050</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ff453a">−0.050</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#5ac8fa">120.022</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;color:#e07a3a;font-weight:700;text-align:center">④</td><td style="border:1px solid #333;padding:5px;color:#ddd">M12 Tap Depth</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">25.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#34c759">+1.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ff453a">−0.000</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd"></td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:10px;color:#666;text-align:center">Measure at Part 1, 5, 10 then every 10th part · Record actual values · Flag if outside tolerance</div>
+      </div>
+    </div>
+    <div id="doc-content-traveller" class="doc-content" style="display:none">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px">
+        <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--accent)">M1 JOB TRAVELLER</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:11px">
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Job ID:</span> <span style="color:#e8e8e8">27001-0001-001</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Customer:</span> <span style="color:#e8e8e8">BAE Systems</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Part:</span> <span style="color:#e8e8e8">FLANGE MOUNT ASSEMBLY</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Customer PO:</span> <span style="color:#e8e8e8">PO-BAE-2026-0412</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Qty:</span> <span style="color:#e8e8e8">12</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Due:</span> <span style="color:#ff453a;font-weight:700">25 Mar 2026</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Material:</span> <span style="color:#e8e8e8">AL 6061-T6 Ø150×80</span></div>
+          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Rev:</span> <span style="color:#e8e8e8">C (14 Feb 2026)</span></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#aaa;margin-bottom:8px">Operation Routing</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#222">
+            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Op</th>
+            <th style="border:1px solid #444;padding:5px;text-align:left;color:#888">Process</th>
+            <th style="border:1px solid #444;padding:5px;text-align:left;color:#888">Machine</th>
+            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Setup Std</th>
+            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Run Std</th>
+            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Status</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">10</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC Milling — Op1 (Fixture Side A)</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC01</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:45</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">1:15/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(90,200,250,.2);color:#5ac8fa;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">CURRENT</span></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">20</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC Milling — Op2 (Flip Side B)</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC01</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:30</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:50/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">30</td><td style="border:1px solid #333;padding:5px;color:#ddd">Deburr & Clean</td><td style="border:1px solid #333;padding:5px;color:#ddd">NONCNC</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">—</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:05/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
+            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">40</td><td style="border:1px solid #333;padding:5px;color:#ddd">CMM Inspection</td><td style="border:1px solid #333;padding:5px;color:#ddd">CMM1</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:15</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:20/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;padding:8px;background:#111;border-radius:4px;border:1px solid #333;font-size:10px;color:#888">
+          <strong style="color:#e07a3a">WHS:</strong> Standard PPE required. Aluminium swarf — no gloves near spindle. Coolant: Castrol Hysol SL35 (SDS on file). Lifting assist required for raw billet (12kg).
+        </div>
+      </div>
+    </div>
+    <div id="doc-content-instructions" class="doc-content" style="display:none">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px">
+        <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--accent)">WORK INSTRUCTIONS — Op 10</div>
+        <ol style="font-size:12px;color:#ddd;line-height:2;padding-left:20px;margin:0">
+          <li>Load raw billet into Kurt D688 vise with soft jaws #SJ-FL01. Torque to 45 Nm.</li>
+          <li>Set work offset G54 — touch off Z on top face, X/Y on vise datum pins.</li>
+          <li>Load program <strong style="color:#5ac8fa">O2700</strong> — verify tool table matches setup sheet (6 tools).</li>
+          <li>Run first part with <strong style="color:#ffd60a">feed override at 80%</strong> through first roughing pass.</li>
+          <li>After first part: check dims <strong style="color:#e07a3a">①②③</strong> per in-process record. Adjust offsets if needed.</li>
+          <li>Run remaining parts. Check dims at part 5 and every 10th part thereafter.</li>
+          <li>Deburr all edges (hand file or deburr tool). Remove all sharp edges.</li>
+          <li>Blow out all tapped holes with air gun. Verify thread with M12 go/no-go gauge.</li>
+          <li>Stack finished parts on pallet with interleave paper. Label: Job 27001, Qty, Operator.</li>
+          <li>Log parts made + any scrap on kiosk. Notify foreman if CMM queue &gt; 4 jobs.</li>
+        </ol>
+        <div style="margin-top:12px;padding:8px;background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.3);border-radius:4px;font-size:11px;color:#ff453a">
+          ⚠️ <strong>CRITICAL NOTE:</strong> Bore Ø80 H7 is a press-fit for the bearing. If dimension is out of tolerance, DO NOT attempt to rework — notify Quality immediately. Scrap code: DIM-OOT.
+        </div>
+      </div>
+    </div>
+    <button class="pause-cancel-btn" onclick="closeDocsStub()">Close</button>
+  </div>
+</div>
+
 <!-- ═══ SCRAP/REWORK MODAL ═══ -->
 <div class="modal-overlay" id="scrap-modal" style="display:none" onclick="if(event.target===this)closeScrapModal()">
   <div class="modal-box">
@@ -1341,6 +1821,36 @@ body.kiosk-mode .floor-pool{display:none}
   </div>
 </div>
 
+<!-- ═══ KIOSK V3: PAYROLL CLOCK IN/OUT OVERLAY ═══ -->
+<div class="kiosk-overlay" id="kiosk-payroll-overlay" style="display:none" onclick="if(event.target===this)closeKioskPayrollOverlay()">
+  <div class="kiosk-overlay-card">
+    <div class="kiosk-overlay-title" id="kp-overlay-title">🟢 Clock In</div>
+    <div class="kiosk-overlay-sub" id="kp-overlay-sub">Select your name to clock in</div>
+    <div class="kp-emp-list" id="kp-emp-list"></div>
+    <button class="kp-cancel-btn" onclick="closeKioskPayrollOverlay()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══ KIOSK V3: CLOCK ON (JOB QUEUE) OVERLAY ═══ -->
+<div class="kiosk-overlay" id="kiosk-clockon-overlay" style="display:none" onclick="if(event.target===this)closeKioskClockOnOverlay()">
+  <div class="kiosk-overlay-card kiosk-clockon-card">
+    <div class="kiosk-overlay-title">▶ Clock On — Select Job</div>
+    <div class="kiosk-overlay-sub" id="kco-sub">Tap a job to begin</div>
+    <div class="kco-queue-list" id="kco-queue-list"></div>
+    <button class="kp-cancel-btn" onclick="closeKioskClockOnOverlay()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══ KIOSK V3: NJR STANDALONE OVERLAY ═══ -->
+<div class="kiosk-overlay" id="kiosk-njr-overlay" style="display:none" onclick="if(event.target===this)document.getElementById('kiosk-njr-overlay').style.display='none'">
+  <div class="kiosk-overlay-card">
+    <div class="kiosk-overlay-title">NJR — Next Job Ready</div>
+    <div class="kiosk-overlay-sub">Review job queue and confirm readiness</div>
+    <div class="kiosk-njr-overlay-inner" id="kiosk-njr-overlay-body"></div>
+    <button class="kp-cancel-btn" onclick="document.getElementById('kiosk-njr-overlay').style.display='none'">Close</button>
+  </div>
+</div>
+
 <!-- ═══ TC END-JOB MODAL ═══ -->
 <div class="tc-end-overlay" id="tc-end-overlay" style="display:none">
   <div class="tc-end-card">
@@ -1387,41 +1897,6 @@ body.kiosk-mode .floor-pool{display:none}
       <button class="tc-end-btn cancel" onclick="tcCloseEndModal()">Cancel</button>
       <button class="tc-end-btn submit" onclick="tcSubmitTimecard()">✅ Submit Timecard</button>
     </div>
-  </div>
-</div>
-
-<!-- ═══ ATTENDANCE: PIN PAD OVERLAY ═══ -->
-<div class="att-overlay" id="att-pin-overlay" style="display:none">
-  <div class="att-card">
-    <div class="att-title">👋 Clock In / Out</div>
-    <div class="att-sub">Enter your 4-digit PIN</div>
-    <div class="att-pin-display" id="att-pin-display">· · · ·</div>
-    <div class="att-pin-grid">
-      <button class="att-pin-btn" onclick="attPinDigit(1)">1</button>
-      <button class="att-pin-btn" onclick="attPinDigit(2)">2</button>
-      <button class="att-pin-btn" onclick="attPinDigit(3)">3</button>
-      <button class="att-pin-btn" onclick="attPinDigit(4)">4</button>
-      <button class="att-pin-btn" onclick="attPinDigit(5)">5</button>
-      <button class="att-pin-btn" onclick="attPinDigit(6)">6</button>
-      <button class="att-pin-btn" onclick="attPinDigit(7)">7</button>
-      <button class="att-pin-btn" onclick="attPinDigit(8)">8</button>
-      <button class="att-pin-btn" onclick="attPinDigit(9)">9</button>
-      <button class="att-pin-btn clear" onclick="attPinClear()">CLR</button>
-      <button class="att-pin-btn" onclick="attPinDigit(0)">0</button>
-      <button class="att-pin-btn clear" onclick="attPinBackspace()">⌫</button>
-    </div>
-    <div class="att-pin-error" id="att-pin-error"></div>
-    <button onclick="attClosePinPad()" style="width:100%;margin-top:12px;padding:12px;border-radius:8px;border:1px solid var(--brd);background:var(--s2);color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
-  </div>
-</div>
-
-<!-- ═══ ATTENDANCE: ROLE SELECT OVERLAY ═══ -->
-<div class="att-overlay" id="att-role-overlay" style="display:none">
-  <div class="att-card">
-    <div class="att-title">Select Your Role</div>
-    <div class="att-sub" id="att-role-emp-name" style="font-size:15px;font-weight:700;color:var(--txt)"></div>
-    <div class="att-role-grid" id="att-role-list"></div>
-    <button onclick="attCloseRoleSelect()" style="width:100%;margin-top:4px;padding:12px;border-radius:8px;border:1px solid var(--brd);background:var(--s2);color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
   </div>
 </div>
 
@@ -1639,7 +2114,7 @@ body.kiosk-mode .floor-pool{display:none}
 // ══════════════════════════════════════════════════════════════
 const TODAY = new Date(); TODAY.setHours(6,0,0,0);
 const HOUR_PX = {day:12,week:4,month1:1.2,month3:0.5,month6:0.25,month12:0.12,monthbeyond:0.04};
-let scale='week', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
+let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 let currentUser = null;
 const SHIFT_HOURS = 10;
 
@@ -1688,6 +2163,7 @@ const MACHINES=[
   {id:'CMM2',name:'CMM2 — Inspection',type:'cmm',color:'#bf5af2',protocol:'Manual',ip:'—',port:0},
   {id:'SUBCO',name:'SUBCO — Subcontract',type:'subco',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
   {id:'NONCNC',name:'NONCNC — Manual Ops',type:'manual',color:'#8e8e93',protocol:'Manual',ip:'—',port:0},
+  {id:'CNC01',name:'CNC01 — Demo CNC',type:'vmc',color:'#ffd60a',protocol:'MTConnect',ip:'192.168.1.200',port:5000},
 ];
 const COMPAT={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2']};
 const CNC_MACHINES = MACHINES.filter(m=>!['cmm','subco','manual'].includes(m.type));
@@ -1853,6 +2329,12 @@ const M1_REAL_JOBS=[
   {id:'14059',partDesc:'PLATE COVER',due:'2026-06-30',qty:50,customer:'Nupress Stock',machine:'VTC530C',opSeq:['vmc'],totalHours:20,hasSubco:false,needsCMM:false,value:6000},
   {id:'24054-0121-001',partDesc:'WEIGHT',due:'2026-06-30',qty:49,customer:'Nupress Stock',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:35,hasSubco:false,needsCMM:true,value:14700},
   {id:'25309-0091-001',partDesc:'ADAPTER',due:'2026-06-30',qty:88,customer:'Nupress Stock',machine:'INTE4004S',opSeq:['millturn','millturn','millturn','cmm'],totalHours:80,hasSubco:false,needsCMM:true,value:35200},
+  // ── CNC01 Demo Jobs ───────────────────────────────────────
+  {id:'27001-0001-001',partDesc:'FLANGE MOUNT ASSEMBLY',due:'2026-03-25',qty:12,customer:'BAE Systems',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:15600,setupStd:45},
+  {id:'27002-0003-001',partDesc:'BEARING HOUSING LH',due:'2026-03-28',qty:8,customer:'Thales',machine:'CNC01',opSeq:['vmc','vmc','cmm'],totalHours:24,hasSubco:false,needsCMM:true,value:22400,setupStd:30},
+  {id:'27003-0012-002',partDesc:'GEARBOX END PLATE',due:'2026-04-02',qty:25,customer:'EOS',machine:'CNC01',opSeq:['vmc'],totalHours:15,hasSubco:false,needsCMM:false,value:8750,setupStd:20},
+  {id:'27004-0008-001',partDesc:'HYDRAULIC MANIFOLD BLOCK',due:'2026-04-05',qty:6,customer:'Rheinmetall',machine:'CNC01',opSeq:['vmc','vmc','5axis','cmm'],totalHours:42,hasSubco:false,needsCMM:true,value:38000,setupStd:60},
+  {id:'27005-0002-001',partDesc:'ACTUATOR BRACKET',due:'2026-04-10',qty:30,customer:'Nupress Stock',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:6000,setupStd:25},
 ];
 // Derived PARTS array for legacy KPI corrections panel (p=id, d=desc, h=avg op hours)
 const PARTS=M1_REAL_JOBS.map(j=>({p:j.id,d:j.partDesc,h:Math.max(2,Math.round(j.totalHours/j.opSeq.length))}));
@@ -2030,11 +2512,11 @@ function genJobs(){
       mq['SUBCO']=subcoEnd.getTime()+3600000;
     }
   });
-  // ── SIMULATION LAYER — add realistic delays and issues ──
-  // Apply delays to ~25% of in-progress/queued jobs
+  // ── SIMULATION LAYER — randomise on each refresh ──
+  // Randomly apply delays to ~20% of in-progress/queued jobs
   jobs.filter(j=>j.status!=="complete").forEach(j=>{
-    if(Math.random()<0.25){
-      const delayH=2+Math.floor(Math.random()*10);
+    if(Math.random()<0.2){
+      const delayH=1+Math.floor(Math.random()*8);
       const reasons=getDelayReasons();
       const reason=reasons[Math.floor(Math.random()*reasons.length)];
       j.delay=(j.delay||0)+delayH;
@@ -2044,34 +2526,21 @@ function genJobs(){
       lsSet("delay_log",delayLog);
     }
   });
-  // Force ~20% of non-complete jobs to be genuinely LATE (end pushed past due date)
-  jobs.filter(j=>j.status!=="complete"&&!j.machine.startsWith('CMM')&&!j.id.includes('-SUBCO')).forEach(j=>{
-    if(Math.random()<0.20){
-      // Push end date past the due date by 1-5 days
-      const lateDays=1+Math.floor(Math.random()*5);
-      const lateMs=lateDays*24*3600000;
-      j.end=new Date(j.due.getTime()+lateMs);
-      j.start=new Date(j.end.getTime()-j.totalHours*3600000);
-      j.originalEnd=new Date(j.end.getTime());
-      j.delay=(j.delay||0)+lateDays*24;
-      j.status='in-progress';
-    }
-  });
-  // Force ~15% to be AT-RISK (ending within 24h of due)
-  jobs.filter(j=>j.status!=="complete"&&j.end<=j.due&&!j.machine.startsWith('CMM')&&!j.id.includes('-SUBCO')).forEach(j=>{
+  // Randomly make ~15% of jobs late (end > due)
+  jobs.filter(j=>j.status!=="complete"&&j.end<=j.due).forEach(j=>{
     if(Math.random()<0.15){
-      j.end=new Date(j.due.getTime()-Math.floor(Math.random()*12)*3600000);
-      j.start=new Date(j.end.getTime()-j.totalHours*3600000);
-      j.originalEnd=new Date(j.end.getTime());
+      const lateH=4+Math.floor(Math.random()*40);
+      j.delay=(j.delay||0)+lateH;
+      j.end=new Date(j.originalEnd.getTime()+j.delay*3600000);
     }
   });
-  // Put 2 machines in breakdown for realism (only if user hasn't set any)
+  // Randomly put 1-2 machines in breakdown (only if user hasn't set any)
   const breakdowns=getBreakdowns();
   const cncIds=CNC_MACHINES.map(m=>m.id);
   if(Object.keys(breakdowns).filter(k=>breakdowns[k].active).length===0){
-    for(let i=0;i<2;i++){
+    for(let i=0;i<1+Math.floor(Math.random()*2);i++){
       const mid=cncIds[Math.floor(Math.random()*cncIds.length)];
-      const expDate=new Date(Date.now()+(2+Math.floor(Math.random()*4))*86400000);
+      const expDate=new Date(Date.now()+(1+Math.floor(Math.random()*5))*86400000);
       breakdowns[mid]={active:true,expectedAvailable:expDate.toISOString().split("T")[0],timestamp:new Date().toISOString()};
     }
     setBreakdowns(breakdowns);
@@ -2138,15 +2607,6 @@ function genMonitorData(){
 //  MODE SWITCHING
 // ══════════════════════════════════════════════════════════════
 function setMode(m){
-  // Close all overlay panels when switching modes (especially back to Schedule)
-  try{
-    closeFilterPanel();
-    closeLightbox();
-    closeReportsModal();
-    closeQuotesPanel();
-    closeOrderReviewPanel();
-    const chatPanel=document.getElementById('chat-panel');if(chatPanel)chatPanel.classList.remove('open');
-  }catch(e){}
   currentMode=m;
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',
     (m==='schedule'&&b.textContent.includes('Schedule'))||(m==='monitor'&&b.textContent.includes('Monitor'))||
@@ -2164,7 +2624,9 @@ function setMode(m){
 function setSetupTab(t){
   currentSetupTab=t;
   document.querySelectorAll('.setup-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t==='delays'?'delay':t==='recovery'?'password':t==='useraccess'?'user access':t))b.classList.add('active');});
+  // For pausereasons, directly match by id; others by text content
+  if(t==='pausereasons'){const btn=document.getElementById('pause-reasons-tab-btn');if(btn)btn.classList.add('active');}
+  else document.querySelectorAll('.setup-tab').forEach(b=>{if(b.textContent.toLowerCase().includes(t==='m1conn'?'m1':t==='machines'?'machine':t==='skills'?'skills':t==='integrations'?'integ':t==='apikeys'?'api':t==='delays'?'delay':t==='recovery'?'password':t==='useraccess'?'user access':t))b.classList.add('active');});
   document.querySelectorAll('.setup-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+t).classList.add('active');
   renderSetupTab();
@@ -2176,7 +2638,7 @@ function setSetupTab(t){
 function getFilteredMachines(){let fm=MACHINES;if(filter==='cmm')fm=MACHINES.filter(m=>m.type==='cmm');if(selectedMachine)fm=MACHINES.filter(m=>m.id===selectedMachine);return fm;}
 function getFilteredJobs(){let fj=jobs;if(filter==='late')fj=jobs.filter(j=>j.end>j.due&&j.status!=='complete');else if(filter==='at-risk')fj=jobs.filter(j=>j.status!=='complete'&&!(j.end>j.due)&&(j.due-j.end)<24*3600000);else if(filter==='cmm')fj=jobs.filter(j=>j.machine.startsWith('CMM'));return fj;}
 
-function renderSchedule(){try{renderStats();const fm=getFilteredMachines(),fj=getFilteredJobs();renderGantt(fm,fj);renderLatePanel();}catch(e){const d=document.createElement('div');d.style.cssText='position:fixed;top:60px;left:10px;right:10px;background:red;color:white;padding:20px;z-index:99999;font-size:16px;border-radius:8px;white-space:pre-wrap';d.textContent='renderSchedule ERROR:\n'+e.message+'\n\nStack:\n'+e.stack;document.body.appendChild(d);}}
+function renderSchedule(){renderStats();const fm=getFilteredMachines(),fj=getFilteredJobs();renderGantt(fm,fj);renderLatePanel();}
 
 function renderStats(){
   const active=jobs.filter(j=>j.status!=='complete'),late=active.filter(j=>j.end>j.due);
@@ -2186,12 +2648,12 @@ function renderStats(){
   const breakdowns=getBreakdowns();
   const breakdownCount=Object.keys(breakdowns).filter(mId=>breakdowns[mId].active).length;
   document.getElementById('stats-bar').innerHTML=`
-    <div class="st" onclick="setFilter('all')" style="cursor:pointer" title="Show all jobs"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
-    <div class="st" onclick="setFilter('all')" style="cursor:pointer" title="Show all jobs"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
-    <div class="st" onclick="setFilter('at-risk')" style="cursor:pointer" title="Click to view at-risk jobs"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
-    <div class="st" onclick="setFilter('late')" style="cursor:pointer" title="Click to view late jobs"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
-    <div class="st" onclick="setFilter('cmm')" style="cursor:pointer" title="Click to view CMM queue"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
-    <div class="st" style="cursor:default"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
+    <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
+    <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
+    <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
+    <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
+    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
+    <div class="st"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
 }
 
 function renderGantt(fm,fj){
@@ -3104,7 +3566,6 @@ function renderMonitor(){
   renderFloorGrid();
   renderFloorPool();
   renderTieLines();
-  try{renderWhosIn();}catch(e){}
 }
 
 function renderFloorGrid(){
@@ -3784,6 +4245,7 @@ function renderSetupTab(){
   else if(tab==='recovery')renderSetupRecovery();
   else if(tab==='integrations')renderSetupIntegrations();
   else if(tab==='apikeys')renderSetupApiKeys();
+  else if(tab==='pausereasons')renderPauseReasonsAdmin();
 }
 
 // ── Machine Tools ──
@@ -6206,6 +6668,16 @@ function handlePushMessage(msg){
     case 'alert':
       toast(msg.text||'📡 Server notification');
       break;
+    case 'njr_alert':
+      // NJR score below 75% threshold — show flashing red bar on kiosk
+      if(isKiosk&&(!msg.machineId||msg.machineId===machineFilter)){
+        const alertBar=document.getElementById('kiosk-njr-alert-bar');
+        if(alertBar){
+          if(msg.message)alertBar.textContent=msg.message;
+          alertBar.classList.add('active');
+        }
+      }
+      break;
     case 'setup_sheet':
       if(msg.pdfUrl){
         // Open PDF in screen 2 or a popup
@@ -6376,8 +6848,6 @@ function applyKioskMode(){
   // Show WS status bar
   const bar=document.getElementById('ws-status-bar');
   if(bar)bar.classList.add('visible');
-  // Machine toggle
-  setTimeout(()=>initMachineToggle(),50);
 }
 
 function applyMachineFilter(){
@@ -6385,68 +6855,115 @@ function applyMachineFilter(){
   // Update header
   const logoText=document.getElementById('app-logo-text');
   if(logoText)logoText.textContent=`NuPhoenix — ${machineFilter}`;
-  const label=document.getElementById('kiosk-machine-label');
-  if(label){label.textContent=machineFilter;label.style.display='inline-block';}
-  // Hide Setup tab
-  const setupBtn=document.getElementById('setup-mode-btn');
-  if(setupBtn)setupBtn.style.display='none';
+  // Show grab machine button in kiosk
+  const grabWrap=document.getElementById('kiosk-grab-wrap');
+  if(grabWrap)grabWrap.style.display='inline-flex';
   // Hide chat
   const chat=document.getElementById('chat-bubble');
   if(chat)chat.style.display='none';
   // Show WS status bar
   const bar=document.getElementById('ws-status-bar');
   if(bar)bar.classList.add('visible');
+  // Force to monitor mode (kiosk lives inside monitor content area)
+  setMode('monitor');
   // Apply machine filter to gantt
   selectedMachine=machineFilter;
 }
 
+// Show NJR button on main scheduler (non-kiosk)
+function initMainSchedulerExtras(){
+  if(!isKiosk&&!machineFilter){
+    const btn=document.getElementById('njr-dashboard-btn');
+    if(btn)btn.style.display='inline-flex';
+  }
+}
+
 function applyScreen2Mode(){
-  // Screen 2: setup sheet + inspection viewer
+  // Screen 2: 4-tab document viewer with machine toggle
+  let s2ActiveTab='setup';
+  let s2ActiveMachine=machineFilter||'';
+  // Collect grabbed machine from opener if available
+  let s2Machines=[s2ActiveMachine].filter(Boolean);
+  try{const op=window.opener;if(op&&op.grabbedMachineId&&op.machineFilter){s2Machines=[op.machineFilter,op.grabbedMachineId];}}catch(e){}
+
+  const tabBtnStyle='padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;border:1px solid #333;background:#222;color:#888;cursor:pointer;font-family:inherit;transition:.15s;flex:1;white-space:nowrap';
+  const tabActiveBtnStyle='padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;border:1px solid #e07a3a;background:rgba(224,122,58,.2);color:#e07a3a;cursor:pointer;font-family:inherit;transition:.15s;flex:1;white-space:nowrap';
+
+  const machineToggleHtml=s2Machines.length>1
+    ?`<select id="s2-machine-sel" onchange="s2SetMachine(this.value)" style="background:#222;border:1px solid #333;color:#e8e8e8;padding:6px 10px;border-radius:6px;font-size:12px;font-family:inherit">${s2Machines.map(m=>`<option value="${m}"${m===s2ActiveMachine?' selected':''}>${m}</option>`).join('')}</select>`
+    :`<span style="font-weight:700;color:#e07a3a;font-size:13px">${s2ActiveMachine||'Station'}</span>`;
+
   document.body.innerHTML=`
-    <div style="background:#0f0f0f;color:#e8e8e8;font-family:-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column">
-      <div style="background:#1a1a1a;border-bottom:1px solid #333;padding:12px 20px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:18px">🦅</span>
-        <span style="font-weight:700;font-size:15px">NuPhoenix — ${machineFilter||'Station'} | Setup & Inspection</span>
-        <span style="font-size:11px;color:#888;margin-left:auto">Screen 2</span>
-      </div>
-      <div style="flex:1;display:flex;gap:0;overflow:hidden">
-        <div style="flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;overflow-y:auto">
-          <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px">
-            <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">📋 Current Job Setup Sheet</div>
-            <div style="font-size:12px;color:#888;background:#222;border-radius:6px;padding:40px;text-align:center">
-              Setup sheet PDF will appear here when pushed from the scheduler.<br>
-              <span style="font-size:10px;margin-top:8px;display:block">Waiting for job assignment from NuPhoenix Server…</span>
-            </div>
-          </div>
-          <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px">
-            <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px">🔬 In-Process Inspection Form</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Operator</label><input type="text" placeholder="Name or badge…" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
-              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Time</label><input type="time" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
-              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Measurement 1 (mm)</label><input type="number" step="0.001" placeholder="0.000" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
-              <div><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Measurement 2 (mm)</label><input type="number" step="0.001" placeholder="0.000" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit"/></div>
-            </div>
-            <div style="margin-top:12px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px;text-transform:uppercase;font-weight:700">Notes</label><textarea placeholder="Any issues or observations…" style="width:100%;background:#222;border:1px solid #333;color:#e8e8e8;padding:8px 10px;border-radius:6px;font-size:12px;font-family:inherit;min-height:80px;resize:vertical"></textarea></div>
-            <div style="margin-top:12px;display:flex;gap:8px">
-              <button onclick="this.textContent='✅ Submitted';this.style.background='rgba(52,199,89,.2)';this.style.color='#34c759'" style="background:rgba(90,200,250,.1);color:#5ac8fa;border:1px solid rgba(90,200,250,.3);padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Submit Inspection</button>
-              <button onclick="document.querySelectorAll('input,textarea').forEach(el=>el.value='')" style="background:rgba(255,255,255,.05);color:#888;border:1px solid #333;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Clear Form</button>
-            </div>
-          </div>
+    <div style="background:#0f0f0f;color:#e8e8e8;font-family:-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden">
+      <!-- Header -->
+      <div style="background:#1a1a1a;border-bottom:1px solid #333;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0">
+        <span style="font-size:20px">🦅</span>
+        <span style="font-weight:700;font-size:15px">NuPhoenix</span>
+        <span style="font-size:11px;color:#888;background:#222;border:1px solid #333;padding:2px 8px;border-radius:10px">📺 Screen 2 — Documents</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:#888">Machine:</span>
+          ${machineToggleHtml}
         </div>
-        <div style="width:220px;background:#1a1a1a;border-left:1px solid #333;padding:16px;overflow-y:auto">
-          <div style="font-weight:700;font-size:12px;margin-bottom:12px">Job Routing</div>
-          <div style="font-size:11px;color:#888">Waiting for job data from server…</div>
-        </div>
+        <span style="font-size:11px;color:#888" id="s2-clock"></span>
       </div>
-      <div style="background:#1a1a1a;border-top:1px solid #333;padding:6px 16px;font-size:11px;color:#888;display:flex;align-items:center;gap:8px">
+      <!-- Tab Bar -->
+      <div style="background:#1a1a1a;border-bottom:1px solid #333;padding:8px 16px;display:flex;gap:8px;flex-shrink:0" id="s2-tab-bar">
+        <button style="${tabActiveBtnStyle}" id="s2-tab-setup" onclick="s2SetTab('setup')">📋 Setup Sheets</button>
+        <button style="${tabBtnStyle}" id="s2-tab-inprocess" onclick="s2SetTab('inprocess')">📐 In-Process Record</button>
+        <button style="${tabBtnStyle}" id="s2-tab-traveller" onclick="s2SetTab('traveller')">📦 M1 Job Traveller</button>
+        <button style="${tabBtnStyle}" id="s2-tab-work" onclick="s2SetTab('work')">📝 Work Instructions</button>
+      </div>
+      <!-- Content -->
+      <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center" id="s2-content"></div>
+      <!-- Footer Status Bar -->
+      <div style="background:#1a1a1a;border-top:1px solid #333;padding:6px 16px;font-size:11px;color:#888;display:flex;align-items:center;gap:8px;flex-shrink:0">
         <div id="s2-ws-dot" style="width:8px;height:8px;border-radius:50%;background:#ff453a"></div>
         <span id="s2-ws-text">Connecting to NuPhoenix Server…</span>
-        <span style="margin-left:auto" id="s2-clock"></span>
+        <span style="margin-left:auto;font-size:10px;color:#555">Documents will populate automatically when connected to M1 and P: drive</span>
       </div>
     </div>`;
-  // Mini clock for screen 2
+
+  function s2Render(){
+    const contentEl=document.getElementById('s2-content');
+    if(!contentEl)return;
+    const tabs={
+      setup:{icon:'📋',title:'Setup Sheets',desc:'CNC setup sheet, tooling list, work offsets, and first-off checklist for the current job.'},
+      inprocess:{icon:'📐',title:'In-Process Measurements',desc:'Dimensional inspection records and in-process measurement data for the current job.'},
+      traveller:{icon:'📦',title:'M1 Job Traveller',desc:'Full job routing card from M1 showing all operations, subcontract steps, and sign-offs.'},
+      work:{icon:'📝',title:'Work Instructions',desc:'Approved work instruction documents, standard operating procedures, and toolpath guides.'},
+    };
+    const tab=tabs[s2ActiveTab]||tabs.setup;
+    contentEl.innerHTML=`
+      <div style="text-align:center;max-width:480px">
+        <div style="font-size:52px;margin-bottom:20px">${tab.icon}</div>
+        <div style="font-size:18px;font-weight:700;color:#e8e8e8;margin-bottom:12px">${tab.title}</div>
+        <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:32px;margin-bottom:20px">
+          <div style="font-size:30px;margin-bottom:14px">🖥️</div>
+          <div style="font-size:14px;font-weight:700;color:#e8e8e8;margin-bottom:8px">Documents will be available when connected to M1 and P: drive</div>
+          <div style="font-size:12px;color:#888;line-height:1.6">${tab.desc}<br><br>Documents auto-populate based on the job loaded on <strong style="color:#e07a3a">${s2ActiveMachine||'this machine'}</strong>. No manual navigation required.</div>
+        </div>
+        <div style="font-size:11px;color:#555;background:#111;border-radius:6px;padding:10px">Waiting for connection to NuPhoenix Server and file server access…</div>
+      </div>`;
+  }
+
+  window.s2SetTab=function(tab){
+    s2ActiveTab=tab;
+    document.querySelectorAll('[id^=s2-tab-]').forEach(btn=>{
+      const isActive=btn.id==='s2-tab-'+tab;
+      btn.style.cssText=isActive?tabActiveBtnStyle:tabBtnStyle;
+    });
+    s2Render();
+  };
+  window.s2SetMachine=function(mId){
+    s2ActiveMachine=mId;
+    s2Render();
+  };
+
+  s2Render();
+  // Clock
   setInterval(()=>{const c=document.getElementById('s2-clock');if(c)c.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});},10000);
-  document.getElementById('s2-clock').textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+  const clkEl=document.getElementById('s2-clock');
+  if(clkEl)clkEl.textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
 }
 
 function updateKioskClock(){
@@ -6484,6 +7001,10 @@ let tcState={
   pauseStart:null,      // ISO string
   totalPausedMs:0,
   timerInterval:null,
+  pauseLogs:[],         // [{code,desc,startTime,endTime,durationMs}]
+  pauseReason:null,     // {code,desc} current pause reason
+  njrState:null,        // NJR checklist state when in production
+  njrNextJobId:null,    // ID of the next queued job at production start
 };
 window._tcEmpList=[];
 
@@ -6492,24 +7013,31 @@ function saveTimecards(arr){lsSet(TC_STORAGE_KEY,arr);}
 
 function initKioskTimecard(){
   // Restore saved state (survives page refresh)
-  const saved=lsGet('tc_state_'+(getKioskMachine()||'unknown'),null);
+  const saved=lsGet('tc_state_'+(machineFilter||'unknown'),null);
   if(saved&&saved.status&&saved.status!=='idle'){
     tcState={...tcState,...saved,timerInterval:null};
   }
   // Restore saved operator
-  const savedOp=lsGet('tc_operator_'+(getKioskMachine()||'unknown'),null);
+  const savedOp=lsGet('tc_operator_'+(machineFilter||'unknown'),null);
   if(savedOp)tcState.operator=savedOp;
+  // Init payroll and clock-on sections (still needed for legacy hidden elements)
+  initPayrollSection();
+  initClockOnSection();
+  // Full render (also calls kioskRenderCards via tcRenderAll)
   tcRenderAll();
   tcStartTimerTick();
-  // Prompt for operator if not set
-  if(!tcState.operator){setTimeout(()=>tcShowOperatorModal(),800);}
+  renderPayrollStatus();
+  // V3: initial ring tick
+  if(tcState.status!=='idle')kioskTickRings();
 }
 
 function tcSaveState(){
-  lsSet('tc_state_'+(getKioskMachine()||'unknown'),{
+  lsSet('tc_state_'+(machineFilter||'unknown'),{
     status:tcState.status,currentJob:tcState.currentJob,operator:tcState.operator,
     startTime:tcState.startTime,setupEndTime:tcState.setupEndTime,
     pauseStart:tcState.pauseStart,totalPausedMs:tcState.totalPausedMs,
+    pauseLogs:tcState.pauseLogs||[],pauseReason:tcState.pauseReason||null,
+    njrState:tcState.njrState||null,njrNextJobId:tcState.njrNextJobId||null,
   });
 }
 
@@ -6519,7 +7047,9 @@ function tcRenderAll(){
   tcRenderQueue();
   tcRenderHistory();
   tcRenderShiftSummary();
-  tcRenderPieTimer();
+  tcRenderNJRPanel();
+  // V3 kiosk cards
+  if(isKiosk)kioskRenderCards();
 }
 
 function tcRenderJobCard(){
@@ -6566,19 +7096,27 @@ function tcRenderButtons(){
   const btnRun=document.getElementById('tc-btn-run');
   const btnPause=document.getElementById('tc-btn-pause');
   const btnEnd=document.getElementById('tc-btn-end');
+  const btnDocs=document.getElementById('tc-phase-docs-btn');
   if(!btnSetup)return;
   btnSetup.disabled=(s!=='idle')||!tcState.currentJob;
-  btnRun.disabled=s!=='setup';
+  // START PRODUCTION only available in setup phase
+  if(btnRun){btnRun.disabled=s!=='setup';btnRun.style.display=s==='run'||s==='idle'?'none':'flex';}
+  // DOCS available whenever a job is loaded
+  if(btnDocs){btnDocs.disabled=!tcState.currentJob;btnDocs.style.display='flex';}
   btnPause.disabled=s==='idle';
-  btnEnd.disabled=s==='idle';
-  btnPause.textContent=s==='paused'?'▶️ RESUME':'🟡 PAUSE';
+  btnPause.textContent=s==='paused'?'▶ RESUME':'⏸ PAUSE ▾';
+  // END JOB only visible in production/paused-from-run
+  btnEnd.disabled=s==='idle'||s==='setup';
+  btnEnd.style.display=s==='setup'?'none':'flex';
+  // Show START SETUP only when idle
+  btnSetup.style.display=s==='idle'?'flex':'none';
 }
 
 function tcRenderQueue(){
   const queueEl=document.getElementById('tc-queue-body');
   const countEl=document.getElementById('tc-queue-count');
   if(!queueEl)return;
-  const mId=getKioskMachine();
+  const mId=machineFilter||'';
   const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
     const pa=typeof calcPrio==='function'?calcPrio(a):50;
     const pb=typeof calcPrio==='function'?calcPrio(b):50;
@@ -6610,7 +7148,7 @@ function tcRenderQueue(){
 function tcRenderHistory(){
   const histEl=document.getElementById('tc-history-body');
   if(!histEl)return;
-  const all=getTimecards().filter(t=>t.machine===getKioskMachine()).slice(-10).reverse();
+  const all=getTimecards().filter(t=>t.machine===(machineFilter||'')).slice(-10).reverse();
   if(!all.length){
     histEl.innerHTML=`<div style="font-size:12px;color:var(--dim);padding:8px 4px">No timecards yet for this machine.</div>`;
     return;
@@ -6639,7 +7177,7 @@ function tcRenderShiftSummary(){
   else if(now.getHours()>=6)shiftStart.setHours(6);
   else{shiftStart.setDate(shiftStart.getDate()-1);shiftStart.setHours(18);}
   const thisShift=all.filter(t=>{
-    if(t.machine!==getKioskMachine())return false;
+    if(t.machine!==(machineFilter||''))return false;
     return new Date(t.timestamp||0)>=shiftStart;
   });
   const jobsDone=thisShift.length;
@@ -6665,13 +7203,17 @@ function tcStartTimerTick(){
 
 function tcTickTimer(){
   const timerEl=document.getElementById('tc-timer');
-  if(!timerEl)return;
   if(tcState.status==='idle'||!tcState.startTime){
-    timerEl.textContent='00:00:00';
+    if(timerEl)timerEl.textContent='00:00:00';
     return;
   }
   const now=Date.now();
-  let elapsed=now-new Date(tcState.startTime).getTime()-(tcState.totalPausedMs||0);
+  // In production phase: show run time from setupEndTime; in setup: show setup time
+  const phaseStart=tcState.status==='run'&&tcState.setupEndTime
+    ?new Date(tcState.setupEndTime).getTime()
+    :new Date(tcState.startTime).getTime();
+  let pausedInPhase=tcState.totalPausedMs||0;
+  let elapsed=now-phaseStart-pausedInPhase;
   if(tcState.status==='paused'&&tcState.pauseStart){
     elapsed-=(now-new Date(tcState.pauseStart).getTime());
   }
@@ -6679,146 +7221,10 @@ function tcTickTimer(){
   const h=Math.floor(elapsed/3600000);
   const m=Math.floor((elapsed%3600000)/60000);
   const s=Math.floor((elapsed%60000)/1000);
-  timerEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  tcRenderPieTimer();
-}
-
-// ── PIE CHART TIMER ──────────────────────────────────────────────────────────
-// Returns standard setup/run times in minutes derived from job totalHours/qty
-function tcGetStdTimes(j){
-  if(!j)return{stdSetupMin:30,stdRunMin:60};
-  const totalMin=j.totalHours*60;
-  // Setup ≈ 20% of total, run ≈ 80%; minimum sensible values
-  const stdSetupMin=Math.max(10,Math.round(totalMin*0.20));
-  const stdRunMin=Math.max(15,Math.round(totalMin*0.80));
-  return{stdSetupMin,stdRunMin};
-}
-
-// Returns {elapsedMin, stdMin, phase} for the *current* phase only
-function tcGetPieData(){
-  const j=tcState.currentJob;
-  const st=tcState.status;
-  if(!j||st==='idle')return null;
-  const{stdSetupMin,stdRunMin}=tcGetStdTimes(j);
-  const totalElapsedMs=tcElapsedMs();
-  if(st==='setup'||(st==='paused'&&!tcState.setupEndTime)){
-    return{elapsedMin:totalElapsedMs/60000,stdMin:stdSetupMin,phase:'setup',j,stdSetupMin,stdRunMin};
-  }
-  // run or paused-after-run: show only run elapsed (total minus setup duration)
-  const setupDurMs=tcState.setupEndTime
-    ?Math.max(0,new Date(tcState.setupEndTime).getTime()-new Date(tcState.startTime).getTime())
-    :0;
-  const runElapsedMs=Math.max(0,totalElapsedMs-setupDurMs);
-  return{elapsedMin:runElapsedMs/60000,stdMin:stdRunMin,phase:'run',j,stdSetupMin,stdRunMin};
-}
-
-function tcGenLargePieSVG(elapsedMin,stdMin,status){
-  const size=210,cx=size/2,cy=size/2,radius=88,strokeW=14;
-  if(status==='idle'||status==='paused'){
-    const col=status==='paused'?'var(--yellow)':'var(--dim2)';
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="${strokeW}"/><text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="26" font-weight="800" fill="${col}">${status.toUpperCase()}</text></svg>`;
-  }
-  const pct=Math.min(elapsedMin/Math.max(stdMin,1),1.5);
-  const clampPct=Math.min(pct,1);
-  const overTime=pct>1;
-  const warnZone=pct>0.75&&!overTime;
-  const col=overTime?'var(--red)':warnZone?'var(--orange)':'var(--green)';
-  const angle=clampPct*360;
-  const rad2=angle*Math.PI/180;
-  const largeArc=angle>180?1:0;
-  const ex=cx+radius*Math.sin(rad2),ey=cy-radius*Math.cos(rad2);
-  let arc='';
-  if(angle>=360){arc=`<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${col}" stroke-width="${strokeW}"/>`;}
-  else if(angle>0){arc=`<path d="M${cx},${cy-radius} A${radius},${radius} 0 ${largeArc},1 ${ex},${ey}" fill="none" stroke="${col}" stroke-width="${strokeW}" stroke-linecap="round"/>`;}
-  // Overtime inner ring
-  let otRing='';
-  if(overTime){
-    const otR=radius-20;
-    const otPct=Math.min(pct-1,1);
-    const otAngle=otPct*360;const otRad=otAngle*Math.PI/180;
-    const otLarge=otAngle>180?1:0;
-    const otEx=cx+otR*Math.sin(otRad),otEy=cy-otR*Math.cos(otRad);
-    if(otAngle>=360)otRing=`<circle cx="${cx}" cy="${cy}" r="${otR}" fill="none" stroke="var(--red)" stroke-width="5" opacity=".5"/>`;
-    else otRing=`<path d="M${cx},${cy-otR} A${otR},${otR} 0 ${otLarge},1 ${otEx},${otEy}" fill="none" stroke="var(--red)" stroke-width="5" stroke-linecap="round" opacity=".5"/>`;
-  }
-  const pctLabel=overTime?`+${Math.round((pct-1)*100)}%`:`${Math.round(pct*100)}%`;
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="var(--s3)" stroke-width="${strokeW}"/>${arc}${otRing}<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="42" font-weight="800" fill="${col}">${pctLabel}</text><text x="${cx}" y="${cy+28}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--dim)">${status.toUpperCase()}</text></svg>`;
-}
-
-function tcRenderPieTimer(){
-  const container=document.getElementById('tc-pie-container');
-  if(!container)return;
-  const j=tcState.currentJob;
-  const st=tcState.status;
-  if(st==='idle'||!j){container.style.display='none';return;}
-  container.style.display='flex';
-
-  const data=tcGetPieData();
-  if(!data)return;
-  const{elapsedMin,stdMin,phase,stdSetupMin,stdRunMin}=data;
-  const pct=elapsedMin/Math.max(stdMin,1);
-  const overTime=pct>1,warnZone=pct>0.75&&!overTime;
-
-  // Update container accent
-  container.className=overTime?'overtimed':warnZone?'warning':'';
-  container.id='tc-pie-container';
-
-  // SVG
-  const svgWrap=document.getElementById('tc-pie-svg-wrap');
-  if(svgWrap)svgWrap.innerHTML=tcGenLargePieSVG(elapsedMin,stdMin,st);
-
-  // Large elapsed clock
-  const elEl=document.getElementById('tc-pie-elapsed');
-  if(elEl){
-    const totalMs=elapsedMin*60000;
-    const ph=Math.floor(totalMs/3600000),pm=Math.floor((totalMs%3600000)/60000),ps=Math.floor((totalMs%60000)/1000);
-    elEl.textContent=`${String(ph).padStart(2,'0')}:${String(pm).padStart(2,'0')}:${String(ps).padStart(2,'0')}`;
-    elEl.className=overTime?'red':warnZone?'orange':'green';
-  }
-
-  // Standard time reference
-  const stdEl=document.getElementById('tc-pie-std');
-  if(stdEl){
-    if(phase==='setup'){
-      const sm=stdSetupMin;
-      stdEl.textContent=`Std Setup: ${sm>=60?Math.floor(sm/60)+'h '+(sm%60)+'m':sm+'min'}`;
-    }else{
-      const perPiece=Math.round((stdRunMin/Math.max(j.qty,1))*10)/10;
-      stdEl.textContent=`Std Run: ${perPiece}min/pc × ${j.qty} pcs`;
-    }
-  }
-
-  // Pieces counter in run mode (estimated from elapsed vs per-piece std)
-  const pcsEl=document.getElementById('tc-pie-pcs');
-  if(pcsEl){
-    if(phase==='run'&&j.qty>1){
-      const minPerPiece=stdRunMin/Math.max(j.qty,1);
-      const estPcs=Math.min(Math.floor(elapsedMin/Math.max(minPerPiece,0.1)),j.qty);
-      pcsEl.style.display='block';
-      pcsEl.innerHTML=`<span class="pcs-done">${estPcs}</span> / ${j.qty} <span style="font-size:16px;color:var(--dim);font-weight:600">pcs</span>`;
-    }else{
-      pcsEl.style.display='none';
-    }
-  }
-
-  // Benchmark sparkline (last 6 completed timecards for this job/part)
-  const sparkEl=document.getElementById('tc-pie-sparkline');
-  if(sparkEl){
-    const history=getTimecards().filter(t=>t.jobId===j.id||t.partId===j.partId||t.partId===j.id).slice(-6);
-    if(history.length>=2){
-      const vals=phase==='setup'?history.map(t=>t.setupMinutes||0):history.map(t=>t.runMinutes||0);
-      const maxV=Math.max(...vals,1);
-      const bars=vals.map(v=>{
-        const bh=Math.round((v/maxV)*44);
-        const bc=v<=stdMin?'var(--green)':v<=stdMin*1.25?'var(--orange)':'var(--red)';
-        return `<div style="width:16px;height:${bh}px;background:${bc};border-radius:3px;align-self:flex-end" title="${Math.round(v)}min"></div>`;
-      }).join('');
-      sparkEl.innerHTML=`<div style="font-size:11px;color:var(--dim);font-weight:600;letter-spacing:.5px;text-transform:uppercase">Last ${history.length} runs</div><div style="display:flex;gap:4px;align-items:flex-end;height:44px">${bars}</div>`;
-      sparkEl.style.display='flex';
-    }else{
-      sparkEl.style.display='none';
-    }
-  }
+  const timeStr=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(timerEl)timerEl.textContent=timeStr;
+  // V3: tick the SVG ring charts
+  if(isKiosk)kioskTickRings();
 }
 
 function tcElapsedMs(){
@@ -6850,28 +7256,91 @@ function tcStartSetup(){
   tcState.setupEndTime=null;
   tcState.pauseStart=null;
   tcState.totalPausedMs=0;
+  tcState.pauseLogs=[];
+  tcState.pauseReason=null;
+  tcState.njrState=null;
+  tcState.njrNextJobId=null;
   tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-setup');
 }
 
-function tcStartRun(){
+function tcStartProduction(){
   if(tcState.status!=='setup')return;
   tcState.setupEndTime=new Date().toISOString();
   tcState.status='run';
+  // Init NJR state for this job
+  tcState.njrState={
+    checklist:{material:{checked:false,time:null},fixtures:{checked:false,time:null},tooling:{checked:false,time:null},cncProgram:{checked:false,time:null}},
+    ready:false,readyTime:null,productionStartTime:tcState.setupEndTime
+  };
   tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-run');
+  tcRenderNJRPanel();
+  // V3: sync counters from setup card to run card
+  if(isKiosk){
+    const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+    const pi=document.getElementById('kpc-run-parts-made');
+    const si=document.getElementById('kpc-run-scrap-made');
+    if(pi)pi.value=cp.parts||0;
+    if(si)si.value=cp.scrap||0;
+  }
 }
 
-function tcPause(){
+function tcShowPauseDropdown(){
   if(tcState.status==='paused'){
-    // Resume
-    const paused=tcState.pauseStart?Date.now()-new Date(tcState.pauseStart).getTime():0;
-    tcState.totalPausedMs=(tcState.totalPausedMs||0)+paused;
-    tcState.pauseStart=null;
-    tcState.status=tcState.setupEndTime?'run':'setup';
-  }else if(tcState.status==='setup'||tcState.status==='run'){
-    tcState.pauseStart=new Date().toISOString();
-    tcState.status='paused';
+    // Already paused — resume directly
+    tcResumePause();return;
   }
+  if(tcState.status!=='setup'&&tcState.status!=='run')return;
+  // Build pause reasons list
+  const reasons=getPauseReasons();
+  const listEl=document.getElementById('pause-reasons-list');
+  if(listEl){
+    listEl.innerHTML=reasons.map(r=>`
+      <button class="pause-reason-btn" onclick="tcPauseWithReason('${r.code}','${r.desc.replace(/'/g,'&#39;')}')">
+        <span>${r.desc}</span>
+        <span class="pause-reason-code">${r.code}</span>
+      </button>`).join('');
+  }
+  const overlay=document.getElementById('pause-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+
+function tcPauseWithReason(code,desc){
+  closePauseOverlay();
+  tcState.pauseStart=new Date().toISOString();
+  tcState.pauseReason={code,desc};
+  tcState.status='paused';
+  // Log pause start
+  if(!tcState.pauseLogs)tcState.pauseLogs=[];
+  tcState.pauseLogs.push({code,desc,startTime:tcState.pauseStart,endTime:null,durationMs:null});
   tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-pause');
+  if(isKiosk)kioskRenderCards();
+  toast(`⏸ Paused — ${desc}`);
+}
+
+function tcResumePause(){
+  if(tcState.status!=='paused')return;
+  const now=Date.now();
+  const paused=tcState.pauseStart?now-new Date(tcState.pauseStart).getTime():0;
+  tcState.totalPausedMs=(tcState.totalPausedMs||0)+paused;
+  // Complete the last pause log entry
+  if(tcState.pauseLogs&&tcState.pauseLogs.length){
+    const last=tcState.pauseLogs[tcState.pauseLogs.length-1];
+    if(!last.endTime){
+      last.endTime=new Date().toISOString();
+      last.durationMs=paused;
+    }
+  }
+  tcState.pauseStart=null;
+  tcState.pauseReason=null;
+  tcState.status=tcState.setupEndTime?'run':'setup';
+  tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-pause');
+  if(isKiosk)kioskRenderCards();
+  toast('▶️ Resumed');
+}
+
+function closePauseOverlay(){
+  const overlay=document.getElementById('pause-overlay');
+  if(overlay)overlay.style.display='none';
 }
 
 function tcOpenEndModal(){
@@ -6895,8 +7364,10 @@ function tcOpenEndModal(){
   if(te_t)te_t.textContent=tcFmtMin(totalMin);
   const qEl=document.getElementById('te-good-qty');
   const sEl=document.getElementById('te-scrap-qty');
-  if(qEl)qEl.value=tcState.currentJob?(tcState.currentJob.qty||0):0;
-  if(sEl)sEl.value=0;
+  // Pre-fill from kiosk counters if available
+  const kcp=isKiosk?kioskGetCounters():{parts:null,scrap:null};
+  if(qEl)qEl.value=kcp.parts!==null?kcp.parts:(tcState.currentJob?(tcState.currentJob.qty||0):0);
+  if(sEl)sEl.value=kcp.scrap!==null?kcp.scrap:0;
   tcEndUpdateScrapRow();
   const notes=document.getElementById('te-notes');
   if(notes)notes.value='';
@@ -6937,7 +7408,7 @@ function tcSubmitTimecard(){
   const record={
     jobId:j?j.id:'UNKNOWN',
     partDesc:j?j.partDesc:'',
-    machine:getKioskMachine(),
+    machine:machineFilter||'',
     operator:tcState.operator?tcState.operator.name:'Anonymous',
     operatorId:tcState.operator?tcState.operator.id:null,
     operation:j?(j.opSeq?.[0]||'machining'):'machining',
@@ -6956,6 +7427,45 @@ function tcSubmitTimecard(){
   timecards.push(record);
   saveTimecards(timecards);
 
+  // Save NJR record (separate from timecard, separate from breakdown)
+  if(tcState.njrState){
+    const njr=tcState.njrState;
+    const endTimeIso=new Date().toISOString();
+    const njrAchievedBeforeEnd=!!(njr.ready&&njr.readyTime&&njr.readyTime<endTimeIso);
+    let njrLeadMinutes=null;
+    if(njrAchievedBeforeEnd&&njr.readyTime&&tcState.setupEndTime){
+      njrLeadMinutes=Math.round((now-new Date(njr.readyTime).getTime())/60000);
+    }
+    const njrRecord={
+      jobId:j?j.id:'UNKNOWN',
+      machine:machineFilter||'',
+      operator:tcState.operator?tcState.operator.name:'Anonymous',
+      operatorId:tcState.operator?tcState.operator.id:null,
+      productionStartTime:tcState.setupEndTime||tcState.startTime,
+      nextJobId:tcState.njrNextJobId||null,
+      njrChecklist:njr.checklist,
+      njrReadyTime:njr.readyTime||null,
+      jobEndTime:endTimeIso,
+      njrAchievedBeforeEnd,
+      njrLeadTimeMinutes:njrLeadMinutes,
+      timestamp:endTimeIso,
+    };
+    const njrRecords=getNjrRecords();
+    njrRecords.push(njrRecord);
+    saveNjrRecords(njrRecords);
+    // Broadcast NJR result to server
+    try{broadcastChange('njr_submitted',{machineId:machineFilter,jobId:njrRecord.jobId,achieved:njrAchievedBeforeEnd});}catch(e){}
+  }
+
+  // Save pause logs separately (separate from breakdown data)
+  if(tcState.pauseLogs&&tcState.pauseLogs.length){
+    const pauseRecords=lsGet('pause_records',[]);
+    tcState.pauseLogs.forEach(p=>{
+      pauseRecords.push({...p,jobId:j?j.id:'UNKNOWN',machine:machineFilter||'',operator:tcState.operator?tcState.operator.name:'Anonymous'});
+    });
+    lsSet('pause_records',pauseRecords);
+  }
+
   // Broadcast to server
   try{broadcastChange('timecard_submitted',{machineId:machineFilter,jobId:record.jobId,goodQty,scrapQty,totalMinutes:totalMin});}catch(e){}
 
@@ -6967,6 +7477,10 @@ function tcSubmitTimecard(){
   const prevJob=tcState.currentJob;
   tcState.status='idle';tcState.currentJob=null;tcState.startTime=null;
   tcState.setupEndTime=null;tcState.pauseStart=null;tcState.totalPausedMs=0;
+  tcState.pauseLogs=[];tcState.pauseReason=null;
+  tcState.njrState=null;tcState.njrNextJobId=null;
+  // Clear kiosk counters
+  if(isKiosk)lsSet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
   tcSaveState();tcCloseEndModal();tcRenderAll();
 
   // Scrap push-in prompt
@@ -7001,6 +7515,760 @@ function tcToggleSection(section){
   if(chev)chev.style.transform=shown?'rotate(-90deg)':'';
 }
 
+// ══════════════════════════════════════════════════════════════
+//  KIOSK PAYROLL TIMECARD (Attendance)
+// ══════════════════════════════════════════════════════════════
+const PAYROLL_TC_KEY='payroll_timecards';
+
+function getPayrollTimecards(){return lsGet(PAYROLL_TC_KEY,[]);}
+function savePayrollTimecards(arr){lsSet(PAYROLL_TC_KEY,arr);}
+
+function initPayrollSection(){
+  const sel=document.getElementById('payroll-emp-select');
+  if(!sel)return;
+  const emps=getEmployees().filter(e=>e.active);
+  sel.innerHTML='<option value="">— Select employee —</option>'+
+    emps.map(e=>`<option value="${e.id}">${e.name} (${e.shift})</option>`).join('');
+  // Restore saved payroll state
+  const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(saved&&saved.empId){
+    sel.value=saved.empId;
+  }
+  renderPayrollStatus();
+}
+
+function renderPayrollStatus(){
+  const sel=document.getElementById('payroll-emp-select');
+  const statusEl=document.getElementById('payroll-status-display');
+  const btnIn=document.getElementById('payroll-clock-in-btn');
+  const btnOut=document.getElementById('payroll-clock-out-btn');
+  const clockOnSection=document.getElementById('tc-clockon-section');
+  if(!statusEl)return;
+  const empId=sel?sel.value:'';
+  if(!empId){
+    statusEl.className='tc-payroll-status';
+    statusEl.textContent='— Select an employee above —';
+    if(btnIn){btnIn.disabled=true;}
+    if(btnOut){btnOut.disabled=true;}
+    if(clockOnSection)clockOnSection.classList.add('disabled');
+    return;
+  }
+  const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  const isClockedIn=saved&&saved.empId===empId&&saved.clockedIn;
+  if(isClockedIn){
+    const t=new Date(saved.clockInTime);
+    const timeStr=t.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+    const elapsed=Math.floor((Date.now()-t.getTime())/60000);
+    const hrs=Math.floor(elapsed/60);const mins=elapsed%60;
+    const elStr=hrs>0?`${hrs}h ${mins}m`:`${mins}m`;
+    statusEl.className='tc-payroll-status clocked-in';
+    statusEl.textContent=`✅ Clocked in since ${timeStr} — ${elStr} ago`;
+    if(btnIn){btnIn.disabled=true;}
+    if(btnOut){btnOut.disabled=false;}
+    if(clockOnSection)clockOnSection.classList.remove('disabled');
+    // Sync operator to tcState
+    const emps=getEmployees();
+    const emp=emps.find(e=>e.id===empId);
+    if(emp&&(!tcState.operator||tcState.operator.id!==empId)){
+      tcState.operator=emp;
+      tcSaveState();
+      tcRenderJobCard();
+    }
+  }else{
+    statusEl.className='tc-payroll-status';
+    statusEl.textContent='— Not clocked in —';
+    if(btnIn){btnIn.disabled=false;}
+    if(btnOut){btnOut.disabled=true;}
+    if(clockOnSection)clockOnSection.classList.add('disabled');
+  }
+}
+
+function payrollClockIn(){
+  const sel=document.getElementById('payroll-emp-select');
+  if(!sel||!sel.value){toast('⚠️ Select an employee first');return;}
+  const empId=sel.value;
+  const emps=getEmployees();
+  const emp=emps.find(e=>e.id===empId);
+  if(!emp)return;
+  const now=new Date().toISOString();
+  const state={empId,empName:emp.name,clockedIn:true,clockInTime:now};
+  lsSet('payroll_state_'+(machineFilter||'unknown'),state);
+  // Save to payroll records
+  const records=getPayrollTimecards();
+  records.push({empId,empName:emp.name,machine:machineFilter||'',clockIn:now,clockOut:null,date:new Date().toLocaleDateString('en-AU')});
+  savePayrollTimecards(records);
+  // Sync to tcState operator
+  tcState.operator=emp;
+  lsSet('tc_operator_'+(machineFilter||'unknown'),emp);
+  tcSaveState();tcRenderJobCard();
+  renderPayrollStatus();
+  toast(`✅ ${emp.name} clocked IN at ${new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`);
+}
+
+function payrollClockOut(){
+  const sel=document.getElementById('payroll-emp-select');
+  if(!sel||!sel.value){toast('⚠️ Select an employee first');return;}
+  if(tcState.status!=='idle'){
+    toast('⚠️ End your current job before clocking out');return;
+  }
+  const empId=sel.value;
+  const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(!saved||!saved.clockedIn){toast('Not currently clocked in');return;}
+  const now=new Date().toISOString();
+  lsSet('payroll_state_'+(machineFilter||'unknown'),{...saved,clockedIn:false,clockOutTime:now});
+  // Update last payroll record for this employee
+  const records=getPayrollTimecards();
+  for(let i=records.length-1;i>=0;i--){
+    if(records[i].empId===empId&&!records[i].clockOut){
+      records[i].clockOut=now;
+      break;
+    }
+  }
+  savePayrollTimecards(records);
+  const emp=getEmployees().find(e=>e.id===empId);
+  renderPayrollStatus();
+  toast(`👋 ${emp?emp.name:'Employee'} clocked OUT at ${new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KIOSK CLOCK ON SECTION (Production)
+// ══════════════════════════════════════════════════════════════
+
+function initClockOnSection(){
+  const machSel=document.getElementById('clockon-machine-select');
+  if(!machSel)return;
+  // Populate machine dropdown from MACHINES array
+  const mList=typeof MACHINES!=='undefined'?MACHINES:(typeof CNC_MACHINES!=='undefined'?CNC_MACHINES:[]);
+  machSel.innerHTML='<option value="">— Select machine —</option>'+
+    mList.map(m=>`<option value="${m.id}"${m.id===machineFilter?' selected':''}>${m.id}${m.name?' — '+m.name.split('—').pop().trim():''}</option>`).join('');
+  // If kiosk is for a specific machine, pre-select it and populate jobs
+  if(machineFilter){
+    machSel.value=machineFilter;
+    onClockOnMachineChange();
+  }
+}
+
+function onClockOnMachineChange(){
+  const machSel=document.getElementById('clockon-machine-select');
+  const jobSel=document.getElementById('clockon-job-select');
+  if(!machSel||!jobSel)return;
+  const mId=machSel.value;
+  const machJobs=mId?jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
+    const pa=typeof calcPrio==='function'?calcPrio(a):50;
+    const pb=typeof calcPrio==='function'?calcPrio(b):50;
+    return pa-pb;
+  }):[];
+  jobSel.innerHTML='<option value="">— Select job —</option>'+
+    machJobs.map(j=>{
+      const due=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short'}):'—';
+      return `<option value="${j.id}">${j.id} — ${j.partDesc||'?'} (Due ${due})</option>`;
+    }).join('');
+  onClockOnJobChange();
+}
+
+function onClockOnJobChange(){
+  const jobSel=document.getElementById('clockon-job-select');
+  const opSel=document.getElementById('clockon-op-select');
+  if(!jobSel||!opSel)return;
+  const jobId=jobSel.value;
+  const j=jobs.find(jj=>jj.id===jobId);
+  const ops=j&&j.opSeq?j.opSeq:[];
+  opSel.innerHTML='<option value="">— Select operation —</option>'+
+    ops.map(op=>`<option value="${op}">${op}</option>`).join('');
+  // Hide docs panel when job changes
+  const docsPanel=document.getElementById('kiosk-docs-panel');
+  if(docsPanel)docsPanel.style.display='none';
+}
+
+function tcLoadJobFromClockOn(){
+  const jobSel=document.getElementById('clockon-job-select');
+  const opSel=document.getElementById('clockon-op-select');
+  if(!jobSel||!jobSel.value){toast('⚠️ Select a job first');return;}
+  const j=jobs.find(jj=>jj.id===jobSel.value);
+  if(!j)return;
+  if(tcState.status!=='idle'){toast('⚠️ End the current job before loading a new one');return;}
+  // Set selected operation on job for timecard record
+  const op=opSel?opSel.value:'';
+  tcState.currentJob={...j,_selectedOp:op};
+  tcSaveState();tcRenderAll();tcFlashBtn('tc-btn-setup');
+  toast(`📋 Loaded: ${j.id} — ${j.partDesc}`);
+}
+
+function toggleJobDocs(){
+  // All docs are stubs — redirect to stub overlay
+  tcOpenDocsViewer();
+}
+
+function tcKioskBreakdown(){
+  if(machineFilter){
+    toggleBreakdown(machineFilter);
+  }else{
+    toast('⚠️ No machine assigned to this kiosk');
+  }
+}
+
+function tcOpenDocsViewer(context){
+  // All docs are stubs — show the placeholder overlay
+  const overlay=document.getElementById('docs-stub-overlay');
+  if(overlay)overlay.style.display='flex';
+}
+function closeDocsStub(){
+  const overlay=document.getElementById('docs-stub-overlay');
+  if(overlay)overlay.style.display='none';
+}
+function showDocTab(tab){
+  ['setup','inspect','traveller','instructions'].forEach(t=>{
+    const el=document.getElementById('doc-content-'+t);
+    const btn=document.getElementById('doc-tab-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+    if(btn){btn.classList.toggle('active',t===tab);}
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NJR (NEXT JOB READY) SYSTEM
+// ══════════════════════════════════════════════════════════════
+const NJR_STORAGE_KEY='njr_records';
+
+function getNjrRecords(){return lsGet(NJR_STORAGE_KEY,[]);}
+function saveNjrRecords(arr){lsSet(NJR_STORAGE_KEY,arr);}
+
+function tcRenderNJRPanel(){
+  const panel=document.getElementById('kiosk-njr-panel');
+  if(!panel)return;
+  const isProduction=tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime);
+  panel.style.display=isProduction?'block':'none';
+  if(!isProduction)return;
+  const njr=tcState.njrState||{checklist:{material:{checked:false},fixtures:{checked:false},tooling:{checked:false},cncProgram:{checked:false}},ready:false};
+  // Find next job in queue
+  const mId=machineFilter||'';
+  const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
+    const pa=typeof calcPrio==='function'?calcPrio(a):50;
+    const pb=typeof calcPrio==='function'?calcPrio(b):50;
+    return pa-pb;
+  });
+  const currentJobId=tcState.currentJob?tcState.currentJob.id:null;
+  const nextJob=queue.find(j=>j.id!==currentJobId)||null;
+  const nextLbl=document.getElementById('njr-next-job-label');
+  const nextSub=document.getElementById('njr-next-job-sub');
+  if(nextLbl)nextLbl.textContent=nextJob?`Next: ${nextJob.id}`:'Next: No queued jobs';
+  if(nextSub)nextSub.textContent=nextJob?`${nextJob.partDesc||'—'} — Qty: ${nextJob.qty||'—'}`:' ';
+  // Store next job ref in state for logging
+  if(!tcState.njrNextJobId&&nextJob)tcState.njrNextJobId=nextJob.id;
+  // Render checklist
+  const items=['material','fixtures','tooling','cncProgram'];
+  let allChecked=true;
+  items.forEach(key=>{
+    const item=njr.checklist[key]||{checked:false,time:null};
+    const el=document.getElementById('njr-item-'+key);
+    const box=document.getElementById('njr-box-'+key);
+    const timeEl=document.getElementById('njr-time-'+key);
+    if(el){el.className='njr-check-item'+(item.checked?' checked':'');}
+    if(box)box.textContent=item.checked?'✓':'';
+    if(timeEl)timeEl.textContent=item.checked&&item.time?new Date(item.time).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'';
+    if(!item.checked)allChecked=false;
+  });
+  // Status badge + confirm button
+  const badge=document.getElementById('njr-status-badge');
+  const confirmBtn=document.getElementById('njr-confirm-btn');
+  if(njr.ready){
+    panel.className='kiosk-njr-panel njr-ready';
+    if(badge){badge.className='kiosk-njr-badge ready';badge.textContent='🟢 READY';}
+    if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='✅ NEXT JOB READY — CONFIRMED';}
+    // Remove NJR alert bar if active
+    const alertBar=document.getElementById('kiosk-njr-alert-bar');
+    if(alertBar)alertBar.classList.remove('active');
+  }else{
+    panel.className='kiosk-njr-panel';
+    if(badge){badge.className='kiosk-njr-badge not-ready';badge.textContent='🔴 NOT READY';}
+    if(confirmBtn){confirmBtn.disabled=!allChecked;confirmBtn.textContent='✅ NEXT JOB READY — ALL MUSTERED';}
+  }
+}
+
+function njrToggleItem(key){
+  if(!tcState.njrState)return;
+  if(tcState.njrState.ready)return; // already confirmed ready
+  const item=tcState.njrState.checklist[key]||{checked:false,time:null};
+  const nowIso=new Date().toISOString();
+  tcState.njrState.checklist[key]={checked:!item.checked,time:!item.checked?nowIso:null};
+  tcSaveState();
+  tcRenderNJRPanel();
+}
+
+function njrConfirmReady(){
+  if(!tcState.njrState)return;
+  const items=['material','fixtures','tooling','cncProgram'];
+  const allChecked=items.every(k=>tcState.njrState.checklist[k]&&tcState.njrState.checklist[k].checked);
+  if(!allChecked){toast('⚠️ Check all items first');return;}
+  tcState.njrState.ready=true;
+  tcState.njrState.readyTime=new Date().toISOString();
+  tcSaveState();
+  tcRenderNJRPanel();
+  // Remove NJR alert bar
+  const alertBar=document.getElementById('kiosk-njr-alert-bar');
+  if(alertBar)alertBar.classList.remove('active');
+  toast('🟢 Next Job Ready confirmed!');
+}
+
+function kioskNjrAlertClick(){
+  // Scroll to NJR panel and dismiss alert bar if NJR is now ready
+  const panel=document.getElementById('kiosk-njr-panel');
+  if(panel)panel.scrollIntoView({behavior:'smooth'});
+  if(tcState.njrState&&tcState.njrState.ready){
+    const alertBar=document.getElementById('kiosk-njr-alert-bar');
+    if(alertBar)alertBar.classList.remove('active');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KIOSK V3 — BUTTON HANDLERS & OVERLAYS
+// ══════════════════════════════════════════════════════════════
+
+function kioskClockInBtn(){
+  // Show payroll overlay for clock-in
+  const overlay=document.getElementById('kiosk-payroll-overlay');
+  const title=document.getElementById('kp-overlay-title');
+  const sub=document.getElementById('kp-overlay-sub');
+  const list=document.getElementById('kp-emp-list');
+  if(!overlay)return;
+  if(title)title.textContent='🟢 Clock In';
+  if(sub)sub.textContent='Select your name to clock in';
+  const emps=getEmployees().filter(e=>e.active);
+  if(!emps.length){toast('⚠️ No active employees found');return;}
+  if(list){
+    list.innerHTML=emps.map((e,i)=>{
+      const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+      const isIn=saved&&saved.empId===e.id&&saved.clockedIn;
+      const initials=e.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      return `<button class="kp-emp-btn${isIn?' clocked-in':''}" onclick="kioskDoClockIn('${e.id}')">
+        <div class="kp-emp-badge${isIn?' in':''}">${initials}</div>
+        <div><div class="kp-emp-name">${e.name}</div><div class="kp-emp-status${isIn?' in':' out'}">${isIn?'✅ Already clocked in':'Tap to clock in'}</div></div>
+      </button>`;
+    }).join('');
+  }
+  overlay.style.display='flex';
+}
+
+function kioskDoClockIn(empId){
+  closeKioskPayrollOverlay();
+  const sel=document.getElementById('payroll-emp-select');
+  if(sel){sel.value=empId;}
+  // Set directly (sel may be hidden)
+  const emps=getEmployees();
+  const emp=emps.find(e=>e.id===empId);
+  if(!emp)return;
+  const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(saved&&saved.empId===empId&&saved.clockedIn){
+    toast(`ℹ️ ${emp.name} is already clocked in`);
+    return;
+  }
+  const now=new Date().toISOString();
+  const state={empId,empName:emp.name,clockedIn:true,clockInTime:now};
+  lsSet('payroll_state_'+(machineFilter||'unknown'),state);
+  const records=getPayrollTimecards();
+  records.push({empId,empName:emp.name,machine:machineFilter||'',clockIn:now,clockOut:null,date:new Date().toLocaleDateString('en-AU')});
+  savePayrollTimecards(records);
+  tcState.operator=emp;
+  lsSet('tc_operator_'+(machineFilter||'unknown'),emp);
+  tcSaveState();
+  kioskRenderCards();
+  renderPayrollStatus();
+  toast(`✅ ${emp.name} clocked IN at ${new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`);
+}
+
+function kioskClockOutBtn(){
+  const overlay=document.getElementById('kiosk-payroll-overlay');
+  const title=document.getElementById('kp-overlay-title');
+  const sub=document.getElementById('kp-overlay-sub');
+  const list=document.getElementById('kp-emp-list');
+  if(!overlay)return;
+  if(title)title.textContent='🔴 Clock Out';
+  if(sub)sub.textContent='Select your name to clock out';
+  const emps=getEmployees().filter(e=>e.active);
+  if(!emps.length){toast('⚠️ No active employees found');return;}
+  if(list){
+    list.innerHTML=emps.map((e,i)=>{
+      const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+      const isIn=saved&&saved.empId===e.id&&saved.clockedIn;
+      const initials=e.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      const t=isIn&&saved.clockInTime?new Date(saved.clockInTime).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'';
+      return `<button class="kp-emp-btn${isIn?' clocked-in':''}" onclick="kioskDoClockOut('${e.id}')" ${!isIn?'style="opacity:.45;cursor:not-allowed" disabled':''}>
+        <div class="kp-emp-badge${isIn?' in':' out'}">${initials}</div>
+        <div><div class="kp-emp-name">${e.name}</div><div class="kp-emp-status${isIn?' in':' out'}">${isIn?`✅ Clocked in since ${t}`:'Not clocked in'}</div></div>
+      </button>`;
+    }).join('');
+  }
+  overlay.style.display='flex';
+}
+
+function kioskDoClockOut(empId){
+  closeKioskPayrollOverlay();
+  if(tcState.status!=='idle'){
+    toast('⚠️ End your current job before clocking out');return;
+  }
+  const saved=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(!saved||saved.empId!==empId||!saved.clockedIn){
+    toast('ℹ️ This employee is not clocked in');return;
+  }
+  const now=new Date().toISOString();
+  lsSet('payroll_state_'+(machineFilter||'unknown'),{...saved,clockedIn:false,clockOutTime:now});
+  const records=getPayrollTimecards();
+  for(let i=records.length-1;i>=0;i--){
+    if(records[i].empId===empId&&!records[i].clockOut){records[i].clockOut=now;break;}
+  }
+  savePayrollTimecards(records);
+  const emp=getEmployees().find(e=>e.id===empId);
+  renderPayrollStatus();
+  kioskRenderCards();
+  toast(`👋 ${emp?emp.name:'Employee'} clocked OUT at ${new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`);
+}
+
+function closeKioskPayrollOverlay(){
+  const overlay=document.getElementById('kiosk-payroll-overlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function kioskClockOnBtn(){
+  // Check: must be clocked in first
+  const savedPayroll=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(!savedPayroll||!savedPayroll.clockedIn){
+    toast('⚠️ Clock in first before starting a job');return;
+  }
+  if(tcState.status!=='idle'){
+    toast('⚠️ End current job first');return;
+  }
+  // Show job queue overlay
+  const overlay=document.getElementById('kiosk-clockon-overlay');
+  const sub=document.getElementById('kco-sub');
+  const list=document.getElementById('kco-queue-list');
+  if(!overlay)return;
+  const mId=machineFilter||'';
+  const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
+    const pa=typeof calcPrio==='function'?calcPrio(a):50;
+    const pb=typeof calcPrio==='function'?calcPrio(b):50;
+    if(pa!==pb)return pa-pb;
+    return (a.start||0)-(b.start||0);
+  });
+  const empName=savedPayroll.empName||'Operator';
+  if(sub)sub.textContent=`${empName} — tap a job to begin`;
+  if(list){
+    if(!queue.length){
+      list.innerHTML=`<div style="padding:24px;text-align:center;color:var(--dim);font-size:14px">No jobs queued for ${mId||'this machine'}</div>`;
+    }else{
+      list.innerHTML=queue.map((j,i)=>{
+        const dueDate=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short'}):'—';
+        const isNext=i===0;
+        // Determine status label
+        const savedTc=lsGet('tc_state_'+(mId||'unknown'),null);
+        const isCurrentJob=savedTc&&savedTc.currentJob&&savedTc.currentJob.id===j.id&&savedTc.status!=='idle';
+        let statusCls='queued',statusTxt='Queued';
+        if(isCurrentJob&&savedTc.status==='setup'){statusCls='in-setup';statusTxt='In Setup';}
+        else if(isCurrentJob&&savedTc.status==='run'){statusCls='in-run';statusTxt='Running';}
+        return `<div class="kco-queue-item${isNext?' next-up':''}" onclick="kioskDoClockOn('${j.id}')">
+          <div class="kco-item-top">
+            <div style="width:26px;height:26px;border-radius:50%;background:${isNext?'rgba(52,199,89,.25)':'var(--s3)'};color:${isNext?'var(--green)':'var(--dim)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${i+1}</div>
+            <div class="kco-item-num">${j.id}</div>
+            <span class="kco-item-status ${statusCls}">${statusTxt}</span>
+            ${isNext?'<span class="kco-item-badge">NEXT UP</span>':''}
+          </div>
+          <div class="kco-item-part">
+            <strong>${j.partDesc||'—'}</strong>
+            <span>×${j.qty||'—'}</span>
+            <span>Due ${dueDate}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+  overlay.style.display='flex';
+}
+
+function kioskDoClockOn(jobId){
+  closeKioskClockOnOverlay();
+  const j=jobs.find(jj=>jj.id===jobId);
+  if(!j)return;
+  if(tcState.status!=='idle'){toast('⚠️ End current job first');return;}
+  // Set operator from payroll state
+  const savedPayroll=lsGet('payroll_state_'+(machineFilter||'unknown'),null);
+  if(savedPayroll&&savedPayroll.empId){
+    const emp=getEmployees().find(e=>e.id===savedPayroll.empId);
+    if(emp)tcState.operator=emp;
+  }
+  // Load job and start setup automatically
+  tcState.currentJob={...j};
+  tcState.status='setup';
+  tcState.startTime=new Date().toISOString();
+  tcState.setupEndTime=null;
+  tcState.pauseStart=null;
+  tcState.totalPausedMs=0;
+  tcState.pauseLogs=[];
+  tcState.pauseReason=null;
+  tcState.njrState=null;
+  tcState.njrNextJobId=null;
+  kioskRestoreCounters();
+  tcSaveState();
+  kioskRenderCards();
+  tcRenderShiftSummary();
+  toast(`▶ Setup started: ${j.id} — ${j.partDesc}`);
+}
+
+function closeKioskClockOnOverlay(){
+  const overlay=document.getElementById('kiosk-clockon-overlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function kioskNjrBtn(){
+  // In production phase — scroll to inline NJR panel instead
+  if(tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime)){
+    const panel=document.getElementById('kiosk-njr-panel');
+    if(panel)panel.scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  // Otherwise open NJR overlay with job queue + readiness info
+  const overlay=document.getElementById('kiosk-njr-overlay');
+  const body=document.getElementById('kiosk-njr-overlay-body');
+  if(!overlay||!body)return;
+  const mId=machineFilter||'';
+  const queue=jobs.filter(j=>j.machine===mId&&j.status!=='complete').sort((a,b)=>{
+    const pa=typeof calcPrio==='function'?calcPrio(a):50;
+    const pb=typeof calcPrio==='function'?calcPrio(b):50;
+    return pa-pb;
+  });
+  const njrRecords=getNjrRecords();
+  const recent=njrRecords.filter(r=>r.machine===mId).slice(-20);
+  const achieved=recent.filter(r=>r.njrAchievedBeforeEnd).length;
+  const score=recent.length?Math.round(achieved/recent.length*100):null;
+  const scoreColor=score===null?'var(--dim)':score>=90?'var(--green)':score>=75?'var(--yellow)':'var(--red)';
+  body.innerHTML=`
+    <div style="background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:14px;text-align:center">
+      <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">NJR Score (last ${recent.length} jobs)</div>
+      <div style="font-size:36px;font-weight:800;color:${scoreColor}">${score!==null?score+'%':'—'}</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px">Target: 75%</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Job Queue — ${mId||'Machine'}</div>
+    ${!queue.length?'<div style="color:var(--dim);font-size:13px;padding:12px 0">No jobs queued</div>':
+    queue.map((j,i)=>{
+      const dueDate=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short'}):'—';
+      return `<div style="background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px">
+        <div style="width:22px;height:22px;border-radius:50%;background:${i===0?'rgba(52,199,89,.2)':'var(--s3)'};color:${i===0?'var(--green)':'var(--dim)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${i+1}</div>
+        <div style="flex:1"><div style="font-weight:700;font-family:monospace;font-size:13px">${j.id}</div><div style="font-size:11px;color:var(--dim)">${j.partDesc||'—'} · ×${j.qty||'—'} · Due ${dueDate}</div></div>
+        <button style="padding:5px 10px;border-radius:var(--rs);font-size:11px;font-weight:700;border:1px solid rgba(191,90,242,.3);background:rgba(191,90,242,.1);color:#bf5af2;cursor:pointer;font-family:inherit" onclick="tcOpenDocsViewer();document.getElementById('kiosk-njr-overlay').style.display='none'">📄 Docs</button>
+      </div>`;
+    }).join('')}`;
+  overlay.style.display='flex';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KIOSK V3 — CARD RENDERING
+// ══════════════════════════════════════════════════════════════
+
+function kioskRenderCards(){
+  const s=tcState.status;
+  const setupCard=document.getElementById('kiosk-setup-card');
+  const runCard=document.getElementById('kiosk-run-card');
+  const njrBtn=document.getElementById('kiosk-btn-njr');
+  if(!setupCard||!runCard)return;
+  if(s==='setup'||s==='paused'&&!tcState.setupEndTime){
+    setupCard.style.display='block';
+    runCard.style.display='none';
+    kioskRenderSetupCard();
+  }else if(s==='run'||(s==='paused'&&tcState.setupEndTime)){
+    setupCard.style.display='none';
+    runCard.style.display='block';
+    kioskRenderRunCard();
+    tcRenderNJRPanel();
+  }else{
+    // idle
+    setupCard.style.display='none';
+    runCard.style.display='none';
+  }
+  // NJR button styling
+  if(njrBtn){
+    const isNjrReady=tcState.njrState&&tcState.njrState.ready;
+    njrBtn.className='kiosk-idle-btn k-njr'+(isNjrReady?' njr-ready':'');
+    njrBtn.textContent=isNjrReady?'✅ NJR Ready':'NJR';
+  }
+}
+
+function kioskRenderSetupCard(){
+  const j=tcState.currentJob;
+  if(!j)return;
+  const dueStr=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'2-digit'}):'—';
+  const numEl=document.getElementById('kpc-setup-job-num');
+  const metaEl=document.getElementById('kpc-setup-meta');
+  const opEl=document.getElementById('kpc-setup-op');
+  const badgeEl=document.getElementById('kpc-setup-badge');
+  const card=document.getElementById('kiosk-setup-card');
+  const pauseBtn=document.getElementById('kpc-setup-pause-btn');
+  if(numEl)numEl.textContent=j.id;
+  if(metaEl)metaEl.innerHTML=`<strong>${j.partDesc||'—'}</strong> &nbsp;·&nbsp; Qty: <strong>${j.qty||'—'}</strong> &nbsp;·&nbsp; Due: <strong>${dueStr}</strong>`;
+  if(opEl)opEl.textContent='👤 '+(tcState.operator?tcState.operator.name:'No operator');
+  // Paused state visual
+  const isPaused=tcState.status==='paused';
+  if(card){
+    card.className='kiosk-phase-card kpc-setup'+(isPaused?' kpc-paused':'');
+  }
+  if(badgeEl){
+    badgeEl.className='kpc-phase-badge'+(isPaused?' paused':' setup');
+    badgeEl.textContent=isPaused?`⏸ PAUSED — ${tcState.pauseReason?tcState.pauseReason.desc:''}`.trim():'SETUP';
+  }
+  if(pauseBtn){
+    pauseBtn.className='kpc-btn'+(isPaused?' resume':' pause');
+    pauseBtn.textContent=isPaused?'▶ RESUME':'⏸ PAUSE ▾';
+  }
+  // Ring std
+  const stdEl=document.getElementById('kpc-setup-ring-std');
+  const setupStdMin=j.setupStd||30;
+  if(stdEl)stdEl.textContent=`std ${setupStdMin}m`;
+  // Restore counters
+  const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+  const pi=document.getElementById('kpc-parts-made');
+  const si=document.getElementById('kpc-scrap-made');
+  if(pi)pi.value=cp.parts||0;
+  if(si)si.value=cp.scrap||0;
+}
+
+function kioskRenderRunCard(){
+  const j=tcState.currentJob;
+  if(!j)return;
+  const dueStr=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'2-digit'}):'—';
+  const numEl=document.getElementById('kpc-run-job-num');
+  const metaEl=document.getElementById('kpc-run-meta');
+  const opEl=document.getElementById('kpc-run-op');
+  const badgeEl=document.getElementById('kpc-run-badge');
+  const card=document.getElementById('kiosk-run-card');
+  const setupLockedEl=document.getElementById('kpc-run-setup-time');
+  const qtyTargetEl=document.getElementById('kpc-run-qty-target');
+  const pauseBtn=document.getElementById('kpc-run-pause-btn');
+  if(numEl)numEl.textContent=j.id;
+  if(metaEl)metaEl.innerHTML=`<strong>${j.partDesc||'—'}</strong> &nbsp;·&nbsp; Qty: <strong>${j.qty||'—'}</strong> &nbsp;·&nbsp; Due: <strong>${dueStr}</strong>`;
+  if(opEl)opEl.textContent='👤 '+(tcState.operator?tcState.operator.name:'No operator');
+  if(qtyTargetEl)qtyTargetEl.textContent=`/ ${j.qty||'—'}`;
+  // Locked setup time
+  if(setupLockedEl&&tcState.startTime&&tcState.setupEndTime){
+    const setupMs=new Date(tcState.setupEndTime).getTime()-new Date(tcState.startTime).getTime();
+    setupLockedEl.textContent=kioskFmtMs(setupMs);
+  }
+  // Paused state visual
+  const isPaused=tcState.status==='paused';
+  if(card){
+    card.className='kiosk-phase-card kpc-run'+(isPaused?' kpc-paused':'');
+  }
+  if(badgeEl){
+    badgeEl.className='kpc-phase-badge'+(isPaused?' paused':' run');
+    badgeEl.textContent=isPaused?`⏸ PAUSED — ${tcState.pauseReason?tcState.pauseReason.desc:''}`.trim():'PRODUCTION';
+  }
+  if(pauseBtn){
+    pauseBtn.className='kpc-btn'+(isPaused?' resume':' pause');
+    pauseBtn.textContent=isPaused?'▶ RESUME':'⏸ PAUSE ▾';
+  }
+  // Ring std
+  const stdEl=document.getElementById('kpc-run-ring-std');
+  const runStdMin=j.runStd||j.cycleTime||60;
+  if(stdEl)stdEl.textContent=`std ${runStdMin}m`;
+  // Restore counters
+  const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+  const pi=document.getElementById('kpc-run-parts-made');
+  const si=document.getElementById('kpc-run-scrap-made');
+  if(pi)pi.value=cp.parts||0;
+  if(si)si.value=cp.scrap||0;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KIOSK V3 — SVG RING CHART
+// ══════════════════════════════════════════════════════════════
+
+const RING_CIRCUMFERENCE=502.65; // 2π×80
+
+function kioskUpdateRing(fillId,timeId,elapsedMs,stdMin){
+  const fillEl=document.getElementById(fillId);
+  const timeEl=document.getElementById(timeId);
+  if(!fillEl&&!timeEl)return;
+  // Update time display
+  if(timeEl)timeEl.textContent=kioskFmtMs(elapsedMs);
+  // Calculate progress
+  const stdMs=(stdMin||30)*60000;
+  const ratio=stdMs>0?elapsedMs/stdMs:0;
+  const filled=Math.min(ratio,1.5)*RING_CIRCUMFERENCE; // cap at 1.5× for visual
+  if(fillEl){
+    fillEl.setAttribute('stroke-dasharray',`${Math.min(filled,RING_CIRCUMFERENCE)} ${RING_CIRCUMFERENCE}`);
+    // Color coding
+    fillEl.className='ring-fill '+(ratio<0.8?'ring-green':ratio<=1.0?'ring-yellow':'ring-red');
+  }
+}
+
+function kioskFmtMs(ms){
+  if(!ms||ms<0)return'00:00:00';
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function kioskTickRings(){
+  if(!isKiosk)return;
+  if(tcState.status==='idle')return;
+  const now=Date.now();
+  let pausedMs=tcState.totalPausedMs||0;
+  if(tcState.status==='paused'&&tcState.pauseStart){
+    pausedMs+=now-new Date(tcState.pauseStart).getTime();
+  }
+  if(tcState.status==='setup'||(tcState.status==='paused'&&!tcState.setupEndTime)){
+    const start=tcState.startTime?new Date(tcState.startTime).getTime():now;
+    const elapsedMs=Math.max(0,now-start-pausedMs);
+    const stdMin=tcState.currentJob?(tcState.currentJob.setupStd||30):30;
+    kioskUpdateRing('kpc-setup-ring-fill','kpc-setup-ring-time',elapsedMs,stdMin);
+  }else if(tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime)){
+    const runStart=tcState.setupEndTime?new Date(tcState.setupEndTime).getTime():now;
+    // pausedMs here: we approximate (full pause vs run-only pause — good enough for v1)
+    const elapsedMs=Math.max(0,now-runStart);
+    const stdMin=tcState.currentJob?(tcState.currentJob.runStd||tcState.currentJob.cycleTime||60):60;
+    kioskUpdateRing('kpc-run-ring-fill','kpc-run-ring-time',elapsedMs,stdMin);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KIOSK V3 — PARTS COUNTER
+// ══════════════════════════════════════════════════════════════
+
+function kioskAdjCounter(type,delta){
+  const isRun=tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime);
+  const partsId=isRun?'kpc-run-parts-made':'kpc-parts-made';
+  const scrapId=isRun?'kpc-run-scrap-made':'kpc-scrap-made';
+  const inputId=type==='parts'?partsId:scrapId;
+  const el=document.getElementById(inputId);
+  if(!el)return;
+  const cur=parseInt(el.value)||0;
+  el.value=Math.max(0,cur+delta);
+  kioskSaveCounters();
+}
+
+function kioskSaveCounters(){
+  const isRun=tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime);
+  const partsId=isRun?'kpc-run-parts-made':'kpc-parts-made';
+  const scrapId=isRun?'kpc-run-scrap-made':'kpc-scrap-made';
+  const parts=parseInt(document.getElementById(partsId)?.value)||0;
+  const scrap=parseInt(document.getElementById(scrapId)?.value)||0;
+  lsSet('tc_counters_'+(machineFilter||'unknown'),{parts,scrap});
+}
+
+function kioskRestoreCounters(){
+  const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+  // Will be applied in kioskRenderSetupCard / kioskRenderRunCard
+  return cp;
+}
+
+function kioskGetCounters(){
+  // Get counters from whichever card is currently visible
+  const isRun=tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime);
+  const partsId=isRun?'kpc-run-parts-made':'kpc-parts-made';
+  const scrapId=isRun?'kpc-run-scrap-made':'kpc-scrap-made';
+  return{
+    parts:parseInt(document.getElementById(partsId)?.value)||0,
+    scrap:parseInt(document.getElementById(scrapId)?.value)||0,
+  };
+}
+
 // ── Operator Modal ──
 function tcShowOperatorModal(){
   const listEl=document.getElementById('op-emp-list');
@@ -7027,12 +8295,232 @@ function tcSelectOperator(emp){
   if(overlay)overlay.style.display='none';
   if(emp){
     tcState.operator=emp;
-    lsSet('tc_operator_'+(getKioskMachine()||'unknown'),emp);
+    lsSet('tc_operator_'+(machineFilter||'unknown'),emp);
     toast(`👤 Operator: ${emp.name}`);
   }else{
     tcState.operator={id:'anon',name:'Anonymous'};
   }
   tcSaveState();tcRenderJobCard();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PAUSE REASONS SYSTEM
+// ══════════════════════════════════════════════════════════════
+const PAUSE_REASONS_KEY='pause_reasons';
+const DEFAULT_PAUSE_REASONS=[
+  {code:'PEER_REVIEW',desc:'Waiting for 1st part peer review',category:'Quality'},
+  {code:'CMM_WAIT',desc:'Waiting for CMM',category:'Quality'},
+  {code:'TOOL_BREAK',desc:'Waiting for tool breakage',category:'Maintenance'},
+  {code:'PGM_EDIT',desc:'Waiting for PGM edit',category:'Programming'},
+];
+
+function getPauseReasons(){
+  const stored=lsGet(PAUSE_REASONS_KEY,null);
+  return stored&&stored.length?stored:DEFAULT_PAUSE_REASONS;
+}
+function savePauseReasons(arr){lsSet(PAUSE_REASONS_KEY,arr);}
+
+function renderPauseReasonsAdmin(){
+  const el=document.getElementById('sp-pausereasons');
+  if(!el)return;
+  const reasons=getPauseReasons();
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px">⏱ Pause Reasons</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn success" onclick="pauseReasonsAddNew()">+ Add Reason</button>
+        <button class="btn danger" onclick="pauseReasonsReset()">↺ Reset Defaults</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">These reasons appear in the kiosk PAUSE dropdown. Used for efficiency/CI reporting — separate from breakdown data.</div>
+    <table class="pause-admin-table">
+      <thead><tr><th>Code</th><th>Description</th><th>Category</th><th></th></tr></thead>
+      <tbody id="pause-reasons-tbody">
+        ${reasons.map((r,i)=>`
+          <tr>
+            <td><input style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:4px;font-size:11px;font-family:inherit;width:120px" value="${r.code}" onchange="pauseReasonsUpdateField(${i},'code',this.value)"></td>
+            <td><input style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:4px;font-size:11px;font-family:inherit;width:100%" value="${r.desc}" onchange="pauseReasonsUpdateField(${i},'desc',this.value)"></td>
+            <td><select style="background:var(--s3);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:4px;font-size:11px;font-family:inherit" onchange="pauseReasonsUpdateField(${i},'category',this.value)">
+              ${['Quality','Maintenance','Programming','Logistics','Other'].map(c=>`<option${c===r.category?' selected':''}>${c}</option>`).join('')}
+            </select></td>
+            <td><button class="btn danger" onclick="pauseReasonsDelete(${i})" style="font-size:10px;padding:2px 8px">✕</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function pauseReasonsUpdateField(idx,field,val){
+  const reasons=getPauseReasons();
+  if(!reasons[idx])return;
+  reasons[idx][field]=val;
+  savePauseReasons(reasons);
+}
+
+function pauseReasonsDelete(idx){
+  const reasons=getPauseReasons();
+  reasons.splice(idx,1);
+  savePauseReasons(reasons);
+  renderPauseReasonsAdmin();
+}
+
+function pauseReasonsAddNew(){
+  const reasons=getPauseReasons();
+  reasons.push({code:'NEW_CODE',desc:'New pause reason',category:'Other'});
+  savePauseReasons(reasons);
+  renderPauseReasonsAdmin();
+}
+
+function pauseReasonsReset(){
+  if(!confirm('Reset to default pause reasons? This will overwrite your current list.'))return;
+  savePauseReasons(DEFAULT_PAUSE_REASONS);
+  renderPauseReasonsAdmin();
+  toast('↺ Pause reasons reset to defaults');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GRAB ANOTHER MACHINE (Split-Screen)
+// ══════════════════════════════════════════════════════════════
+let grabbedMachineId=null;
+let grabbedTcState=null;
+
+function toggleGrabDropdown(){
+  const dd=document.getElementById('kiosk-grab-dropdown');
+  if(!dd)return;
+  if(dd.classList.contains('open')){dd.classList.remove('open');return;}
+  // Populate with available machines (excluding current)
+  const mList=typeof MACHINES!=='undefined'?MACHINES:[];
+  dd.innerHTML=mList
+    .filter(m=>m.id!==(machineFilter||'')&&m.id!==grabbedMachineId)
+    .map(m=>`<div class="kiosk-grab-option" onclick="grabMachine('${m.id}')">🖥️ ${m.id}</div>`).join('');
+  if(!dd.innerHTML){dd.innerHTML='<div class="kiosk-grab-option" style="cursor:default;color:var(--dim)">No other machines</div>';}
+  dd.classList.add('open');
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('click',closeGrabDropdownOnce,{once:true}),50);
+}
+
+function closeGrabDropdownOnce(){
+  const dd=document.getElementById('kiosk-grab-dropdown');
+  if(dd)dd.classList.remove('open');
+}
+
+function grabMachine(machineId){
+  const dd=document.getElementById('kiosk-grab-dropdown');
+  if(dd)dd.classList.remove('open');
+  grabbedMachineId=machineId;
+  const releaseBtn=document.getElementById('kiosk-release-btn');
+  if(releaseBtn){releaseBtn.style.display='inline-block';releaseBtn.textContent=`✕ Release ${machineId}`;}
+  toast(`🖥️ Grabbed ${machineId} — split-screen active`);
+  // Update grab button label
+  const grabBtn=document.getElementById('kiosk-grab-btn');
+  if(grabBtn)grabBtn.textContent=`⇄ ${machineFilter||''} + ${machineId} ▾`;
+  // For now: open the second machine in a new window (true split-screen requires 2 monitors)
+  // The operator can arrange the two windows across their screens
+  const url=`${location.pathname}?machine=${machineId}&mode=kiosk`;
+  window.open(url,'grabbed-'+machineId,'width='+Math.round(screen.width/2)+',height='+screen.height+',left='+Math.round(screen.width/2));
+}
+
+function releaseGrabbedMachine(){
+  grabbedMachineId=null;
+  const releaseBtn=document.getElementById('kiosk-release-btn');
+  if(releaseBtn)releaseBtn.style.display='none';
+  const grabBtn=document.getElementById('kiosk-grab-btn');
+  if(grabBtn)grabBtn.textContent='+ Grab Machine ▾';
+  toast('Released secondary machine');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NJR DASHBOARD (Main Scheduler — management view)
+// ══════════════════════════════════════════════════════════════
+function openNjrDashboard(){
+  const panel=document.getElementById('njr-dashboard-panel');
+  if(!panel)return;
+  panel.classList.add('open');
+  renderNjrDashboard();
+}
+
+function closeNjrDashboard(){
+  const panel=document.getElementById('njr-dashboard-panel');
+  if(panel)panel.classList.remove('open');
+}
+
+function renderNjrDashboard(){
+  const body=document.getElementById('njr-dash-body');
+  if(!body)return;
+  const records=getNjrRecords();
+  if(!records.length){
+    body.innerHTML='<div style="color:var(--dim);text-align:center;padding:40px">No NJR records yet. NJR data is logged when operators use the kiosk in production mode.</div>';
+    return;
+  }
+  // Global stats
+  const total=records.length;
+  const achieved=records.filter(r=>r.njrAchievedBeforeEnd).length;
+  const globalScore=total?Math.round(achieved/total*100):0;
+  const avgLead=records.filter(r=>r.njrLeadTimeMinutes!=null).reduce((s,r)=>s+(r.njrLeadTimeMinutes||0),0)/Math.max(1,records.filter(r=>r.njrLeadTimeMinutes!=null).length);
+  // Per machine
+  const byMachine={};
+  records.forEach(r=>{
+    if(!byMachine[r.machine])byMachine[r.machine]={machine:r.machine,total:0,achieved:0,leadTimes:[]};
+    byMachine[r.machine].total++;
+    if(r.njrAchievedBeforeEnd)byMachine[r.machine].achieved++;
+    if(r.njrLeadTimeMinutes!=null)byMachine[r.machine].leadTimes.push(r.njrLeadTimeMinutes);
+  });
+  // Per operator
+  const byOp={};
+  records.forEach(r=>{
+    const op=r.operator||'Unknown';
+    if(!byOp[op])byOp[op]={operator:op,total:0,achieved:0,leadTimes:[],machines:new Set()};
+    byOp[op].total++;
+    if(r.njrAchievedBeforeEnd)byOp[op].achieved++;
+    if(r.njrLeadTimeMinutes!=null)byOp[op].leadTimes.push(r.njrLeadTimeMinutes);
+    if(r.machine)byOp[op].machines.add(r.machine);
+  });
+  const TARGET=75;
+  function scoreChip(pct){
+    const cls=pct>=90?'good':pct>=TARGET?'warn':'bad';
+    return `<span class="njr-score-chip ${cls}">${pct}%${pct<TARGET?' ⚠️':''}</span>`;
+  }
+  function avgMin(arr){return arr.length?Math.round(arr.reduce((s,v)=>s+v,0)/arr.length):null;}
+  const machineRows=Object.values(byMachine).sort((a,b)=>b.total-a.total).map(m=>{
+    const score=m.total?Math.round(m.achieved/m.total*100):0;
+    const al=avgMin(m.leadTimes);
+    return `<tr class="${score<TARGET?'below-target':''}">
+      <td style="font-weight:700">${m.machine}</td>
+      <td>${m.total}</td>
+      <td>${m.achieved}</td>
+      <td>${al!=null?al+' min':'—'}</td>
+      <td>${scoreChip(score)}</td>
+    </tr>`;
+  }).join('');
+  const opRows=Object.values(byOp).sort((a,b)=>b.total-a.total).map(o=>{
+    const score=o.total?Math.round(o.achieved/o.total*100):0;
+    const al=avgMin(o.leadTimes);
+    return `<tr class="${score<TARGET?'below-target':''}">
+      <td style="font-weight:700">${o.operator}</td>
+      <td>${o.total}</td>
+      <td>${o.achieved}</td>
+      <td>${al!=null?al+' min':'—'}</td>
+      <td>${scoreChip(score)}</td>
+      <td>${[...o.machines].join(', ')||'—'}</td>
+    </tr>`;
+  }).join('');
+  body.innerHTML=`
+    <div class="njr-global-score">
+      <div class="njr-score-card"><div class="njr-score-val" style="color:${globalScore>=90?'var(--green)':globalScore>=TARGET?'var(--yellow)':'var(--red)'}">${globalScore}%</div><div class="njr-score-lbl">Shop Floor NJR</div></div>
+      <div class="njr-score-card"><div class="njr-score-val">${total}</div><div class="njr-score-lbl">Jobs Tracked</div></div>
+      <div class="njr-score-card"><div class="njr-score-val" style="color:var(--green)">${achieved}</div><div class="njr-score-lbl">Ready Before End</div></div>
+      <div class="njr-score-card"><div class="njr-score-val">${avgLead>0?Math.round(avgLead)+' min':'—'}</div><div class="njr-score-lbl">Avg Lead Time</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--dim);margin-bottom:8px">Target: ≥${TARGET}% — Machines/operators below target shown in red</div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px">Per Machine</div>
+    <table class="njr-table" style="margin-bottom:20px">
+      <thead><tr><th>Machine</th><th>Jobs Run</th><th>Ready Before End</th><th>Avg Lead Time</th><th>NJR Score</th></tr></thead>
+      <tbody>${machineRows||'<tr><td colspan="5" style="text-align:center;color:var(--dim)">No data</td></tr>'}</tbody>
+    </table>
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px">Per Operator</div>
+    <table class="njr-table">
+      <thead><tr><th>Operator</th><th>Jobs Run</th><th>NJR Achieved</th><th>Avg Lead Time</th><th>NJR Score</th><th>Machines</th></tr></thead>
+      <tbody>${opRows||'<tr><td colspan="6" style="text-align:center;color:var(--dim)">No data</td></tr>'}</tbody>
+    </table>`;
 }
 
 // ── Timecards Viewer (main scheduler ⏱ Timecards tab) ──
@@ -7147,64 +8635,51 @@ if(isScreen2){
   // Also fire now if DOM is already ready
   if(document.readyState!=='loading')applyScreen2Mode();
 }else{
-  // ── Forward declarations (must be before renderSchedule call) ──
-  var qcScenarioProbOverrides=null;
-  var qcEditingId=null;
-  var _qcFocusActive=false;
-  var orCurrentOrder=null,orCurrentAnalysis=null;
+  genJobs();
+  populateDelayReasons();
 
-  // Clear stale demo data on each load so simulation is always fresh
-  try{
-    const keys=[];
-    const _lsKeep=new Set(['nupress_current_user','nupress_attendance','nupress_emp_pins','nupress_kiosk_machine_override']);
-    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('nupress_')&&!_lsKeep.has(k))keys.push(k);}
-    keys.forEach(k=>localStorage.removeItem(k));
-  }catch(e){}
-  try{
-    genJobs();
-  }catch(e){
-    document.title='ERROR: '+e.message;
-    const d=document.createElement('div');
-    d.style.cssText='position:fixed;top:60px;left:10px;right:10px;background:red;color:white;padding:20px;z-index:99999;font-size:16px;border-radius:8px;white-space:pre-wrap';
-    d.textContent='genJobs() ERROR:\n'+e.message+'\n\nStack:\n'+e.stack;
-    document.body.appendChild(d);
-  }
-  try{populateDelayReasons();}catch(e){}
-
-  // ── Apply URL-based mode filters BEFORE first render ──
-  if(machineFilter){
+  // ══ KIOSK MODE — apply FIRST, before anything else ══
+  if(isKiosk){
+    // Apply kiosk body class immediately so CSS hides management UI
+    document.body.classList.add('kiosk-mode');
+    applyKioskMode();
     applyMachineFilter();
-  }
+    // Skip login in kiosk mode — operators use Clock In instead
+    hideLoginOverlay();
+    // Force monitor mode (kiosk panels live inside monitor content)
+    setMode('monitor');
+    // Render schedule data for job queue
+    renderSchedule();
+    startMonitorAnimation();
+    // Initialize kiosk timecard system
+    setTimeout(()=>initKioskTimecard(),400);
+  } else {
+    // ── Normal (non-kiosk) flow ──
+    if(machineFilter){
+      applyMachineFilter();
+    }
 
-  // ── Session check: show login overlay if no valid session ──
-  (function checkSession() {
-    const saved = lsGet('current_user', null);
-    if (saved && saved.username) {
-      const expired = saved.expiry && Date.now() > saved.expiry;
-      if (!expired) {
-        currentUser = { username: saved.username, role: saved.role || 'scheduler', name: saved.name || saved.username };
-        hideLoginOverlay();
-        applyUserRole(currentUser.role);
-        updateUserBadge();
+    // ── Session check: show login overlay if no valid session ──
+    (function checkSession() {
+      const saved = lsGet('current_user', null);
+      if (saved && saved.username) {
+        const expired = saved.expiry && Date.now() > saved.expiry;
+        if (!expired) {
+          currentUser = { username: saved.username, role: saved.role || 'scheduler', name: saved.name || saved.username };
+          hideLoginOverlay();
+          applyUserRole(currentUser.role);
+          updateUserBadge();
+        } else {
+          lsSet('current_user', null);
+          showLoginOverlay();
+        }
       } else {
-        lsSet('current_user', null);
         showLoginOverlay();
       }
-    } else {
-      showLoginOverlay();
-    }
-  })();
+    })();
 
-  renderSchedule();
-  startMonitorAnimation();
-
-  // ── Kiosk mode enhancements ──
-  if(isKiosk){
-    applyKioskMode();
-    // Start on Monitor tab for kiosk/Pi stations
-    if(machineFilter)setMode('monitor');
-    // Initialize timecard system
-    setTimeout(()=>initKioskTimecard(),400);
+    renderSchedule();
+    startMonitorAnimation();
   }
 
   // ── Show Pi stations panel on Monitor if in main scheduler mode ──
@@ -7215,6 +8690,9 @@ if(isScreen2){
 
   // ── Start WebSocket connection (gracefully fails if no server) ──
   connectWebSocket();
+
+  // ── Show NJR button on main scheduler ──
+  initMainSchedulerExtras();
 
   // ── Pre-scan warnings on load so count is ready ──
   setTimeout(()=>detectWarnings(),500);
@@ -7240,8 +8718,8 @@ if(isScreen2){
 //  QUOTES & CAPACITY PLANNING
 // ══════════════════════════════════════════════════════════════
 // quotes initialized early — see top of script
-// qcScenarioProbOverrides declared in init block
-// qcEditingId declared in init block
+let qcScenarioProbOverrides=null; // null = use stored probabilities
+let qcEditingId=null;
 
 function saveQuotesData(){lsSet('quotes',quotes);}
 
@@ -7475,7 +8953,7 @@ function qcRenderSummary(){
   el._totalOps=totalOps;el._opMachines=opMachines;
 }
 
-// _qcFocusActive declared in init block
+let _qcFocusActive=false;
 function qcSummaryClick(e){
   e.stopPropagation();
   const gantt=document.getElementById('gantt-area');
@@ -7976,7 +9454,7 @@ function _orRiskComplexity(analysis,isDefence){
   return{complexity:'Simple (1–5 days)',cls:'simple'};
 }
 
-// orCurrentOrder, orCurrentAnalysis declared in init block
+let orCurrentOrder=null,orCurrentAnalysis=null;
 
 function orLoadOrder(){
   const raw=document.getElementById('or-so-input').value.trim();
@@ -8218,12 +9696,19 @@ function attemptLogin() {
 
   // In production: POST /api/auth/login
   // For demo: accept specific accounts or any non-empty credentials
-  // Simplified test credentials until operational
-  if (username.toLowerCase() === 'test' && password === 'test') {
-    currentUser = { username: 'test', role: 'admin', name: 'Test User' };
+  const demoAccounts = {
+    admin:     { password: 'admin',     role: 'admin',     name: 'Administrator' },
+    scheduler: { password: 'scheduler', role: 'scheduler', name: 'Production Scheduler' },
+    operator:  { password: 'operator',  role: 'operator',  name: 'Machine Operator' },
+    viewer:    { password: 'viewer',    role: 'viewer',    name: 'Viewer' }
+  };
+
+  const account = demoAccounts[username.toLowerCase()];
+  if (account && password === account.password) {
+    currentUser = { username, role: account.role, name: account.name };
   } else {
-    showLoginError('Invalid username or password');
-    return;
+    // Accept any credentials for demo
+    currentUser = { username, role: 'scheduler', name: username };
   }
 
   const rememberMe = document.getElementById('login-remember').checked;
@@ -8247,9 +9732,6 @@ function showLoginOverlay() {
   document.getElementById('login-chat-bubble').style.display = 'flex';
   setTimeout(() => { const el = document.getElementById('login-user'); if (el) el.focus(); }, 50);
 }
-
-var loginChatOpen = false;
-var loginChatInitialized = false;
 
 function hideLoginOverlay() {
   document.getElementById('login-overlay').style.display = 'none';
@@ -8363,8 +9845,8 @@ function applyUserRole(role) {
 // ══════════════════════════════════════════════════════════════
 //  LOGIN CHAT WIDGET
 // ══════════════════════════════════════════════════════════════
-// loginChatOpen and loginChatInitialized declared earlier (before hideLoginOverlay uses them)
-
+let loginChatOpen = false;
+let loginChatInitialized = false;
 
 const LOGIN_CHAT_RULES = [
   { patterns: ['forgot password','forgot my password','reset password','password reset'], response: 'Click "Forgot Password?" above, or contact your administrator.' },
@@ -8455,356 +9937,6 @@ async function sendLoginChat() {
 
   // Fallback
   setTimeout(() => addLoginChatMsg('agent', 'I\'m only able to help with login and password issues at this screen. Please sign in to access the full NuPhoenix assistant.'), 300);
-}
-
-// ══════════════════════════════════════════════════════════════
-//  MACHINE TOGGLE (Feature 2)
-// ══════════════════════════════════════════════════════════════
-window.kioskMachineOverride=null;
-
-function getKioskMachine(){return window.kioskMachineOverride||machineFilter||'';}
-
-function initMachineToggle(){
-  if(!machineFilter&&!isKiosk)return;
-  const sel=document.getElementById('kiosk-machine-select');
-  if(!sel)return;
-  const allMachines=typeof CNC_MACHINES!=='undefined'?CNC_MACHINES:(typeof MACHINES!=='undefined'?MACHINES:[]);
-  sel.innerHTML=allMachines.map(m=>`<option value="${m.id}">${m.id}</option>`).join('');
-  // Read persisted override
-  const override=lsGet('kiosk_machine_override',null);
-  if(override&&override!==machineFilter){
-    window.kioskMachineOverride=override;
-    sel.value=override;
-    sel.classList.add('override');
-    const rst=document.getElementById('kiosk-machine-reset');
-    if(rst)rst.style.display='inline-block';
-    // Update label to show override warning
-    const label=document.getElementById('kiosk-machine-label');
-    if(label)label.textContent=override+' ⚠';
-  }else{
-    sel.value=machineFilter||allMachines[0]?.id||'';
-  }
-  sel.style.display='inline-block';
-}
-
-function switchKioskMachine(machineId){
-  if(machineId===machineFilter){resetKioskMachine();return;}
-  window.kioskMachineOverride=machineId;
-  lsSet('kiosk_machine_override',machineId);
-  const sel=document.getElementById('kiosk-machine-select');
-  const rst=document.getElementById('kiosk-machine-reset');
-  if(sel)sel.classList.add('override');
-  if(rst)rst.style.display='inline-block';
-  const label=document.getElementById('kiosk-machine-label');
-  if(label)label.textContent=machineId+' ⚠';
-  tcRenderAll();
-  toast(`⚡ Machine switched to ${machineId}`);
-}
-
-function resetKioskMachine(){
-  window.kioskMachineOverride=null;
-  lsSet('kiosk_machine_override',null);
-  const sel=document.getElementById('kiosk-machine-select');
-  const rst=document.getElementById('kiosk-machine-reset');
-  if(sel){sel.value=machineFilter||'';sel.classList.remove('override');}
-  if(rst)rst.style.display='none';
-  const label=document.getElementById('kiosk-machine-label');
-  if(label)label.textContent=machineFilter||'';
-  tcRenderAll();
-  toast(`↺ Reset to default machine: ${machineFilter}`);
-}
-
-// ══════════════════════════════════════════════════════════════
-//  UNIVERSAL ATTENDANCE SYSTEM (Feature 1)
-// ══════════════════════════════════════════════════════════════
-const ATT_STORAGE_KEY='attendance';
-function getAttendance(){return lsGet(ATT_STORAGE_KEY,[]);}
-function saveAttendance(arr){lsSet(ATT_STORAGE_KEY,arr);}
-
-const ATT_ROLES=[
-  {id:'cnc',label:'CNC Operator',icon:'⚙️'},
-  {id:'forklift',label:'Forklift Driver',icon:'🏗️'},
-  {id:'qa',label:'QA Inspector',icon:'🔬'},
-  {id:'cleaner',label:'Cleaner',icon:'🧹'},
-  {id:'maintenance',label:'Maintenance',icon:'🔧'},
-  {id:'office',label:'Office',icon:'💼'},
-  {id:'other',label:'Other',icon:'👤'},
-];
-
-// Default PIN: numeric portion of employee ID zero-padded to 4 digits
-// e.g. E001→0001, E010→0010
-function getEmpDefaultPin(emp){
-  const pins=lsGet('emp_pins',{});
-  if(pins[emp.id])return pins[emp.id];
-  const digits=emp.id.replace(/\D/g,'');
-  return digits.slice(-4).padStart(4,'0');
-}
-
-let _attPinBuffer='';
-let _attPinEmp=null;
-
-function attShowPinPad(){
-  _attPinBuffer='';
-  _attPinEmp=null;
-  _attUpdatePinDisplay();
-  const err=document.getElementById('att-pin-error');
-  if(err)err.textContent='';
-  const overlay=document.getElementById('att-pin-overlay');
-  if(overlay)overlay.style.display='flex';
-}
-
-function attClosePinPad(){
-  const overlay=document.getElementById('att-pin-overlay');
-  if(overlay)overlay.style.display='none';
-}
-
-function attPinDigit(d){
-  if(_attPinBuffer.length>=4)return;
-  _attPinBuffer+=String(d);
-  _attUpdatePinDisplay();
-  if(_attPinBuffer.length===4)setTimeout(_attPinCheck,180);
-}
-
-function attPinBackspace(){
-  _attPinBuffer=_attPinBuffer.slice(0,-1);
-  _attUpdatePinDisplay();
-}
-
-function attPinClear(){
-  _attPinBuffer='';
-  _attUpdatePinDisplay();
-  const err=document.getElementById('att-pin-error');
-  if(err)err.textContent='';
-}
-
-function _attUpdatePinDisplay(){
-  const el=document.getElementById('att-pin-display');
-  if(!el)return;
-  const filled='●'.repeat(_attPinBuffer.length);
-  const empty=Array(4-_attPinBuffer.length).fill('·').join(' ');
-  el.textContent=filled+(filled&&empty?' ':'')+empty;
-}
-
-function _attPinCheck(){
-  const emps=getEmployees().filter(e=>e.active);
-  const found=emps.find(e=>getEmpDefaultPin(e)===_attPinBuffer);
-  if(!found){
-    const err=document.getElementById('att-pin-error');
-    if(err)err.textContent='PIN not recognised. Try again.';
-    _attPinBuffer='';
-    _attUpdatePinDisplay();
-    return;
-  }
-  _attPinEmp=found;
-  attClosePinPad();
-  attShowRoleSelect();
-}
-
-function attShowRoleSelect(){
-  const nameEl=document.getElementById('att-role-emp-name');
-  if(nameEl)nameEl.textContent='Welcome, '+(_attPinEmp?_attPinEmp.name:'');
-  const listEl=document.getElementById('att-role-list');
-  if(listEl){
-    listEl.innerHTML=ATT_ROLES.map(r=>
-      `<button class="att-role-btn" onclick="attClockOn('${r.id}')">
-        <span class="att-role-icon">${r.icon}</span>
-        <span>${r.label}</span>
-      </button>`
-    ).join('');
-  }
-  const overlay=document.getElementById('att-role-overlay');
-  if(overlay)overlay.style.display='flex';
-}
-
-function attCloseRoleSelect(){
-  const overlay=document.getElementById('att-role-overlay');
-  if(overlay)overlay.style.display='none';
-}
-
-function attClockOn(roleId){
-  if(!_attPinEmp)return;
-  attCloseRoleSelect();
-  const role=ATT_ROLES.find(r=>r.id===roleId)||{id:roleId,label:roleId};
-  const record={
-    id:Date.now().toString(),
-    empId:_attPinEmp.id,
-    name:_attPinEmp.name,
-    role:role.label,
-    roleId,
-    clockOn:new Date().toISOString(),
-    breaks:[],
-    clockOff:null,
-    kioskMachine:getKioskMachine()||'unknown',
-  };
-  const att=getAttendance();
-  att.push(record);
-  saveAttendance(att);
-  if(roleId==='cnc'){
-    toast(`✅ ${record.name} clocked on — CNC Operator`);
-    // Pre-fill timecard operator and switch to timecard tab
-    tcSelectOperator(_attPinEmp);
-    attSwitchTab('timecard');
-  }else{
-    toast(`✅ ${record.name} clocked on — ${record.role}`);
-    attRenderPanel();
-  }
-  try{renderWhosIn();}catch(e){}
-}
-
-function attStartBreak(attId){
-  const att=getAttendance();
-  const rec=att.find(r=>r.id===attId);
-  if(!rec||rec.clockOff)return;
-  // Only one open break at a time
-  const lastBreak=rec.breaks[rec.breaks.length-1];
-  if(lastBreak&&!lastBreak.end){toast('Already on break');return;}
-  rec.breaks.push({start:new Date().toISOString(),end:null});
-  saveAttendance(att);
-  attRenderPanel();
-  try{renderWhosIn();}catch(e){}
-  toast(`☕ ${rec.name} on break`);
-}
-
-function attEndBreak(attId){
-  const att=getAttendance();
-  const rec=att.find(r=>r.id===attId);
-  if(!rec)return;
-  const lastBreak=rec.breaks[rec.breaks.length-1];
-  if(lastBreak&&!lastBreak.end)lastBreak.end=new Date().toISOString();
-  saveAttendance(att);
-  attRenderPanel();
-  try{renderWhosIn();}catch(e){}
-  toast(`✅ ${rec.name} back from break`);
-}
-
-function attClockOff(attId){
-  const att=getAttendance();
-  const rec=att.find(r=>r.id===attId);
-  if(!rec||rec.clockOff)return;
-  // Close any open break
-  const lastBreak=rec.breaks[rec.breaks.length-1];
-  if(lastBreak&&!lastBreak.end)lastBreak.end=new Date().toISOString();
-  rec.clockOff=new Date().toISOString();
-  saveAttendance(att);
-  attRenderPanel();
-  try{renderWhosIn();}catch(e){}
-  // Show shift summary
-  const totalMs=new Date(rec.clockOff)-new Date(rec.clockOn);
-  const breakMs=rec.breaks.reduce((s,b)=>s+(b.end?new Date(b.end)-new Date(b.start):0),0);
-  const netMs=Math.max(0,totalMs-breakMs);
-  const fmtH=ms=>{const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);return h>0?`${h}h ${m}m`:`${m}m`;};
-  toast(`👋 ${rec.name} clocked off · Total: ${fmtH(totalMs)} · Net: ${fmtH(netMs)}`);
-}
-
-function attRenderPanel(){
-  const bodyEl=document.getElementById('att-panel-body');
-  if(!bodyEl)return;
-  const kiosk=getKioskMachine()||'unknown';
-  const att=getAttendance();
-  const active=att.filter(r=>!r.clockOff&&r.kioskMachine===kiosk);
-  let html=`<div style="margin-bottom:16px">
-    <button onclick="attShowPinPad()" style="width:100%;height:72px;background:rgba(52,199,89,.15);color:var(--green);border:2px solid rgba(52,199,89,.4);border-radius:12px;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;touch-action:manipulation">
-      👋 CLOCK IN
-    </button>
-  </div>`;
-  if(active.length){
-    html+=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:10px">On Shift at this station (${active.length})</div>`;
-    html+=active.map(rec=>{
-      const now=Date.now();
-      const elapsedMs=now-new Date(rec.clockOn).getTime();
-      const lastBreak=rec.breaks[rec.breaks.length-1];
-      const onBreak=lastBreak&&!lastBreak.end;
-      const initials=rec.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-      const h=Math.floor(elapsedMs/3600000),m=Math.floor((elapsedMs%3600000)/60000);
-      const elapsed=h>0?`${h}h ${m}m`:`${m}m`;
-      return `<div class="att-person-card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${initials}</div>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:15px">${rec.name}</div>
-            <div style="font-size:11px;color:var(--dim)">${rec.role} · ${elapsed}</div>
-            ${onBreak?`<div style="font-size:11px;color:var(--yellow);font-weight:600">☕ ON BREAK</div>`:''}
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          ${onBreak
-            ?`<button onclick="attEndBreak('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(52,199,89,.3);color:var(--green);background:rgba(52,199,89,.12)">✅ Back from Break</button>`
-            :`<button onclick="attStartBreak('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(255,214,10,.3);color:var(--yellow);background:var(--yellow-d)">☕ Start Break</button>`
-          }
-          <button onclick="attClockOff('${rec.id}')" class="att-shift-action-btn" style="border-color:rgba(255,69,58,.3);color:var(--red);background:var(--red-d)">👋 Clock Off</button>
-        </div>
-      </div>`;
-    }).join('');
-  }else{
-    html+=`<div style="font-size:12px;color:var(--dim);text-align:center;padding:12px 0">No one currently clocked in at this station.</div>`;
-  }
-  bodyEl.innerHTML=html;
-}
-
-function attSwitchTab(tab){
-  const tcPanel=document.getElementById('tc-panel-timecard');
-  const attPanel=document.getElementById('tc-panel-attendance');
-  const tcBtn=document.getElementById('tc-tab-timecard');
-  const attBtn=document.getElementById('tc-tab-attendance');
-  if(!tcPanel||!attPanel)return;
-  if(tab==='attendance'){
-    tcPanel.style.display='none';
-    attPanel.style.display='';
-    if(tcBtn)tcBtn.classList.remove('active');
-    if(attBtn)attBtn.classList.add('active');
-    attRenderPanel();
-  }else{
-    tcPanel.style.display='';
-    attPanel.style.display='none';
-    if(tcBtn)tcBtn.classList.add('active');
-    if(attBtn)attBtn.classList.remove('active');
-  }
-}
-
-// ── Who's In panel (Monitor mode) ──
-function renderWhosIn(){
-  const body=document.getElementById('whos-in-body');
-  const countEl=document.getElementById('whos-in-count');
-  if(!body)return;
-  const att=getAttendance();
-  const active=att.filter(r=>!r.clockOff);
-  if(countEl)countEl.textContent=active.length+' clocked in';
-  if(!active.length){
-    body.innerHTML=`<div class="whos-in-empty">Nobody clocked in yet.</div>`;
-    return;
-  }
-  // Group by role
-  const byRole={};
-  active.forEach(r=>{if(!byRole[r.role])byRole[r.role]=[];byRole[r.role].push(r);});
-  body.innerHTML=Object.entries(byRole).map(([role,people])=>{
-    const roleIcon=ATT_ROLES.find(r=>r.label===role)?.icon||'👤';
-    return `<div class="whos-in-group">
-      <div class="whos-in-group-title">${roleIcon} ${role} (${people.length})</div>
-      ${people.map(p=>{
-        const initials=p.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-        const since=new Date(p.clockOn).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
-        const lastBreak=p.breaks[p.breaks.length-1];
-        const onBreak=lastBreak&&!lastBreak.end;
-        return `<div class="whos-in-emp">
-          <div class="whos-in-badge">${initials}</div>
-          <div>
-            <div class="whos-in-name">${p.name}</div>
-            <div class="whos-in-meta">In ${since} · ${p.kioskMachine}</div>
-            ${onBreak?`<div class="whos-in-break">☕ On Break</div>`:''}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('');
-}
-
-function toggleWhosInPanel(){
-  const body=document.getElementById('whos-in-body');
-  const chev=document.getElementById('whos-in-chevron');
-  if(!body)return;
-  const shown=body.style.display!=='none';
-  body.style.display=shown?'none':'';
-  if(chev)chev.style.transform=shown?'rotate(-90deg)':'';
 }
 
 </script>
