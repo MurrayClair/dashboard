@@ -12121,12 +12121,91 @@ const KC_BSW = [
   ['1"', 1.000, 8, 21.75]
 ];
 
+// ACME thread data per ASME B1.5: [nom_str, major_dia_inch, tpi]
+const KC_ACME = [
+  ['1/4-16',  0.2500, 16],
+  ['5/16-14', 0.3125, 14],
+  ['3/8-12',  0.3750, 12],
+  ['1/2-10',  0.5000, 10],
+  ['5/8-8',   0.6250,  8],
+  ['3/4-6',   0.7500,  6],
+  ['7/8-6',   0.8750,  6],
+  ['1-5',     1.0000,  5],
+  ['1-1/4-5', 1.2500,  5],
+  ['1-1/2-4', 1.5000,  4],
+  ['1-3/4-4', 1.7500,  4],
+  ['2-4',     2.0000,  4],
+  ['2-1/2-3', 2.5000,  3],
+  ['3-2',     3.0000,  2],
+  ['3-1/2-2', 3.5000,  2],
+  ['4-2',     4.0000,  2],
+  ['5-2',     5.0000,  2]
+];
+
+// Buttress thread data per ANSI B1.9 (7°/45° asymmetric profile): [nom_str, major_dia_inch, tpi]
+const KC_BUTTRESS = [
+  ['1/4-20',   0.2500, 20],
+  ['5/16-16',  0.3125, 16],
+  ['3/8-14',   0.3750, 14],
+  ['1/2-12',   0.5000, 12],
+  ['5/8-10',   0.6250, 10],
+  ['3/4-8',    0.7500,  8],
+  ['7/8-8',    0.8750,  8],
+  ['1-6',      1.0000,  6],
+  ['1-1/4-6',  1.2500,  6],
+  ['1-1/2-5',  1.5000,  5],
+  ['1-3/4-4',  1.7500,  4],
+  ['2-4',      2.0000,  4],
+  ['2-1/2-4',  2.5000,  4],
+  ['3-3',      3.0000,  3]
+];
+
+// NPT data per ANSI/ASME B1.20.1-2013 Table 1
+// [nom_str, OD_inch, tpi, E0_inch, L1_inch, L2_inch]
+// E0 = pitch dia at small (plain) end of external thread
+// E1 (pitch dia at gauge/reference plane) = E0 + (1/16) × L1
+// Taper: 1/16 inch per inch on diameter (= 3/4" per foot)
+const KC_NPT = [
+  ['1/16',  0.3125,  27,   0.27118, 0.1600, 0.2611],
+  ['1/8',   0.4050,  27,   0.36351, 0.1615, 0.2638],
+  ['1/4',   0.5400,  18,   0.47739, 0.2278, 0.4018],
+  ['3/8',   0.6750,  18,   0.61201, 0.2400, 0.4078],
+  ['1/2',   0.8400,  14,   0.75843, 0.3200, 0.5337],
+  ['3/4',   1.0500,  14,   0.96768, 0.3390, 0.5457],
+  ['1',     1.3150,  11.5, 1.21363, 0.4000, 0.6828],
+  ['1-1/4', 1.6600,  11.5, 1.55713, 0.4200, 0.7068],
+  ['1-1/2', 1.9000,  11.5, 1.79609, 0.4200, 0.7235],
+  ['2',     2.3750,  11.5, 2.26902, 0.4360, 0.7565],
+  ['2-1/2', 2.8750,   8,   2.71953, 0.6820, 1.1375],
+  ['3',     3.5000,   8,   3.34062, 0.7660, 1.2000],
+  ['3-1/2', 4.0000,   8,   3.83750, 0.8210, 1.2500],
+  ['4',     4.5000,   8,   4.33438, 0.8440, 1.3000]
+];
+
+// BSPT data per ISO 7-1 (R taper external thread, 55° Whitworth form, 1:16 taper on diameter)
+// [nom_str, OD_inch (at gauge plane), tpi, L1_inch, L2_inch]
+// PD at gauge = OD - 0.640327 × pitch  (55° BSP thread depth factor)
+const KC_BSPT = [
+  ['1/16', 0.3040, 28,  0.155, 0.320],
+  ['1/8',  0.3830, 28,  0.180, 0.345],
+  ['1/4',  0.5180, 19,  0.226, 0.460],
+  ['3/8',  0.6560, 19,  0.255, 0.489],
+  ['1/2',  0.8250, 14,  0.330, 0.575],
+  ['3/4',  1.0410, 14,  0.351, 0.596],
+  ['1',    1.3090, 11,  0.405, 0.690],
+  ['1-1/4',1.6500, 11,  0.435, 0.720],
+  ['1-1/2',1.8820, 11,  0.435, 0.720],
+  ['2',    2.3470, 11,  0.460, 0.745],
+  ['2-1/2',2.9600, 11,  0.517, 0.800],
+  ['3',    3.4600, 11,  0.517, 0.800],
+  ['4',    4.4500, 11,  0.573, 0.858],
+  ['5',    5.5620, 11,  0.580, 0.865],
+  ['6',    6.5870, 11,  0.590, 0.875]
+];
+
 function kcBuildThread() {
-  const metricOpts = KC_METRIC_COARSE.map(r => `<option value="m-coarse-${r[0]}-${r[1]}">M${r[0]} × ${r[1]} (Coarse)</option>`).join('') +
-    KC_METRIC_FINE.map(r => `<option value="m-fine-${r[0]}-${r[1]}">M${r[0]} × ${r[1]} (Fine)</option>`).join('');
-  const uncOpts = KC_UNC.map((r,i) => `<option value="unc-${i}">${r[0]}</option>`).join('');
-  const unfOpts = KC_UNF.map((r,i) => `<option value="unf-${i}">${r[0]}</option>`).join('');
-  const bswOpts = KC_BSW.map((r,i) => `<option value="bsw-${i}">${r[0]}</option>`).join('');
+  const metricOpts = KC_METRIC_COARSE.map(r => `<option value="m-coarse-${r[0]}-${r[1]}">M${r[0]} \xD7 ${r[1]} (Coarse)</option>`).join('') +
+    KC_METRIC_FINE.map(r => `<option value="m-fine-${r[0]}-${r[1]}">M${r[0]} \xD7 ${r[1]} (Fine)</option>`).join('');
 
   return `
 <div class="kc-lf-row2">
@@ -12137,9 +12216,15 @@ function kcBuildThread() {
       <option value="unc">UNC</option>
       <option value="unf">UNF</option>
       <option value="bsw">BSW (Whitworth)</option>
+      <option value="acme">ACME (29\xB0)</option>
+      <option value="buttress">Buttress (ANSI B1.9)</option>
+      <option value="npt">NPT Pipe Taper</option>
+      <option value="bspt">BSPT Pipe Taper</option>
+      <option value="custom_taper">Custom Taper</option>
+      <option value="custom">Custom Thread</option>
     </select>
   </div>
-  <div>
+  <div id="kc-th-type-wrap">
     <label class="kc-label">Thread Type</label>
     <div class="kc-toggle-row" style="margin-bottom:0">
       <button class="kc-toggle-btn on" id="kc-th-ext-btn" onclick="kcThSetType('external')">External</button>
@@ -12147,13 +12232,37 @@ function kcBuildThread() {
     </div>
   </div>
 </div>
-<div class="kc-lf-row">
+<div class="kc-lf-row" id="kc-th-size-row">
   <label class="kc-label">Nominal Size &amp; Pitch</label>
   <select class="kc-select" id="kc-th-size">
     ${metricOpts}
   </select>
 </div>
-<div class="kc-lf-row">
+<div id="kc-th-custom-block" style="display:none">
+  <div class="kc-lf-row2">
+    <div><label class="kc-label">Major Dia (mm)</label><input class="kc-input" type="number" id="kc-th-cust-maj" placeholder="e.g. 25.0" min="0" step="0.001"></div>
+    <div><label class="kc-label">Pitch (mm)</label><input class="kc-input" type="number" id="kc-th-cust-pitch" placeholder="e.g. 2.0" min="0.001" step="0.001"></div>
+  </div>
+  <div class="kc-lf-row">
+    <label class="kc-label">Thread Angle (\xB0) &mdash; 60=ISO/UN &nbsp; 55=BSW &nbsp; 29=Acme</label>
+    <input class="kc-input" type="number" id="kc-th-cust-angle" value="60" min="5" max="89" step="0.5">
+  </div>
+</div>
+<div id="kc-th-taper-block" style="display:none">
+  <div class="kc-lf-row2">
+    <div><label class="kc-label">Major Dia at Ref Plane (mm)</label><input class="kc-input" type="number" id="kc-th-tap-maj" placeholder="e.g. 20.0" min="0" step="0.001"></div>
+    <div><label class="kc-label">Pitch (mm)</label><input class="kc-input" type="number" id="kc-th-tap-pitch" placeholder="e.g. 1.5" min="0.001" step="0.001"></div>
+  </div>
+  <div class="kc-lf-row2">
+    <div><label class="kc-label">Thread Angle (\xB0)</label><input class="kc-input" type="number" id="kc-th-tap-angle" value="60" min="5" max="89" step="0.5"></div>
+    <div><label class="kc-label">Taper 1:N &mdash; enter N (16 = NPT rate)</label><input class="kc-input" type="number" id="kc-th-tap-rate" value="16" min="1" step="1"></div>
+  </div>
+  <div class="kc-lf-row">
+    <label class="kc-label">Distance from Ref Plane (mm) &mdash; + = toward large end</label>
+    <input class="kc-input" type="number" id="kc-th-tap-dist" value="0" step="0.1">
+  </div>
+</div>
+<div class="kc-lf-row" id="kc-th-class-row">
   <label class="kc-label">Tolerance Class</label>
   <select class="kc-select" id="kc-th-class">
     <option value="6g">6g (external medium)</option>
@@ -12183,23 +12292,92 @@ function kcThSetType(t) {
   if (ib) ib.classList.toggle('on', t === 'internal');
 }
 
+function kcThSetClassOpts(type) {
+  const classRow = document.getElementById('kc-th-class-row');
+  const classEl = document.getElementById('kc-th-class');
+  if (!classEl || !classRow) return;
+  if (type === 'pipe' || type === 'custom') { classRow.style.display = 'none'; return; }
+  classRow.style.display = 'block';
+  let opts = '';
+  if (type === 'acme') {
+    opts = '<option value="2G">2G \u2014 General Purpose</option>' +
+           '<option value="3G">3G \u2014 Closer Clearance</option>' +
+           '<option value="4G">4G \u2014 Close Clearance</option>';
+  } else if (type === 'buttress') {
+    opts = '<option value="2A">2A \u2014 External medium</option>' +
+           '<option value="3A">3A \u2014 External close</option>' +
+           '<option value="2B">2B \u2014 Internal medium</option>' +
+           '<option value="3B">3B \u2014 Internal close</option>';
+  } else if (type === 'un') {
+    opts = '<option value="2A">2A (ext. standard)</option>' +
+           '<option value="1A">1A (ext. free)</option>' +
+           '<option value="3A">3A (ext. close)</option>' +
+           '<option value="2B">2B (int. standard)</option>' +
+           '<option value="1B">1B (int. free)</option>' +
+           '<option value="3B">3B (int. close)</option>';
+  } else {
+    opts = '<option value="6g">6g (external medium)</option>' +
+           '<option value="6h">6h (external close)</option>' +
+           '<option value="6H">6H (internal medium)</option>' +
+           '<option value="6G">6G (internal medium-clearance)</option>' +
+           '<option value="4h">4h (external close)</option>' +
+           '<option value="4H">4H (internal close)</option>';
+  }
+  classEl.innerHTML = opts;
+}
+
 function kcThreadStdChange() {
   const std = document.getElementById('kc-th-std');
   const sizeEl = document.getElementById('kc-th-size');
-  if (!std || !sizeEl) return;
+  const sizeRow = document.getElementById('kc-th-size-row');
+  const customBlock = document.getElementById('kc-th-custom-block');
+  const taperBlock = document.getElementById('kc-th-taper-block');
+  const typeWrap = document.getElementById('kc-th-type-wrap');
+  if (!std) return;
   const v = std.value;
   let opts = '';
+  if (sizeRow) sizeRow.style.display = 'block';
+  if (customBlock) customBlock.style.display = 'none';
+  if (taperBlock) taperBlock.style.display = 'none';
+  if (typeWrap) typeWrap.style.display = 'block';
   if (v === 'metric') {
-    opts = KC_METRIC_COARSE.map(r => `<option value="m-coarse-${r[0]}-${r[1]}">M${r[0]} × ${r[1]} (Coarse)</option>`).join('') +
-           KC_METRIC_FINE.map(r => `<option value="m-fine-${r[0]}-${r[1]}">M${r[0]} × ${r[1]} (Fine)</option>`).join('');
+    opts = KC_METRIC_COARSE.map(r => `<option value="m-coarse-${r[0]}-${r[1]}">M${r[0]} \xD7 ${r[1]} (Coarse)</option>`).join('') +
+           KC_METRIC_FINE.map(r => `<option value="m-fine-${r[0]}-${r[1]}">M${r[0]} \xD7 ${r[1]} (Fine)</option>`).join('');
+    kcThSetClassOpts('metric');
   } else if (v === 'unc') {
     opts = KC_UNC.map((r,i) => `<option value="unc-${i}">${r[0]}</option>`).join('');
+    kcThSetClassOpts('un');
   } else if (v === 'unf') {
     opts = KC_UNF.map((r,i) => `<option value="unf-${i}">${r[0]}</option>`).join('');
+    kcThSetClassOpts('un');
   } else if (v === 'bsw') {
     opts = KC_BSW.map((r,i) => `<option value="bsw-${i}">${r[0]}</option>`).join('');
+    kcThSetClassOpts('metric');
+  } else if (v === 'acme') {
+    opts = KC_ACME.map((r,i) => `<option value="acme-${i}">${r[0]} ACME</option>`).join('');
+    kcThSetClassOpts('acme');
+  } else if (v === 'buttress') {
+    opts = KC_BUTTRESS.map((r,i) => `<option value="butt-${i}">${r[0]} Buttress</option>`).join('');
+    kcThSetClassOpts('buttress');
+  } else if (v === 'npt') {
+    opts = KC_NPT.map((r,i) => `<option value="npt-${i}">${r[0]}" NPT</option>`).join('');
+    kcThSetClassOpts('pipe');
+    if (typeWrap) typeWrap.style.display = 'none';
+  } else if (v === 'bspt') {
+    opts = KC_BSPT.map((r,i) => `<option value="bspt-${i}">${r[0]}" BSPT</option>`).join('');
+    kcThSetClassOpts('pipe');
+    if (typeWrap) typeWrap.style.display = 'none';
+  } else if (v === 'custom') {
+    if (sizeRow) sizeRow.style.display = 'none';
+    if (customBlock) customBlock.style.display = 'block';
+    kcThSetClassOpts('custom');
+  } else if (v === 'custom_taper') {
+    if (sizeRow) sizeRow.style.display = 'none';
+    if (taperBlock) taperBlock.style.display = 'block';
+    kcThSetClassOpts('custom');
+    if (typeWrap) typeWrap.style.display = 'none';
   }
-  sizeEl.innerHTML = opts;
+  if (sizeEl && opts) sizeEl.innerHTML = opts;
 }
 
 function kcThreadCalc() {
@@ -12208,11 +12386,286 @@ function kcThreadCalc() {
   const stdEl = document.getElementById('kc-th-std');
   const sizeEl = document.getElementById('kc-th-size');
   const classEl = document.getElementById('kc-th-class');
-  if (!stdEl || !sizeEl || !classEl) return;
+  if (!stdEl) return;
   const std = stdEl.value;
-  const sizeVal = sizeEl.value;
-  const tolClass = classEl.value;
+  const sizeVal = sizeEl ? sizeEl.value : '';
+  const tolClass = classEl ? classEl.value : '2G';
 
+  // Helper formatters
+  const fin  = (v, d=5) => v.toFixed(d);
+  const fmm  = (v, d=3) => (v * 25.4).toFixed(d);
+  const f3   = v => v.toFixed(3);
+  const f4   = v => v.toFixed(4);
+  const toIn = v => (v / 25.4).toFixed(5);
+
+  // ── ACME (ASME B1.5) ─────────────────────────────────────────────
+  if (std === 'acme') {
+    const idx = parseInt(sizeVal.split('-')[1]);
+    const row = KC_ACME[idx];
+    const P = 1 / row[2];                  // pitch (inches)
+    const d = row[1];                       // major dia (inches)
+    const d2_basic = d - 0.5 * P;          // basic pitch dia
+    const d1_basic = d - P;                 // basic minor dia
+    const depth = 0.5 * P;                 // ACME thread depth = P/2
+    // ASME B1.5 approximate tolerances — scale with pitch and dia
+    const tFactor = tolClass === '4G' ? 0.5 : tolClass === '3G' ? 0.7 : 1.0;
+    const allow = tFactor * Math.max(0.020 * P, 0.0003);  // PD allowance (clearance)
+    const tol   = tFactor * (0.050 * P + 0.002 * Math.sqrt(d)); // PD tolerance
+    const isExt = kcThType === 'external';
+    let pdMax, pdMin, majMax, majMin, minMax, minMin;
+    if (isExt) {
+      pdMax  = d2_basic - allow;
+      pdMin  = d2_basic - allow - tol;
+      majMax = d;
+      majMin = d - 0.050 * P;
+      minMax = d1_basic + 0.250 * P;
+      minMin = d1_basic;
+    } else {
+      pdMax  = d2_basic + allow + tol;
+      pdMin  = d2_basic + allow;
+      majMax = d + 0.250 * P;
+      majMin = d;
+      minMax = d1_basic + 0.100 * P;
+      minMin = d1_basic;
+    }
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">${isExt ? '\u25A1 External' : '\u25A0 Internal'} ACME \u2014 ${row[0]} Class ${tolClass}</div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread angle</span><span class="kc-result-val">29\xB0 (ACME)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Pitch</span><span class="kc-result-val">${fin(P)}" / ${fmm(P)} mm / ${row[2]} TPI</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Basic thread depth</span><span class="kc-result-val">${fin(depth)}" / ${fmm(depth)} mm</span></div>
+  <table class="kc-thread-table">
+    <tr><th>Dimension</th><th>Max (in)</th><th>Min (in)</th><th>Max (mm)</th><th>Min (mm)</th></tr>
+    <tr><td class="hl">Major Dia</td><td>${fin(majMax)}</td><td>${fin(majMin)}</td><td>${fmm(majMax)}</td><td>${fmm(majMin)}</td></tr>
+    <tr><td class="hl">Pitch Dia</td><td>${fin(pdMax)}</td><td>${fin(pdMin)}</td><td>${fmm(pdMax)}</td><td>${fmm(pdMin)}</td></tr>
+    <tr><td class="hl">Minor Dia</td><td>${fin(minMax)}</td><td>${fin(minMin)}</td><td>${fmm(minMax)}</td><td>${fmm(minMin)}</td></tr>
+  </table>
+  <div class="kc-result-row" style="margin-top:6px"><span class="kc-result-label">PD allowance (approx)</span><span class="kc-result-val neg">\u2212${fin(allow)}" / \u2212${fmm(allow)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">PD tolerance (approx)</span><span class="kc-result-val">${fin(tol)}" / ${fmm(tol)} mm</span></div>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px">Tolerances approximate. Verify critical fits against ASME B1.5 tables.</div>
+</div>`;
+    return;
+  }
+
+  // ── BUTTRESS (ANSI B1.9) ─────────────────────────────────────────
+  if (std === 'buttress') {
+    const idx = parseInt(sizeVal.split('-')[1]);
+    const row = KC_BUTTRESS[idx];
+    const P = 1 / row[2];
+    const d = row[1];
+    // ANSI B1.9: 7° load flank / 45° clearance flank
+    // Basic thread height hn = 0.6P; PD = major - 0.5P; minor(ext) ≈ major - 1.2P
+    const hn = 0.6 * P;
+    const d2_basic = d - 0.5 * P;
+    const d1_ext   = d - 1.2 * P;   // external (screw) minor
+    const D1_int   = d - 1.0 * P;   // internal (nut) minor
+    const isExt = kcThType === 'external';
+    const tFactor = (tolClass === '3A' || tolClass === '3B') ? 0.7 : 1.0;
+    const allow = tFactor * 0.020 * P;
+    const pdTol = tFactor * (0.050 * P + 0.002 * Math.sqrt(d));
+    let pdMax, pdMin, majMax, majMin, minMax, minMin;
+    if (isExt) {
+      pdMax  = d2_basic - allow;
+      pdMin  = d2_basic - allow - pdTol;
+      majMax = d;
+      majMin = d - 0.060 * P;
+      minMax = d1_ext;
+      minMin = d1_ext - pdTol;
+    } else {
+      pdMax  = d2_basic + allow + pdTol;
+      pdMin  = d2_basic + allow;
+      majMax = d + 0.250 * P;
+      majMin = d;
+      minMax = D1_int + pdTol;
+      minMin = D1_int;
+    }
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">${isExt ? '\u25A1 External' : '\u25A0 Internal'} Buttress \u2014 ${row[0]} Class ${tolClass}</div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread profile</span><span class="kc-result-val">7\xB0 load flank / 45\xB0 clearance (ANSI B1.9)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Pitch</span><span class="kc-result-val">${fin(P)}" / ${fmm(P)} mm / ${row[2]} TPI</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Basic thread height</span><span class="kc-result-val">${fin(hn)}" / ${fmm(hn)} mm</span></div>
+  <table class="kc-thread-table">
+    <tr><th>Dimension</th><th>Max (in)</th><th>Min (in)</th><th>Max (mm)</th><th>Min (mm)</th></tr>
+    <tr><td class="hl">Major Dia</td><td>${fin(majMax)}</td><td>${fin(majMin)}</td><td>${fmm(majMax)}</td><td>${fmm(majMin)}</td></tr>
+    <tr><td class="hl">Pitch Dia</td><td>${fin(pdMax)}</td><td>${fin(pdMin)}</td><td>${fmm(pdMax)}</td><td>${fmm(pdMin)}</td></tr>
+    <tr><td class="hl">Minor Dia</td><td>${fin(minMax)}</td><td>${fin(minMin)}</td><td>${fmm(minMax)}</td><td>${fmm(minMin)}</td></tr>
+  </table>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px">Tolerances approximate. Refer to ANSI B1.9 for full class tabulations.</div>
+</div>`;
+    return;
+  }
+
+  // ── NPT (ANSI/ASME B1.20.1) ──────────────────────────────────────
+  if (std === 'npt') {
+    const idx = parseInt(sizeVal.split('-')[1]);
+    const [nom, OD_in, tpi, E0, L1, L2] = KC_NPT[idx];
+    const P = 1 / tpi;
+    // E1 = pitch dia at gauge/reference plane (L1 from small end of pipe)
+    const E1 = E0 + (1/16) * L1;      // taper 1/16" per inch on diameter
+    // For 60° UN/NPT: thread depth = 0.649519 × P
+    const depth = 0.649519 * P;
+    const majGauge = E1 + depth;       // major dia at gauge plane
+    const minGauge = E1 - depth;       // minor dia at gauge plane
+    const majSmall = E0 + depth;       // major dia at small end
+    const Lvanish  = 3 * P;            // vanish thread ≈ 3 pitches
+    const N_L1 = Math.round(L1 * tpi * 10) / 10;
+    const N_L2 = Math.round(L2 * tpi * 10) / 10;
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">NPT \u2014 ${nom}" NPT (ANSI/ASME B1.20.1)</div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread form</span><span class="kc-result-val">60\xB0, ${tpi} TPI, P = ${fin(P)}"</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Taper</span><span class="kc-result-val">1:16 on diameter (3\u2044\u2044\u00BE" per foot)</span></div>
+  <div style="background:rgba(224,122,58,.12);border-left:3px solid var(--accent);padding:8px 10px;margin:8px 0;border-radius:4px">
+    <div style="color:var(--accent);font-weight:700;font-size:11px;margin-bottom:5px">GAUGE PLANE (L1 from small end) \u2014 ANSI/ASME B1.20.1 Table 1</div>
+    <div class="kc-result-row"><span class="kc-result-label">Pitch dia E1 at gauge</span><span class="kc-result-val hl" style="font-size:13px;color:var(--accent)">${fin(E1)}" / ${fmm(E1)} mm</span></div>
+    <div class="kc-result-row"><span class="kc-result-label">Major dia at gauge</span><span class="kc-result-val">${fin(majGauge)}" / ${fmm(majGauge)} mm</span></div>
+    <div class="kc-result-row"><span class="kc-result-label">Minor dia at gauge</span><span class="kc-result-val">${fin(minGauge)}" / ${fmm(minGauge)} mm</span></div>
+  </div>
+  <div class="kc-result-row"><span class="kc-result-label">L1 hand-tight engagement</span><span class="kc-result-val">${f4(L1)}" / ${fmm(L1)} mm (${N_L1} threads)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">L2 effective thread length</span><span class="kc-result-val">${f4(L2)}" / ${fmm(L2)} mm (${N_L2} threads)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Vanish length (approx)</span><span class="kc-result-val">${fin(Lvanish)}" / ${fmm(Lvanish)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread depth</span><span class="kc-result-val">${fin(depth)}" / ${fmm(depth)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">E0 (pitch dia at small end)</span><span class="kc-result-val">${fin(E0)}" / ${fmm(E0)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Pipe OD (nominal)</span><span class="kc-result-val">${f4(OD_in)}" / ${fmm(OD_in)} mm</span></div>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px">E0/L1/L2 tabulated from ANSI/ASME B1.20.1-2013 Table 1. Use L1 ring gauge to verify E1 at gauge plane.</div>
+</div>`;
+    return;
+  }
+
+  // ── BSPT (ISO 7-1) ───────────────────────────────────────────────
+  if (std === 'bspt') {
+    const idx = parseInt(sizeVal.split('-')[1]);
+    const [nom, OD_in, tpi, L1, L2] = KC_BSPT[idx];
+    const P = 1 / tpi;
+    // 55° Whitworth form: thread depth = 0.640327 × P
+    const depth = 0.640327 * P;
+    // OD stored is at the gauge/reference plane; PD at gauge = OD - depth
+    const E1       = OD_in - depth;
+    const majGauge = OD_in;
+    const minGauge = E1 - depth;
+    const E0       = E1 - (1/16) * L1;  // PD at small end (taper back-calculated)
+    const N_L1 = Math.round(L1 * tpi * 10) / 10;
+    const N_L2 = Math.round(L2 * tpi * 10) / 10;
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">BSPT \u2014 ${nom}" R (ISO 7-1)</div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread form</span><span class="kc-result-val">55\xB0 Whitworth, ${tpi} TPI, P = ${fin(P)}"</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Taper</span><span class="kc-result-val">1:16 on diameter (3\u2044\u00BE" per foot)</span></div>
+  <div style="background:rgba(224,122,58,.12);border-left:3px solid var(--accent);padding:8px 10px;margin:8px 0;border-radius:4px">
+    <div style="color:var(--accent);font-weight:700;font-size:11px;margin-bottom:5px">GAUGE PLANE (ISO 7-1 Reference) \u2014 L1 from small end</div>
+    <div class="kc-result-row"><span class="kc-result-label">Pitch dia E1 at gauge</span><span class="kc-result-val hl" style="font-size:13px;color:var(--accent)">${fin(E1)}" / ${fmm(E1)} mm</span></div>
+    <div class="kc-result-row"><span class="kc-result-label">Major dia at gauge</span><span class="kc-result-val">${fin(majGauge)}" / ${fmm(majGauge)} mm</span></div>
+    <div class="kc-result-row"><span class="kc-result-label">Minor dia at gauge</span><span class="kc-result-val">${fin(minGauge)}" / ${fmm(minGauge)} mm</span></div>
+  </div>
+  <div class="kc-result-row"><span class="kc-result-label">L1 hand-tight engagement</span><span class="kc-result-val">${f4(L1)}" / ${fmm(L1)} mm (${N_L1} threads)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">L2 effective thread length</span><span class="kc-result-val">${f4(L2)}" / ${fmm(L2)} mm (${N_L2} threads)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Thread depth</span><span class="kc-result-val">${fin(depth)}" / ${fmm(depth)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">E0 (pitch dia at small end, calc)</span><span class="kc-result-val">${fin(E0)}" / ${fmm(E0)} mm</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">OD at gauge (nominal)</span><span class="kc-result-val">${f4(OD_in)}" / ${fmm(OD_in)} mm</span></div>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px">Dimensions per ISO 7-1. 55\xB0 Whitworth (BSP) thread form. Verify with R-gauge ring.</div>
+</div>`;
+    return;
+  }
+
+  // ── CUSTOM THREAD ─────────────────────────────────────────────────
+  if (std === 'custom') {
+    const majEl   = document.getElementById('kc-th-cust-maj');
+    const pitchEl = document.getElementById('kc-th-cust-pitch');
+    const angleEl = document.getElementById('kc-th-cust-angle');
+    if (!majEl || !pitchEl || !angleEl) return;
+    const majD  = parseFloat(majEl.value);
+    const pitch = parseFloat(pitchEl.value);
+    const angle = parseFloat(angleEl.value);
+    if (!majD || !pitch || !angle || pitch <= 0 || angle <= 5 || angle >= 175) {
+      res.innerHTML = '<div class="kc-result-box" style="color:var(--warn)">Enter valid major dia, pitch, and angle.</div>';
+      return;
+    }
+    // General V-thread formulas (as specified)
+    const tanHalf   = Math.tan((angle / 2) * Math.PI / 180);
+    const H         = pitch / (2 * tanHalf);          // full triangle height
+    const pitchD    = majD - (2 * (3/8) * H);          // pitch dia = major - 3H/4
+    const minorInt  = majD - (2 * (5/8) * H);          // internal minor = major - 5H/4
+    const minorExt  = majD - (2 * (13/16) * H);        // external minor (slightly deeper)
+    const depth     = (5/8) * H;                       // thread depth from major to minor
+    const tapDrill  = minorInt;                        // tap drill ≈ internal minor dia
+    const isExt = kcThType === 'external';
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">Custom Thread \u2014 ${angle}\xB0 Thread Angle</div>
+  <div class="kc-result-row"><span class="kc-result-label">Major dia</span><span class="kc-result-val">${f3(majD)} mm / ${toIn(majD)}"</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Pitch</span><span class="kc-result-val">${f3(pitch)} mm / ${toIn(pitch)}" (${(25.4/pitch).toFixed(2)} TPI)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Full triangle height H</span><span class="kc-result-val">${f3(H)} mm / ${toIn(H)}"</span></div>
+  <table class="kc-thread-table" style="margin-top:8px">
+    <tr><th>Dimension</th><th>mm</th><th>inch</th></tr>
+    <tr><td class="hl">Major Dia</td><td>${f3(majD)}</td><td>${toIn(majD)}</td></tr>
+    <tr><td class="hl">Pitch Dia (d2)</td><td>${f3(pitchD)}</td><td>${toIn(pitchD)}</td></tr>
+    <tr><td class="hl">Minor Dia \u2014 internal</td><td>${f3(minorInt)}</td><td>${toIn(minorInt)}</td></tr>
+    <tr><td class="hl">Minor Dia \u2014 external</td><td>${f3(minorExt)}</td><td>${toIn(minorExt)}</td></tr>
+    <tr><td class="hl">Thread depth</td><td>${f3(depth)}</td><td>${toIn(depth)}</td></tr>
+  </table>
+  <div class="kc-result-row" style="margin-top:8px"><span class="kc-result-label">Tap drill (approx)</span><span class="kc-result-val">${f3(tapDrill)} mm / ${toIn(tapDrill)}"</span></div>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px">H = P\u2215(2\u22C5tan(\u03B8\u2215\u00BD)) \u2014 PD = major\u22123H\u2044\u2044\u00BE \u2014 minor(int) = major\u22125H\u2044\u2044\u00BE</div>
+</div>`;
+    return;
+  }
+
+  // ── CUSTOM TAPER THREAD ───────────────────────────────────────────
+  if (std === 'custom_taper') {
+    const majEl   = document.getElementById('kc-th-tap-maj');
+    const pitchEl = document.getElementById('kc-th-tap-pitch');
+    const angleEl = document.getElementById('kc-th-tap-angle');
+    const taperEl = document.getElementById('kc-th-tap-rate');
+    const distEl  = document.getElementById('kc-th-tap-dist');
+    if (!majEl || !pitchEl || !angleEl || !taperEl) return;
+    const majD   = parseFloat(majEl.value);
+    const pitch  = parseFloat(pitchEl.value);
+    const angle  = parseFloat(angleEl.value);
+    const taperN = parseFloat(taperEl.value);
+    const dist   = parseFloat(distEl ? distEl.value : '0') || 0;
+    if (!majD || !pitch || !angle || !taperN || pitch <= 0 || angle <= 5 || taperN <= 0) {
+      res.innerHTML = '<div class="kc-result-box" style="color:var(--warn)">Enter valid dimensions.</div>';
+      return;
+    }
+    const tanHalf     = Math.tan((angle / 2) * Math.PI / 180);
+    const H           = pitch / (2 * tanHalf);
+    const pitchD_ref  = majD - (2 * (3/8) * H);
+    const minorD_ref  = majD - (2 * (5/8) * H);
+    const depth       = (5/8) * H;
+    // Taper 1:N on diameter — every mm along axis, dia changes by 1/N mm
+    const diaChange   = dist / taperN;
+    const majD_at     = majD + diaChange;
+    const pitchD_at   = pitchD_ref + diaChange;
+    const minorD_at   = minorD_ref + diaChange;
+    const halfAngle   = Math.atan(1 / (2 * taperN)) * 180 / Math.PI;
+    res.innerHTML = `
+<div class="kc-result-box">
+  <div class="kc-result-title">Custom Taper Thread \u2014 1:${taperN}, ${angle}\xB0</div>
+  <div class="kc-result-row"><span class="kc-result-label">Taper</span><span class="kc-result-val">1:${taperN} on diameter (half-angle ${f4(halfAngle)}\xB0)</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Pitch / Angle</span><span class="kc-result-val">${f3(pitch)} mm &nbsp;|&nbsp; ${angle}\xB0 included</span></div>
+  <div class="kc-result-row"><span class="kc-result-label">Full triangle H</span><span class="kc-result-val">${f3(H)} mm</span></div>
+  <table class="kc-thread-table" style="margin-top:8px">
+    <tr><th>Dimension</th><th>At Ref Plane (mm)</th><th>At Ref Plane (in)</th></tr>
+    <tr><td class="hl">Major Dia</td><td>${f3(majD)}</td><td>${toIn(majD)}</td></tr>
+    <tr><td class="hl">Pitch Dia</td><td>${f3(pitchD_ref)}</td><td>${toIn(pitchD_ref)}</td></tr>
+    <tr><td class="hl">Minor Dia</td><td>${f3(minorD_ref)}</td><td>${toIn(minorD_ref)}</td></tr>
+    <tr><td class="hl">Thread Depth</td><td>${f3(depth)}</td><td>${toIn(depth)}</td></tr>
+  </table>
+  ${Math.abs(dist) > 0.001 ? `
+  <div style="margin:8px 0 4px;font-weight:700;color:var(--accent);font-size:11px">AT ${dist > 0 ? '+' : ''}${f3(dist)} mm FROM REF PLANE (toward ${dist > 0 ? 'large' : 'small'} end)</div>
+  <table class="kc-thread-table">
+    <tr><th>Dimension</th><th>At Point (mm)</th><th>At Point (in)</th></tr>
+    <tr><td class="hl">Major Dia</td><td>${f3(majD_at)}</td><td>${toIn(majD_at)}</td></tr>
+    <tr><td class="hl">Pitch Dia</td><td>${f3(pitchD_at)}</td><td>${toIn(pitchD_at)}</td></tr>
+    <tr><td class="hl">Minor Dia</td><td>${f3(minorD_at)}</td><td>${toIn(minorD_at)}</td></tr>
+  </table>
+  <div class="kc-result-row" style="margin-top:4px"><span class="kc-result-label">Dia change over ${f3(Math.abs(dist))} mm</span><span class="kc-result-val ${diaChange >= 0 ? '' : 'neg'}">${diaChange >= 0 ? '+' : ''}${f3(diaChange)} mm</span></div>` : ''}
+  <div class="kc-result-row" style="margin-top:6px"><span class="kc-result-label">Rate: dia change per mm axial</span><span class="kc-result-val">${f4(1/taperN)} mm/mm</span></div>
+</div>`;
+    return;
+  }
+
+  // ── METRIC / UNC / UNF / BSW (existing logic) ────────────────────
   let majD_mm, pitch_mm, isMetric = false, nomStr = '', tapDrill_mm = null;
 
   if (std === 'metric') {
@@ -12316,7 +12769,6 @@ function kcThreadCalc() {
 
   const f = (v, dec=4) => v.toFixed(dec);
   const showInch = !isMetric;
-  const toIn = v => (v / 25.4).toFixed(5);
 
   if (isExt) {
     const majMax = majD_mm + es_d2/1000;
