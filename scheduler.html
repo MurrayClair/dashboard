@@ -1044,6 +1044,36 @@ body.kiosk-mode .tc-wrap{display:flex!important;flex-direction:column;gap:10px;p
 .kpc-counter-ctrl input[type=number]::-webkit-inner-spin-button,.kpc-counter-ctrl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
 .kpc-qty-target{font-size:11px;color:var(--dim);margin-left:4px}
 
+/* ─── HORSE RACE PRODUCTION TRACKER ─── */
+.horse-race-tracker{margin:0 0 12px;background:rgba(0,0,0,.25);border:1px solid var(--brd);border-radius:12px;padding:10px 14px 12px}
+.horse-race-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim2);text-align:center;margin-bottom:8px}
+.horse-race-row{display:flex;align-items:center;gap:10px;height:52px}
+.horse-race-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);width:44px;flex-shrink:0;text-align:right;line-height:1.2}
+.horse-track-wrap{flex:1;position:relative;height:32px;background:var(--s3);border-radius:16px;border:1px solid rgba(255,255,255,.06);overflow:visible}
+.horse-track-fill{position:absolute;left:0;top:0;height:100%;border-radius:16px;transition:width .6s ease;min-width:0}
+.horse-track-fill.actual-on-pace{background:linear-gradient(90deg,rgba(52,199,89,.28),rgba(52,199,89,.62));box-shadow:0 0 10px rgba(52,199,89,.22)}
+.horse-track-fill.actual-behind{background:linear-gradient(90deg,rgba(255,69,58,.28),rgba(255,69,58,.62));box-shadow:0 0 10px rgba(255,69,58,.22)}
+.horse-track-fill.target-fill{background:linear-gradient(90deg,rgba(255,159,10,.2),rgba(255,159,10,.5))}
+.horse-finish-line{position:absolute;right:0;top:-5px;bottom:-5px;width:3px;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.55) 0,rgba(255,255,255,.55) 4px,rgba(0,0,0,.35) 4px,rgba(0,0,0,.35) 8px);border-radius:2px;pointer-events:none;z-index:2}
+.horse-icon{position:absolute;top:50%;font-size:21px;line-height:1;z-index:3;transition:left .6s ease;pointer-events:none;user-select:none}
+.horse-icon.horse-green{filter:drop-shadow(0 0 7px rgba(52,199,89,.9)) drop-shadow(0 2px 4px rgba(0,0,0,.65));animation:horseGallop .3s ease-in-out infinite;transform:translateY(-50%)}
+.horse-icon.horse-red{filter:drop-shadow(0 0 7px rgba(255,69,58,.9)) drop-shadow(0 2px 4px rgba(0,0,0,.65));animation:horseGallopSlow .3s ease-in-out infinite;transform:translateY(-50%)}
+.horse-icon.target-horse{filter:drop-shadow(0 0 6px rgba(255,159,10,.85)) drop-shadow(0 2px 4px rgba(0,0,0,.65));animation:horseGallop .46s ease-in-out infinite;transform:translateY(-50%)}
+@keyframes horseGallop{
+  0%{transform:translateY(-50%)}
+  22%{transform:translateY(calc(-50% - 7px)) rotate(-4deg)}
+  48%{transform:translateY(calc(-50% + 2px)) rotate(1deg)}
+  72%{transform:translateY(calc(-50% - 5px)) rotate(-2deg)}
+  100%{transform:translateY(-50%)}
+}
+@keyframes horseGallopSlow{
+  0%{transform:translateY(-50%)}
+  22%{transform:translateY(calc(-50% - 5px)) rotate(-3deg)}
+  48%{transform:translateY(calc(-50% + 2px)) rotate(1deg)}
+  72%{transform:translateY(calc(-50% - 4px)) rotate(-2deg)}
+  100%{transform:translateY(-50%)}
+}
+
 /* ─── KIOSK EMPLOYEE / PAYROLL OVERLAY ─── */
 .kiosk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1200;display:flex;align-items:center;justify-content:center}
 .kiosk-overlay-card{background:var(--s1);border:1px solid var(--brd);border-radius:18px;padding:28px;width:460px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.7)}
@@ -1450,6 +1480,26 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
             <text class="ring-label" x="100" y="116" text-anchor="middle">RUN</text>
             <text class="ring-std" id="kpc-run-ring-std" x="100" y="132" text-anchor="middle">std —</text>
           </svg>
+        </div>
+        <!-- Horse Race Production Pace Tracker -->
+        <div class="horse-race-tracker" id="kpc-horse-race">
+          <div class="horse-race-title">⚡ PRODUCTION PACE</div>
+          <div class="horse-race-row">
+            <div class="horse-race-label">ACTUAL</div>
+            <div class="horse-track-wrap">
+              <div class="horse-track-fill actual-on-pace" id="horse-actual-fill" style="width:0%"></div>
+              <div class="horse-finish-line"></div>
+              <span class="horse-icon horse-green" id="horse-actual-icon" style="left:2%">🏇</span>
+            </div>
+          </div>
+          <div class="horse-race-row">
+            <div class="horse-race-label">TARGET</div>
+            <div class="horse-track-wrap">
+              <div class="horse-track-fill target-fill" id="horse-target-fill" style="width:0%"></div>
+              <div class="horse-finish-line"></div>
+              <span class="horse-icon target-horse" id="horse-target-icon" style="left:2%">🏇</span>
+            </div>
+          </div>
         </div>
         <div class="kpc-actions">
           <button class="kpc-btn pause" id="kpc-run-pause-btn" onclick="tcShowPauseDropdown()">⏸ PAUSE ▾</button>
@@ -8741,6 +8791,41 @@ function kioskUpdateRing(fillId,timeId,elapsedMs,stdMin){
   }
 }
 
+function kioskUpdateHorseRace(){
+  const tracker=document.getElementById('kpc-horse-race');
+  if(!tracker)return;
+  const job=tcState.currentJob;
+  if(!job)return;
+  const totalParts=Math.max(1,job.qty||1);
+  const totalCycleMs=Math.max(1,(job.runStd||job.cycleTime||60)*60000);
+  const partsMade=parseInt(document.getElementById('kpc-run-parts-made')?.value)||0;
+  const now=Date.now();
+  const runStart=tcState.setupEndTime?new Date(tcState.setupEndTime).getTime():
+                 tcState.startTime?new Date(tcState.startTime).getTime():now;
+  const elapsedMs=Math.max(0,now-runStart);
+  const targetRatio=Math.min(elapsedMs/totalCycleMs,1);
+  const actualRatio=Math.min(partsMade/totalParts,1);
+  const targetPct=targetRatio*100;
+  const actualPct=actualRatio*100;
+  const behind=actualPct<(targetPct-5);
+  // Actual bar + horse
+  const aFill=document.getElementById('horse-actual-fill');
+  const aIcon=document.getElementById('horse-actual-icon');
+  if(aFill){
+    aFill.style.width=actualPct+'%';
+    aFill.className='horse-track-fill '+(behind?'actual-behind':'actual-on-pace');
+  }
+  if(aIcon){
+    aIcon.style.left=Math.max(2,actualPct)+'%';
+    aIcon.className='horse-icon '+(behind?'horse-red':'horse-green');
+  }
+  // Target bar + horse
+  const tFill=document.getElementById('horse-target-fill');
+  const tIcon=document.getElementById('horse-target-icon');
+  if(tFill){tFill.style.width=targetPct+'%'}
+  if(tIcon){tIcon.style.left=Math.max(2,Math.min(97,targetPct))+'%';tIcon.className='horse-icon target-horse'}
+}
+
 function kioskFmtMs(ms){
   if(!ms||ms<0)return'00:00:00';
   const h=Math.floor(ms/3600000);
@@ -8768,6 +8853,7 @@ function kioskTickRings(){
     const elapsedMs=Math.max(0,now-runStart);
     const stdMin=tcState.currentJob?(tcState.currentJob.runStd||tcState.currentJob.cycleTime||60):60;
     kioskUpdateRing('kpc-run-ring-fill','kpc-run-ring-time',elapsedMs,stdMin);
+    kioskUpdateHorseRace();
   }
 }
 
@@ -8794,6 +8880,7 @@ function kioskSaveCounters(){
   const parts=parseInt(document.getElementById(partsId)?.value)||0;
   const scrap=parseInt(document.getElementById(scrapId)?.value)||0;
   lsSet('tc_counters_'+(machineFilter||'unknown'),{parts,scrap});
+  kioskUpdateHorseRace();
 }
 
 function kioskRestoreCounters(){
