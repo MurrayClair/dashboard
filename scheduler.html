@@ -2622,6 +2622,7 @@ const PARTS=M1_REAL_JOBS.map(j=>({p:j.id,d:j.partDesc,h:Math.max(2,Math.round(j.
 const TYPE_MACHINES={lathe:['QTN450M','QTN350MY','SQT10M','QT20','QT20HP'],millturn:['INTE2004S','INTE4004S','INTEJ400','NTX2500','INTEi200'],vmc:['VCS530C','VTC530C','NMV3000'],hmc:['HCN8800','FH4800','NHX5000-1','NHX5000-2'],'5axis':['VRX730','DMU75'],cmm:['CMM1','CMM2'],edm:['ROBOCUT1'],manual:['NONCNC'],subco:['SUBCO']};
 let jobs=[];
 let quotes=lsGet('quotes',[]);
+var qcScenarioProbOverrides=null; // declared here to avoid TDZ — used in renderGantt before Quotes section
 
 // ── DEMO QUOTE PIPELINE ──
 if(quotes.length===0){
@@ -10166,7 +10167,7 @@ if(isScreen2){
 //  QUOTES & CAPACITY PLANNING
 // ══════════════════════════════════════════════════════════════
 // quotes initialized early — see top of script
-let qcScenarioProbOverrides=null; // null = use stored probabilities
+// qcScenarioProbOverrides declared earlier (var) to avoid TDZ in renderGantt
 let qcEditingId=null;
 
 function saveQuotesData(){lsSet('quotes',quotes);}
