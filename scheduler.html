@@ -10372,7 +10372,8 @@ function showLoginOverlay() {
   setTimeout(() => { const el = document.getElementById('login-user'); if (el) el.focus(); }, 50);
 }
 
-if(typeof loginChatOpen==='undefined') var loginChatOpen=false;
+
+var loginChatOpen = false;
 function hideLoginOverlay() {
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('login-chat-bubble').style.display = 'none';
@@ -10485,7 +10486,7 @@ function applyUserRole(role) {
 // ══════════════════════════════════════════════════════════════
 //  LOGIN CHAT WIDGET
 // ══════════════════════════════════════════════════════════════
-let loginChatOpen = false;
+loginChatOpen = false;
 let loginChatInitialized = false;
 
 const LOGIN_CHAT_RULES = [
