@@ -2392,6 +2392,7 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
 //  CONFIG & STATE
 // ══════════════════════════════════════════════════════════════
 const TODAY = new Date(); TODAY.setHours(6,0,0,0);
+function relDate(daysFromToday){const d=new Date(TODAY);d.setDate(d.getDate()+daysFromToday);return d.toISOString().split('T')[0];}
 const HOUR_PX = {day:12,week:4,month1:1.2,month3:0.5,month6:0.25,month12:0.12,monthbeyond:0.04};
 let scale='day', filter='all', selectedMachine=null, currentMode='schedule', currentSetupTab='machines';
 let currentUser = null;
@@ -2559,61 +2560,61 @@ function setBreakdownDate(machineId,date){
 // ══════════════════════════════════════════════════════════════
 const M1_REAL_JOBS=[
   // ── Overdue ────────────────────────────────────────────────
-  {id:'26719-0002-002',partDesc:'DRIVE CUP AZIMUTH R150 264MM',due:'2026-03-10',qty:20,customer:'EOS',machine:'INTE4004S',opSeq:['millturn','millturn','5axis','subco','cmm'],totalHours:62,hasSubco:true,needsCMM:true,value:42000},
+  {id:'26719-0002-002',partDesc:'DRIVE CUP AZIMUTH R150 264MM',due:relDate(-13),qty:20,customer:'EOS',machine:'INTE4004S',opSeq:['millturn','millturn','5axis','subco','cmm'],totalHours:62,hasSubco:true,needsCMM:true,value:42000},
   // ── Urgent (this week) ─────────────────────────────────────
-  {id:'26871-0023-001',partDesc:'RETAINER',due:'2026-03-19',qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:3,hasSubco:false,needsCMM:false,value:800},
-  {id:'25309-0026-003',partDesc:'HOLDER SILENCODER',due:'2026-03-20',qty:18,customer:'BAE Systems',machine:'QTN450M',opSeq:['millturn','cmm'],totalHours:22,hasSubco:false,needsCMM:true,value:12000},
-  // ── March ─────────────────────────────────────────────────
-  {id:'26894-0002-001',partDesc:'T38-500-36AF-DOLLY',due:'2026-03-25',qty:20,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe','cmm'],totalHours:20,hasSubco:false,needsCMM:true,value:9000},
-  {id:'26844-0003-001',partDesc:'CYLINDER NUT M14X2',due:'2026-03-27',qty:2,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:600},
-  {id:'24446-0011-002',partDesc:'DEFLECTOR RIGHT',due:'2026-03-31',qty:27,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:27,hasSubco:false,needsCMM:true,value:8100},
-  {id:'26898-0001-001',partDesc:'AIR CAP',due:'2026-03-31',qty:5,customer:'Nupress Stock',machine:'SQT10M',opSeq:['lathe','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
-  // ── April 20 ───────────────────────────────────────────────
-  {id:'26719-0012-001',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:'2026-04-20',qty:7,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:44,hasSubco:true,needsCMM:true,value:28000},
-  {id:'26719-0012-002',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:'2026-04-20',qty:20,customer:'EOS',machine:'INTE2004S',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:72,hasSubco:true,needsCMM:true,value:56000},
-  {id:'26860-0003-001',partDesc:'BOSS',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'INTEi200',opSeq:['millturn'],totalHours:4,hasSubco:false,needsCMM:false,value:1200},
-  {id:'26860-0004-001',partDesc:'BACK PLATE',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:1800},
-  {id:'26860-0011-001',partDesc:'TELESCOPE MOUNTING BOSS',due:'2026-04-20',qty:12,customer:'BAE Systems',machine:'INTE4004S',opSeq:['millturn'],totalHours:24,hasSubco:false,needsCMM:false,value:9600},
-  {id:'26860-0017-001',partDesc:'TOW HANDLE MOUNT',due:'2026-04-20',qty:1,customer:'BAE Systems',machine:'VTC530C',opSeq:['vmc'],totalHours:5,hasSubco:false,needsCMM:false,value:1500},
-  // ── April 24 ───────────────────────────────────────────────
-  {id:'26879-0017-001',partDesc:'RETAINER',due:'2026-04-24',qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:2,hasSubco:false,needsCMM:false,value:600},
-  {id:'26893-0001-001',partDesc:'SDRS MEDIA CHASSIS FRONT PLATE',due:'2026-04-24',qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2400},
-  {id:'26893-0002-001',partDesc:'SNSS MEDIA CHASSIS FRONT PLATE',due:'2026-04-24',qty:2,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:4,hasSubco:false,needsCMM:false,value:1600},
-  {id:'26893-0003-001',partDesc:'MEDIA CHASSIS BOTTOM PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'HCN8800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4800},
-  {id:'26893-0004-001',partDesc:'SAS3 BACKPLANE MOUNTING PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
-  {id:'26893-0005-001',partDesc:'CAGE SIDE PLATE RHS',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'FH4800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
-  {id:'26893-0006-001',partDesc:'CAGE SIDE PLATE LHS',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-2',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
-  {id:'26893-0007-001',partDesc:'CAGE DIVIDER PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3000},
-  {id:'26893-0008-001',partDesc:'SAS3 BACKPLANE CLAMP',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2500},
-  {id:'26893-0009-001',partDesc:'SAS3 ADAPTER MOUNTING PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NMV3000',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
-  {id:'26893-0011-001',partDesc:'MEDIA CHASSIS TOP PLATE',due:'2026-04-24',qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:4000},
-  {id:'26893-0013-001',partDesc:'MEDIA TRAY BLANK-SINGLE',due:'2026-04-24',qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:1800},
-  // ── May ────────────────────────────────────────────────────
-  {id:'26861-0002-001',partDesc:'X-ROTATION CLEVIS',due:'2026-05-20',qty:1,customer:'EOS',machine:'DMU75',opSeq:['millturn','5axis','5axis','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:6000},
-  {id:'26861-0011-001',partDesc:'ADJUSTING NUT',due:'2026-05-20',qty:1,customer:'EOS',machine:'QTN450M',opSeq:['lathe','millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:2800},
-  {id:'26861-0018-001',partDesc:'LOCK NUT',due:'2026-05-20',qty:1,customer:'EOS',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:900},
-  {id:'26861-0023-001',partDesc:'ROTATION CLEVIS',due:'2026-05-20',qty:1,customer:'EOS',machine:'VRX730',opSeq:['millturn','5axis','cmm'],totalHours:14,hasSubco:false,needsCMM:true,value:5500},
-  {id:'26861-0025-001',partDesc:'Y-ROTATION POWER SCREW',due:'2026-05-20',qty:1,customer:'EOS',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
-  {id:'26861-0030-001',partDesc:'BEARING RETAINING PLATE',due:'2026-05-20',qty:1,customer:'EOS',machine:'VRX730',opSeq:['vmc','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:2400},
-  {id:'26861-0031-001',partDesc:'X-ROTATION POWER SCREW',due:'2026-05-20',qty:1,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
-  {id:'26861-0034-001',partDesc:'32 TOOTH SPUR',due:'2026-05-20',qty:1,customer:'EOS',machine:'INTEi200',opSeq:['millturn','5axis','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:3000},
-  {id:'26861-0037-001',partDesc:'HEX CONNECTOR',due:'2026-05-20',qty:2,customer:'EOS',machine:'QTN350MY',opSeq:['lathe','millturn'],totalHours:10,hasSubco:false,needsCMM:false,value:2800},
-  {id:'26861-0044-001',partDesc:'HANDLE BUSH',due:'2026-05-20',qty:1,customer:'EOS',machine:'SQT10M',opSeq:['lathe','millturn','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
-  // ── June ───────────────────────────────────────────────────
-  {id:'14033',partDesc:'SOCKET HEAD CAP SCREW M12X1.75',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe','cmm'],totalHours:40,hasSubco:false,needsCMM:true,value:12000},
-  {id:'14055',partDesc:'GRIPPER BLOCK JAWS INTERNAL',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QT20',opSeq:['lathe'],totalHours:30,hasSubco:false,needsCMM:false,value:8000},
-  {id:'14056',partDesc:'PISTON',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QTN450M',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:10000},
-  {id:'14057',partDesc:'PISTON GLAND',due:'2026-06-30',qty:200,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:8000},
-  {id:'14058',partDesc:'PLATE COVER',due:'2026-06-30',qty:50,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:30,hasSubco:false,needsCMM:true,value:7500},
-  {id:'14059',partDesc:'PLATE COVER',due:'2026-06-30',qty:50,customer:'Nupress Stock',machine:'VTC530C',opSeq:['vmc'],totalHours:20,hasSubco:false,needsCMM:false,value:6000},
-  {id:'24054-0121-001',partDesc:'WEIGHT',due:'2026-06-30',qty:49,customer:'Nupress Stock',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:35,hasSubco:false,needsCMM:true,value:14700},
-  {id:'25309-0091-001',partDesc:'ADAPTER',due:'2026-06-30',qty:88,customer:'Nupress Stock',machine:'INTE4004S',opSeq:['millturn','millturn','millturn','cmm'],totalHours:80,hasSubco:false,needsCMM:true,value:35200},
+  {id:'26871-0023-001',partDesc:'RETAINER',due:relDate(-4),qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:3,hasSubco:false,needsCMM:false,value:800},
+  {id:'25309-0026-003',partDesc:'HOLDER SILENCODER',due:relDate(-3),qty:18,customer:'BAE Systems',machine:'QTN450M',opSeq:['millturn','cmm'],totalHours:22,hasSubco:false,needsCMM:true,value:12000},
+  // ── Due this week ─────────────────────────────────────────
+  {id:'26894-0002-001',partDesc:'T38-500-36AF-DOLLY',due:relDate(2),qty:20,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe','cmm'],totalHours:20,hasSubco:false,needsCMM:true,value:9000},
+  {id:'26844-0003-001',partDesc:'CYLINDER NUT M14X2',due:relDate(4),qty:2,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:600},
+  {id:'24446-0011-002',partDesc:'DEFLECTOR RIGHT',due:relDate(8),qty:27,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:27,hasSubco:false,needsCMM:true,value:8100},
+  {id:'26898-0001-001',partDesc:'AIR CAP',due:relDate(8),qty:5,customer:'Nupress Stock',machine:'SQT10M',opSeq:['lathe','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
+  // ── Due this month (28 days out) ──────────────────────────
+  {id:'26719-0012-001',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:relDate(28),qty:7,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:44,hasSubco:true,needsCMM:true,value:28000},
+  {id:'26719-0012-002',partDesc:'RING LOCK AZIMUTH UPR 216MM',due:relDate(28),qty:20,customer:'EOS',machine:'INTE2004S',opSeq:['millturn','millturn','5axis','millturn','subco','cmm'],totalHours:72,hasSubco:true,needsCMM:true,value:56000},
+  {id:'26860-0003-001',partDesc:'BOSS',due:relDate(28),qty:1,customer:'BAE Systems',machine:'INTEi200',opSeq:['millturn'],totalHours:4,hasSubco:false,needsCMM:false,value:1200},
+  {id:'26860-0004-001',partDesc:'BACK PLATE',due:relDate(28),qty:1,customer:'BAE Systems',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:1800},
+  {id:'26860-0011-001',partDesc:'TELESCOPE MOUNTING BOSS',due:relDate(28),qty:12,customer:'BAE Systems',machine:'INTE4004S',opSeq:['millturn'],totalHours:24,hasSubco:false,needsCMM:false,value:9600},
+  {id:'26860-0017-001',partDesc:'TOW HANDLE MOUNT',due:relDate(28),qty:1,customer:'BAE Systems',machine:'VTC530C',opSeq:['vmc'],totalHours:5,hasSubco:false,needsCMM:false,value:1500},
+  // ── Due next month (32 days out) ──────────────────────────
+  {id:'26879-0017-001',partDesc:'RETAINER',due:relDate(32),qty:1,customer:'Thales',machine:'QT20',opSeq:['lathe'],totalHours:2,hasSubco:false,needsCMM:false,value:600},
+  {id:'26893-0001-001',partDesc:'SDRS MEDIA CHASSIS FRONT PLATE',due:relDate(32),qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2400},
+  {id:'26893-0002-001',partDesc:'SNSS MEDIA CHASSIS FRONT PLATE',due:relDate(32),qty:2,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:4,hasSubco:false,needsCMM:false,value:1600},
+  {id:'26893-0003-001',partDesc:'MEDIA CHASSIS BOTTOM PLATE',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'HCN8800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4800},
+  {id:'26893-0004-001',partDesc:'SAS3 BACKPLANE MOUNTING PLATE',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
+  {id:'26893-0005-001',partDesc:'CAGE SIDE PLATE RHS',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'FH4800',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
+  {id:'26893-0006-001',partDesc:'CAGE SIDE PLATE LHS',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-2',opSeq:['hmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:4200},
+  {id:'26893-0007-001',partDesc:'CAGE DIVIDER PLATE',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3000},
+  {id:'26893-0008-001',partDesc:'SAS3 BACKPLANE CLAMP',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'VTC530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:2500},
+  {id:'26893-0009-001',partDesc:'SAS3 ADAPTER MOUNTING PLATE',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'NMV3000',opSeq:['vmc'],totalHours:8,hasSubco:false,needsCMM:false,value:3200},
+  {id:'26893-0011-001',partDesc:'MEDIA CHASSIS TOP PLATE',due:relDate(32),qty:5,customer:'Rohde & Schwarz',machine:'NHX5000-1',opSeq:['hmc','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:4000},
+  {id:'26893-0013-001',partDesc:'MEDIA TRAY BLANK-SINGLE',due:relDate(32),qty:3,customer:'Rohde & Schwarz',machine:'VCS530C',opSeq:['vmc'],totalHours:6,hasSubco:false,needsCMM:false,value:1800},
+  // ── Due in ~2 months (58 days out) ────────────────────────
+  {id:'26861-0002-001',partDesc:'X-ROTATION CLEVIS',due:relDate(58),qty:1,customer:'EOS',machine:'DMU75',opSeq:['millturn','5axis','5axis','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:6000},
+  {id:'26861-0011-001',partDesc:'ADJUSTING NUT',due:relDate(58),qty:1,customer:'EOS',machine:'QTN450M',opSeq:['lathe','millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:2800},
+  {id:'26861-0018-001',partDesc:'LOCK NUT',due:relDate(58),qty:1,customer:'EOS',machine:'QT20HP',opSeq:['lathe'],totalHours:4,hasSubco:false,needsCMM:false,value:900},
+  {id:'26861-0023-001',partDesc:'ROTATION CLEVIS',due:relDate(58),qty:1,customer:'EOS',machine:'VRX730',opSeq:['millturn','5axis','cmm'],totalHours:14,hasSubco:false,needsCMM:true,value:5500},
+  {id:'26861-0025-001',partDesc:'Y-ROTATION POWER SCREW',due:relDate(58),qty:1,customer:'EOS',machine:'NTX2500',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
+  {id:'26861-0030-001',partDesc:'BEARING RETAINING PLATE',due:relDate(58),qty:1,customer:'EOS',machine:'VRX730',opSeq:['vmc','cmm'],totalHours:6,hasSubco:false,needsCMM:true,value:2400},
+  {id:'26861-0031-001',partDesc:'X-ROTATION POWER SCREW',due:relDate(58),qty:1,customer:'EOS',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:10,hasSubco:false,needsCMM:true,value:3200},
+  {id:'26861-0034-001',partDesc:'32 TOOTH SPUR',due:relDate(58),qty:1,customer:'EOS',machine:'INTEi200',opSeq:['millturn','5axis','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:3000},
+  {id:'26861-0037-001',partDesc:'HEX CONNECTOR',due:relDate(58),qty:2,customer:'EOS',machine:'QTN350MY',opSeq:['lathe','millturn'],totalHours:10,hasSubco:false,needsCMM:false,value:2800},
+  {id:'26861-0044-001',partDesc:'HANDLE BUSH',due:relDate(58),qty:1,customer:'EOS',machine:'SQT10M',opSeq:['lathe','millturn','cmm'],totalHours:8,hasSubco:false,needsCMM:true,value:2200},
+  // ── Due in ~3 months (99 days out) ────────────────────────
+  {id:'14033',partDesc:'SOCKET HEAD CAP SCREW M12X1.75',due:relDate(99),qty:200,customer:'Nupress Stock',machine:'QT20HP',opSeq:['lathe','cmm'],totalHours:40,hasSubco:false,needsCMM:true,value:12000},
+  {id:'14055',partDesc:'GRIPPER BLOCK JAWS INTERNAL',due:relDate(99),qty:200,customer:'Nupress Stock',machine:'QT20',opSeq:['lathe'],totalHours:30,hasSubco:false,needsCMM:false,value:8000},
+  {id:'14056',partDesc:'PISTON',due:relDate(99),qty:200,customer:'Nupress Stock',machine:'QTN450M',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:10000},
+  {id:'14057',partDesc:'PISTON GLAND',due:relDate(99),qty:200,customer:'Nupress Stock',machine:'QTN350MY',opSeq:['lathe'],totalHours:28,hasSubco:false,needsCMM:false,value:8000},
+  {id:'14058',partDesc:'PLATE COVER',due:relDate(99),qty:50,customer:'Nupress Stock',machine:'VCS530C',opSeq:['vmc','cmm'],totalHours:30,hasSubco:false,needsCMM:true,value:7500},
+  {id:'14059',partDesc:'PLATE COVER',due:relDate(99),qty:50,customer:'Nupress Stock',machine:'VTC530C',opSeq:['vmc'],totalHours:20,hasSubco:false,needsCMM:false,value:6000},
+  {id:'24054-0121-001',partDesc:'WEIGHT',due:relDate(99),qty:49,customer:'Nupress Stock',machine:'INTEJ400',opSeq:['millturn','cmm'],totalHours:35,hasSubco:false,needsCMM:true,value:14700},
+  {id:'25309-0091-001',partDesc:'ADAPTER',due:relDate(99),qty:88,customer:'Nupress Stock',machine:'INTE4004S',opSeq:['millturn','millturn','millturn','cmm'],totalHours:80,hasSubco:false,needsCMM:true,value:35200},
   // ── CNC01 Demo Jobs ───────────────────────────────────────
-  {id:'27001-0001-001',partDesc:'FLANGE MOUNT ASSEMBLY',due:'2026-03-25',qty:12,customer:'BAE Systems',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:15600,setupStd:45},
-  {id:'27002-0003-001',partDesc:'BEARING HOUSING LH',due:'2026-03-28',qty:8,customer:'Thales',machine:'CNC01',opSeq:['vmc','vmc','cmm'],totalHours:24,hasSubco:false,needsCMM:true,value:22400,setupStd:30},
-  {id:'27003-0012-002',partDesc:'GEARBOX END PLATE',due:'2026-04-02',qty:25,customer:'EOS',machine:'CNC01',opSeq:['vmc'],totalHours:15,hasSubco:false,needsCMM:false,value:8750,setupStd:20},
-  {id:'27004-0008-001',partDesc:'HYDRAULIC MANIFOLD BLOCK',due:'2026-04-05',qty:6,customer:'Rheinmetall',machine:'CNC01',opSeq:['vmc','vmc','5axis','cmm'],totalHours:42,hasSubco:false,needsCMM:true,value:38000,setupStd:60},
-  {id:'27005-0002-001',partDesc:'ACTUATOR BRACKET',due:'2026-04-10',qty:30,customer:'Nupress Stock',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:6000,setupStd:25},
+  {id:'27001-0001-001',partDesc:'FLANGE MOUNT ASSEMBLY',due:relDate(2),qty:12,customer:'BAE Systems',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:18,hasSubco:false,needsCMM:true,value:15600,setupStd:45},
+  {id:'27002-0003-001',partDesc:'BEARING HOUSING LH',due:relDate(5),qty:8,customer:'Thales',machine:'CNC01',opSeq:['vmc','vmc','cmm'],totalHours:24,hasSubco:false,needsCMM:true,value:22400,setupStd:30},
+  {id:'27003-0012-002',partDesc:'GEARBOX END PLATE',due:relDate(10),qty:25,customer:'EOS',machine:'CNC01',opSeq:['vmc'],totalHours:15,hasSubco:false,needsCMM:false,value:8750,setupStd:20},
+  {id:'27004-0008-001',partDesc:'HYDRAULIC MANIFOLD BLOCK',due:relDate(13),qty:6,customer:'Rheinmetall',machine:'CNC01',opSeq:['vmc','vmc','5axis','cmm'],totalHours:42,hasSubco:false,needsCMM:true,value:38000,setupStd:60},
+  {id:'27005-0002-001',partDesc:'ACTUATOR BRACKET',due:relDate(18),qty:30,customer:'Nupress Stock',machine:'CNC01',opSeq:['vmc','cmm'],totalHours:12,hasSubco:false,needsCMM:true,value:6000,setupStd:25},
 ];
 // Derived PARTS array for legacy KPI corrections panel (p=id, d=desc, h=avg op hours)
 const PARTS=M1_REAL_JOBS.map(j=>({p:j.id,d:j.partDesc,h:Math.max(2,Math.round(j.totalHours/j.opSeq.length))}));
@@ -2638,7 +2639,7 @@ if(quotes.length===0){
         {machineId:"NTX2500",setupHours:3,runHours:2.0,qty:50},
         {machineId:"CMM1",setupHours:1,runHours:0.5,qty:50},
       ],
-      dueDate:"2026-06-15",
+      dueDate:relDate(84),
       value:480000,
       probability:65,
       notes:"Defence tender — K9 Thunder SPH program for Australian Army. 24-month delivery schedule, 50 units/month. Requires AS9100 certification on all operations. Turret ring is 5-axis critical — DMU75 and INTE4004S will be heavily loaded. Subco heat treat required.",
@@ -2656,7 +2657,7 @@ if(quotes.length===0){
         {machineId:"VRX730",setupHours:5,runHours:2.8,qty:12},
         {machineId:"CMM2",setupHours:2,runHours:1.0,qty:12},
       ],
-      dueDate:"2026-05-30",
+      dueDate:relDate(68),
       value:185000,
       probability:40,
       notes:"Boxer CRV hull mounting brackets. Conflicts with Q-1234 on DMU75 and INTE4004S. If both quotes won, these two machines are overloaded by ~60 hours in May-June.",
@@ -2673,7 +2674,7 @@ if(quotes.length===0){
         {machineId:"HCN8800",setupHours:3,runHours:0.6,qty:200},
         {machineId:"CMM1",setupHours:1,runHours:0.3,qty:200},
       ],
-      dueDate:"2026-07-31",
+      dueDate:relDate(130),
       value:92000,
       probability:25,
       notes:"Legacy support program. High volume, low complexity. Good fill work for VMC capacity gaps. AS9102 controlled.",
