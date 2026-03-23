@@ -1818,39 +1818,10 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
         <div style="font-size:10px;color:#666;text-align:center">Measure at Part 1, 5, 10 then every 10th part · Record actual values · Flag if outside tolerance</div>
       </div>
     </div>
-    <div id="doc-content-traveller" class="doc-content" style="display:none">
-      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px">
-        <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--accent)">M1 JOB TRAVELLER</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:11px">
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Job ID:</span> <span style="color:#e8e8e8">27001-0001-001</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Customer:</span> <span style="color:#e8e8e8">BAE Systems</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Part:</span> <span style="color:#e8e8e8">FLANGE MOUNT ASSEMBLY</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Customer PO:</span> <span style="color:#e8e8e8">PO-BAE-2026-0412</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Qty:</span> <span style="color:#e8e8e8">12</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Due:</span> <span style="color:#ff453a;font-weight:700">25 Mar 2026</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Material:</span> <span style="color:#e8e8e8">AL 6061-T6 Ø150×80</span></div>
-          <div style="background:#111;padding:8px;border-radius:4px;border:1px solid #333"><span style="color:#888">Rev:</span> <span style="color:#e8e8e8">C (14 Feb 2026)</span></div>
-        </div>
-        <div style="font-size:12px;font-weight:700;color:#aaa;margin-bottom:8px">Operation Routing</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px">
-          <thead><tr style="background:#222">
-            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Op</th>
-            <th style="border:1px solid #444;padding:5px;text-align:left;color:#888">Process</th>
-            <th style="border:1px solid #444;padding:5px;text-align:left;color:#888">Machine</th>
-            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Setup Std</th>
-            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Run Std</th>
-            <th style="border:1px solid #444;padding:5px;text-align:center;color:#888">Status</th>
-          </tr></thead>
-          <tbody>
-            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">10</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC Milling — Op1 (Fixture Side A)</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC01</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:45</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">1:15/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(90,200,250,.2);color:#5ac8fa;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">CURRENT</span></td></tr>
-            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">20</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC Milling — Op2 (Flip Side B)</td><td style="border:1px solid #333;padding:5px;color:#ddd">CNC01</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:30</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:50/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
-            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">30</td><td style="border:1px solid #333;padding:5px;color:#ddd">Deburr & Clean</td><td style="border:1px solid #333;padding:5px;color:#ddd">NONCNC</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">—</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:05/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
-            <tr><td style="border:1px solid #333;padding:5px;text-align:center;color:#e07a3a;font-weight:700">40</td><td style="border:1px solid #333;padding:5px;color:#ddd">CMM Inspection</td><td style="border:1px solid #333;padding:5px;color:#ddd">CMM1</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:15</td><td style="border:1px solid #333;padding:5px;text-align:center;color:#ddd">0:20/pc</td><td style="border:1px solid #333;padding:5px;text-align:center"><span style="background:rgba(255,255,255,.05);color:#888;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">QUEUED</span></td></tr>
-          </tbody>
-        </table>
-        <div style="margin-top:10px;padding:8px;background:#111;border-radius:4px;border:1px solid #333;font-size:10px;color:#888">
-          <strong style="color:#e07a3a">WHS:</strong> Standard PPE required. Aluminium swarf — no gloves near spindle. Coolant: Castrol Hysol SL35 (SDS on file). Lifting assist required for raw billet (12kg).
-        </div>
+    <div id="doc-content-traveller" class="doc-content" style="display:none;padding:0">
+      <div id="jt-form-root" style="min-height:200px;padding:40px;text-align:center;color:var(--dim)">
+        <div style="font-size:32px;margin-bottom:12px">📋</div>
+        <div>Loading job traveller…</div>
       </div>
     </div>
     <div id="doc-content-instructions" class="doc-content" style="display:none">
@@ -8445,9 +8416,12 @@ function tcKioskBreakdown(){
 }
 
 function tcOpenDocsViewer(context){
-  // All docs are stubs — show the placeholder overlay
   const overlay=document.getElementById('docs-stub-overlay');
   if(overlay)overlay.style.display='flex';
+  // Populate digital job traveller from current kiosk state
+  if(typeof jtLoadForm==='function'){
+    jtLoadForm(tcState&&tcState.currentJob?tcState.currentJob:null);
+  }
 }
 function closeDocsStub(){
   const overlay=document.getElementById('docs-stub-overlay');
@@ -8461,6 +8435,291 @@ function showDocTab(tab){
     if(btn){btn.classList.toggle('active',t===tab);}
   });
 }
+
+// ══════════════════════════════════════════════════════════════
+//  DIGITAL JOB TRAVELLER
+// ══════════════════════════════════════════════════════════════
+
+const JT_OP_DEFS={
+  lathe:   {label:'CNC Turning',    wc:'TURNING',  opType:'MACOP',machines:['QTN350MY','QTN450M','SQT10M','QT20HP'],setupH:.75, runH:.50,inspRatio:'1:5'},
+  millturn:{label:'Mill-Turn',      wc:'MILLTURN', opType:'MACOP',machines:['INTE2004S','INTE4004S','INTEJ400'],   setupH:1.25,runH:.85,inspRatio:'1:5'},
+  vmc:     {label:'CNC Milling',    wc:'VMC',      opType:'MACOP',machines:['VCS530C','VTC530C','NMV3000'],       setupH:.75, runH:.65,inspRatio:'1:5'},
+  hmc:     {label:'HMC Milling',    wc:'HMC',      opType:'MACOP',machines:['HCN8800','FH4800','NHX5000-1'],      setupH:1.0, runH:.75,inspRatio:'1:5'},
+  '5axis': {label:'5-Axis Milling', wc:'5AXIS',    opType:'MACOP',machines:['VRX730','DMU75'],                   setupH:1.5, runH:1.0,inspRatio:'1:3'},
+  subco:   {label:'Subcontract',    wc:'SUBCO',    opType:'SUBCO',machines:['SUBCO'],                            setupH:0,   runH:0,  inspRatio:'N/A',leadDays:5},
+  cmm:     {label:'CMM Inspection', wc:'INSPECT',  opType:'MACOP',machines:['CMM1','CMM2'],                      setupH:.25, runH:.33,inspRatio:'100%'},
+  edm:     {label:'Wire EDM',       wc:'EDM',      opType:'MACOP',machines:['ROBOCUT1'],                         setupH:1.0, runH:2.0,inspRatio:'1:3'},
+  manual:  {label:'Bench / Manual', wc:'NONCNC',   opType:'MACOP',machines:['NONCNC'],                           setupH:0,   runH:.10,inspRatio:'1:10'},
+};
+
+function jtEsc(s){if(s===null||s===undefined)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function jtFmtH(h){if(!h&&h!==0)return '\u2014';const hr=Math.floor(h),mn=Math.round((h-hr)*60);return hr&&mn?hr+'h '+mn+'m':hr?hr+'h':mn+'m';}
+function jtGetSaved(jobId){return lsGet('jt_form_'+jobId,{});}
+function jtAutoSave(jobId){jtSaveFormState(jobId);}
+
+function jtSaveFormState(jobId){
+  const root=document.getElementById('jt-form-root');
+  if(!root)return;
+  const state=jtGetSaved(jobId);
+  root.querySelectorAll('[data-jtfield]').forEach(el=>{
+    state[el.dataset.jtfield]=el.type==='checkbox'?el.checked:el.value;
+  });
+  lsSet('jt_form_'+jobId,state);
+}
+
+function jtToggleRA(btn,jobId,key){
+  const done=btn.classList.toggle('jt-ra-done');
+  const s=jtGetSaved(jobId);s[key]=done;lsSet('jt_form_'+jobId,s);
+}
+
+function jtBuildOps(job){
+  return (job.opSeq||['vmc']).map(function(type,i){
+    const d=JT_OP_DEFS[type]||JT_OP_DEFS.vmc;
+    return{seq:(i+1)*10,type:type,label:d.label,wc:d.wc,opType:d.opType,
+      machines:d.machines,setupH:d.setupH,runH:d.runH,inspRatio:d.inspRatio,
+      leadDays:d.leadDays||null,qty:job.qty||1};
+  });
+}
+
+function jtRenderOpBlock(op,jobId,saved){
+  const isSubco=op.opType==='SUBCO';
+  const k='op'+op.seq;
+  const s=saved||{};
+  const opName=(tcState&&tcState.operator&&tcState.operator.name)||'';
+  const loc=(typeof machineFilter!=='undefined'&&machineFilter)||op.machines[0]||'';
+
+  const shiftLogHtml=isSubco?'':('<div class="jt-section-label">Shift Log</div>'
+    +'<table class="jt-shift-table"><thead><tr><th>Timestamp</th><th>Shift Qty</th></tr></thead><tbody>'
+    +[0,1,2,3].map(function(r){
+      return '<tr>'
+        +'<td><input type="text" class="jt-input jt-ts-inp" placeholder="\u2014" data-jtfield="'+k+'_ts'+r+'" value="'+jtEsc(s[k+'_ts'+r]||'')+'" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')"></td>'
+        +'<td><input type="number" class="jt-input jt-qty-s" placeholder="0" min="0" data-jtfield="'+k+'_sq'+r+'" value="'+jtEsc(s[k+'_sq'+r]||'')+'" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')"></td>'
+        +'</tr>';
+    }).join('')+'</tbody></table>');
+
+  const raBtns=isSubco?'':('<div class="jt-section-label">Risk Assessment</div>'
+    +'<div class="jt-ra-row">'
+    +'<button class="jt-ra-btn'+(s[k+'_ra_m']?' jt-ra-done':'')+'" onclick="jtToggleRA(this,\''+jtEsc(jobId)+'\',\''+k+'_ra_m\')">&#x1F527; Machine RA</button>'
+    +'<button class="jt-ra-btn'+(s[k+'_ra_a']?' jt-ra-done':'')+'" onclick="jtToggleRA(this,\''+jtEsc(jobId)+'\',\''+k+'_ra_a\')">&#x2699;&#xFE0F; Assembly &amp; Maint RA</button>'
+    +'<button class="jt-ra-btn'+(s[k+'_ra_t']?' jt-ra-done':'')+'" onclick="jtToggleRA(this,\''+jtEsc(jobId)+'\',\''+k+'_ra_t\')">&#x1F6E0; Tool Check</button>'
+    +'</div>');
+
+  const stdBlock=isSubco
+    ?('<div class="jt-std-grid"><div class="jt-std-item"><span class="jt-slabel">Lead Time</span><span class="jt-sval">'+(op.leadDays||5)+' days</span></div></div>')
+    :('<div class="jt-std-grid">'
+      +'<div class="jt-std-item"><span class="jt-slabel">Setup Std</span><span class="jt-sval">'+jtFmtH(op.setupH)+'</span></div>'
+      +'<div class="jt-std-item"><span class="jt-slabel">Prod Std / pc</span><span class="jt-sval">'+jtFmtH(op.runH)+'</span></div>'
+      +'<div class="jt-std-item"><span class="jt-slabel">Insp Ratio</span><span class="jt-sval">'+op.inspRatio+'</span></div>'
+      +'<div class="jt-std-item jt-std-wide"><span class="jt-slabel">Machine Group</span><span class="jt-sval jt-mach">'+op.machines.join(', ')+'</span></div>'
+      +'</div>');
+
+  return '<div class="jt-op-block" id="jt-op-'+op.seq+'">'
+    +'<div class="jt-op-hdr">'
+    +'<span class="jt-op-num">Op '+op.seq+'</span>'
+    +'<span class="jt-op-title">'+op.label+'</span>'
+    +'<span class="jt-op-type '+(isSubco?'jt-subco':'jt-macop')+'">'+op.opType+'</span>'
+    +'<span class="jt-op-wc">'+op.wc+'</span>'
+    +'<span class="jt-op-qty">Qty: '+op.qty+'</span>'
+    +'</div>'
+    +'<div class="jt-op-body">'
+    +(isSubco?'<div class="jt-subco-note">&#x1F4E6; Subcontract Operation \u2014 <strong>No Inspection Required</strong><br><small>Lead Time: '+(op.leadDays||5)+' days &middot; PO raised by Purchasing</small></div>':'')
+    +stdBlock+raBtns
+    +'<div class="jt-section-label">Operator Comments</div>'
+    +'<textarea class="jt-ta" rows="2" placeholder="Notes, deviations, observations\u2026" data-jtfield="'+k+'_comments" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')">'+jtEsc(s[k+'_comments']||'')+'</textarea>'
+    +'<div class="jt-peer-row">'
+    +'<span class="jt-plabel">Peer reviewed by:</span>'
+    +'<input type="text" class="jt-input jt-peer-inp" placeholder="Reviewer name" data-jtfield="'+k+'_peer" value="'+jtEsc(s[k+'_peer']||'')+'" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')">'
+    +'<span class="jt-peer-note">&#x26A0;&#xFE0F; Peer review required before commencement of machining</span>'
+    +'</div>'
+    +shiftLogHtml
+    +'<div class="jt-comp-row">'
+    +'<div class="jt-comp-item"><label class="jt-slabel">Job Qty</label>'
+    +'<input type="number" class="jt-input jt-qty-s" min="0" placeholder="\u2014" data-jtfield="'+k+'_jobqty" value="'+jtEsc(s[k+'_jobqty']||'')+'" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')"></div>'
+    +'<div class="jt-comp-item"><label class="jt-slabel">Date Completed</label>'
+    +'<input type="date" class="jt-input jt-date-inp" data-jtfield="'+k+'_date" value="'+jtEsc(s[k+'_date']||'')+'" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')"></div>'
+    +'<div class="jt-comp-item"><label class="jt-slabel">Operator</label>'
+    +'<input type="text" class="jt-input" placeholder="\u2014" readonly data-jtfield="'+k+'_operator" value="'+jtEsc(s[k+'_operator']||opName)+'" style="cursor:default;opacity:.8"></div>'
+    +'<div class="jt-comp-item"><label class="jt-slabel">Signed</label>'
+    +'<label class="jt-chk-wrap"><input type="checkbox" class="jt-chk"'+(s[k+'_signed']?' checked':'')+' data-jtfield="'+k+'_signed" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')">'
+    +'<span class="jt-chk-box"></span></label></div>'
+    +'<div class="jt-comp-item"><label class="jt-slabel">Location</label>'
+    +'<input type="text" class="jt-input" placeholder="\u2014" readonly data-jtfield="'+k+'_location" value="'+jtEsc(s[k+'_location']||loc)+'" style="cursor:default;opacity:.8"></div>'
+    +'</div>'
+    +'<div class="jt-section-label">Operator Feedback</div>'
+    +'<textarea class="jt-ta" rows="2" placeholder="Quality issues, tool wear, program deviations, suggestions\u2026" data-jtfield="'+k+'_feedback" onchange="jtAutoSave(\''+jtEsc(jobId)+'\')">'+jtEsc(s[k+'_feedback']||'')+'</textarea>'
+    +'</div></div>';
+}
+
+function jtLoadForm(job){
+  const root=document.getElementById('jt-form-root');
+  if(!root)return;
+  if(!job){
+    root.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim)">'
+      +'<div style="font-size:36px;margin-bottom:12px">&#x1F4CB;</div>'
+      +'<div style="font-size:14px">No active job \u2014 start a job on the kiosk to load the traveller.</div></div>';
+    return;
+  }
+  const jobId=job.id;
+  const saved=jtGetSaved(jobId);
+  const ops=jtBuildOps(job);
+  const dueStr=job.due?new Date(job.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'}):'—';
+  const yr=jobId?(jobId.split('-')[0]||'').substring(0,2)||'26':'26';
+  const pPath='P:\\Jobs\\20'+yr+'\\'+jobId+'\\'+(job.partDesc||'').replace(/[^\w ]/g,'').substring(0,20).trim();
+  const assemblyId=jobId?jobId.split('-').slice(0,2).join('-'):'—';
+  const partNum=jobId?jobId.split('-').pop():'—';
+
+  root.innerHTML=''
+    +'<div class="jt-hdr-row">'
+    +'<div class="jt-logo">&#x1F985; NUPHOENIX GROUP</div>'
+    +'<div class="jt-doc-title">DIGITAL JOB TRAVELLER</div>'
+    +'<button class="jt-print-btn" onclick="jtPrint()">&#x1F5A8; Print / Save PDF</button>'
+    +'</div>'
+    +'<div class="jt-meta-grid">'
+    +'<div class="jt-mf"><span class="jt-ml">Job ID</span><span class="jt-mv jt-orange">'+jtEsc(jobId)+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Assembly ID</span><span class="jt-mv">'+jtEsc(assemblyId)+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Part No.</span><span class="jt-mv">'+jtEsc(partNum)+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Revision</span><span class="jt-mv">'+jtEsc(saved.revision||'A')+'</span></div>'
+    +'<div class="jt-mf jt-mf-2"><span class="jt-ml">Description</span><span class="jt-mv">'+jtEsc(job.partDesc||'\u2014')+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Customer</span><span class="jt-mv">'+jtEsc(job.customer||'\u2014')+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Qty</span><span class="jt-mv">'+jtEsc(job.qty||'\u2014')+'</span></div>'
+    +'<div class="jt-mf"><span class="jt-ml">Due Date</span><span class="jt-mv">'+jtEsc(dueStr)+'</span></div>'
+    +'<div class="jt-mf jt-mf-4"><span class="jt-ml">P: Drive Path</span><span class="jt-mv jt-mono">'+jtEsc(pPath)+'</span></div>'
+    +'</div>'
+    +'<div class="jt-ops-wrap">'+ops.map(function(op){return jtRenderOpBlock(op,jobId,saved);}).join('')+'</div>'
+    +'<div class="jt-footer-row">'
+    +'<span>NuPhoenix Group \u2014 Traveller generated '+new Date().toLocaleDateString('en-AU')+' '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})+'</span>'
+    +'<span>Auto-saved to browser. Print for physical record.</span>'
+    +'</div>';
+
+  root.dataset.jtJobId=jobId;
+
+  // Auto-fill clock-on timestamp into first MACOP shift log row
+  if(tcState&&tcState.setupEndTime){
+    const firstMacOp=ops.find(function(o){return o.opType==='MACOP';});
+    if(firstMacOp){
+      const k='op'+firstMacOp.seq;
+      const ts0=root.querySelector('[data-jtfield="'+k+'_ts0"]');
+      if(ts0&&!ts0.value){
+        ts0.value=new Date(tcState.setupEndTime).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+      }
+      // Pre-fill parts count from current counters
+      if(tcState.status==='run'||tcState.status==='paused'){
+        const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+        if(cp.parts>0){
+          const sq0=root.querySelector('[data-jtfield="'+k+'_sq0"]');
+          if(sq0&&!sq0.value)sq0.value=cp.parts;
+        }
+      }
+    }
+  }
+}
+
+function jtOnPartsUpdate(){
+  const root=document.getElementById('jt-form-root');
+  if(!root||!root.dataset.jtJobId)return;
+  const overlay=document.getElementById('docs-stub-overlay');
+  if(!overlay||overlay.style.display==='none')return;
+  const jobId=root.dataset.jtJobId;
+  const cp=lsGet('tc_counters_'+(machineFilter||'unknown'),{parts:0,scrap:0});
+  // Fill first empty shift log timestamp+qty
+  const tsEls=root.querySelectorAll('[data-jtfield$="_ts0"],[data-jtfield$="_ts1"],[data-jtfield$="_ts2"],[data-jtfield$="_ts3"]');
+  for(let i=0;i<tsEls.length;i++){
+    if(!tsEls[i].value){
+      tsEls[i].value=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+      const sqKey=tsEls[i].dataset.jtfield.replace(/_ts(\d)$/,'_sq$1');
+      const sqEl=root.querySelector('[data-jtfield="'+sqKey+'"]');
+      if(sqEl)sqEl.value=cp.parts;
+      break;
+    }
+  }
+  jtSaveFormState(jobId);
+}
+
+function jtPrint(){window.print();}
+
+// Inject traveller CSS on first load
+(function(){
+  if(document.getElementById('jt-style'))return;
+  const s=document.createElement('style');
+  s.id='jt-style';
+  s.textContent=''
+    +'.jt-hdr-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s2);border-bottom:2px solid var(--accent)}'
+    +'.jt-logo{font-weight:900;font-size:13px;color:var(--accent)}'
+    +'.jt-doc-title{flex:1;font-size:15px;font-weight:900;color:var(--txt);letter-spacing:.05em}'
+    +'.jt-print-btn{padding:9px 16px;background:rgba(224,122,58,.15);color:var(--accent);border:1px solid var(--accent);border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px}'
+    +'.jt-print-btn:active{background:rgba(224,122,58,.3)}'
+    +'.jt-meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 14px}'
+    +'.jt-mf{background:var(--s1);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-height:48px}'
+    +'.jt-mf-2{grid-column:span 2}.jt-mf-4{grid-column:span 4}'
+    +'.jt-ml{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em}'
+    +'.jt-mv{font-size:13px;color:var(--txt);font-weight:600}'
+    +'.jt-orange{color:var(--accent)}.jt-mono{font-family:monospace;font-size:11px}'
+    +'.jt-ops-wrap{padding:0 14px;display:flex;flex-direction:column;gap:14px;margin-bottom:8px}'
+    +'.jt-op-block{background:var(--s1);border:1px solid var(--brd);border-radius:8px;overflow:hidden}'
+    +'.jt-op-hdr{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--s2);border-bottom:1px solid var(--brd);flex-wrap:wrap}'
+    +'.jt-op-num{background:var(--accent);color:#000;font-size:11px;font-weight:900;padding:3px 10px;border-radius:10px;flex-shrink:0}'
+    +'.jt-op-title{flex:1;font-size:13px;font-weight:700;color:var(--txt)}'
+    +'.jt-op-type{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.04em;flex-shrink:0}'
+    +'.jt-macop{background:rgba(90,200,250,.2);color:#5ac8fa}'
+    +'.jt-subco{background:rgba(142,142,147,.2);color:#aaa}'
+    +'.jt-op-wc{font-size:11px;color:var(--dim);background:var(--s3);padding:2px 8px;border-radius:4px;font-weight:700;flex-shrink:0}'
+    +'.jt-op-qty{font-size:11px;color:var(--dim)}'
+    +'.jt-op-body{padding:12px;display:flex;flex-direction:column;gap:10px}'
+    +'.jt-subco-note{background:rgba(142,142,147,.1);border:1px solid #555;border-radius:6px;padding:10px 12px;font-size:12px;color:#aaa;line-height:1.5}'
+    +'.jt-subco-note small{font-size:10px;color:var(--dim2)}'
+    +'.jt-std-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}'
+    +'.jt-std-wide{grid-column:span 2}'
+    +'.jt-std-item{background:var(--s2);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}'
+    +'.jt-slabel{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em;font-weight:600}'
+    +'.jt-sval{font-size:13px;color:var(--txt);font-weight:700}'
+    +'.jt-mach{font-size:10px!important;word-break:break-all;line-height:1.4}'
+    +'.jt-section-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}'
+    +'.jt-ra-row{display:flex;gap:8px;flex-wrap:wrap}'
+    +'.jt-ra-btn{flex:1;min-width:110px;padding:12px 8px;background:var(--s2);border:1px solid var(--brd);border-radius:6px;color:var(--txt);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px;transition:.15s}'
+    +'.jt-ra-done{background:rgba(52,199,89,.15);border-color:var(--green);color:var(--green)}'
+    +'.jt-ra-done::after{content:" \u2713"}'
+    +'.jt-input{width:100%;background:var(--s2);border:1px solid var(--brd);border-radius:6px;color:var(--txt);font-size:13px;padding:10px 12px;font-family:inherit;box-sizing:border-box;min-height:44px}'
+    +'.jt-input:focus{outline:none;border-color:var(--accent)}'
+    +'.jt-ts-inp{font-size:12px;padding:8px 10px}.jt-qty-s{width:80px!important;text-align:center}'
+    +'.jt-date-inp{min-width:140px}'
+    +'.jt-ta{width:100%;background:var(--s2);border:1px solid var(--brd);border-radius:6px;color:var(--txt);font-size:13px;padding:10px 12px;font-family:inherit;resize:vertical;box-sizing:border-box;min-height:60px}'
+    +'.jt-ta:focus{outline:none;border-color:var(--accent)}'
+    +'.jt-peer-row{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center}'
+    +'.jt-plabel{font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap}'
+    +'.jt-peer-note{grid-column:1/-1;font-size:11px;color:#ff9f0a;font-style:italic}'
+    +'.jt-shift-table{width:100%;border-collapse:collapse;font-size:12px}'
+    +'.jt-shift-table th{background:var(--s2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.04em;padding:6px 10px;border:1px solid var(--brd);font-weight:700;text-align:left}'
+    +'.jt-shift-table td{border:1px solid var(--brd);padding:3px;background:var(--s1)}'
+    +'.jt-shift-table td .jt-input{min-height:40px}'
+    +'.jt-comp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}'
+    +'.jt-comp-item{display:flex;flex-direction:column;gap:4px}'
+    +'.jt-chk-wrap{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;cursor:pointer}'
+    +'.jt-chk{position:absolute;opacity:0;width:0;height:0}'
+    +'.jt-chk-box{width:32px;height:32px;background:var(--s2);border:2px solid var(--brd);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:.15s}'
+    +'.jt-chk:checked+.jt-chk-box{background:rgba(52,199,89,.15);border-color:var(--green)}'
+    +'.jt-chk:checked+.jt-chk-box::after{content:"\u2713";color:var(--green);font-weight:900;font-size:18px}'
+    +'.jt-footer-row{padding:14px;font-size:10px;color:var(--dim2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}'
+    +'@media print{'
+    +'body{background:#fff!important;color:#000!important}'
+    +'*{background:#fff!important;color:#000!important;border-color:#ccc!important;box-shadow:none!important}'
+    +'.jt-print-btn,.kpc-btn,.pause-cancel-btn,.kiosk-phase-card,.modal-overlay,.docs-tab{display:none!important}'
+    +'.pause-overlay{position:static!important;background:none!important;padding:0!important}'
+    +'.pause-card{max-height:none!important;overflow:visible!important;border:none!important;box-shadow:none!important;max-width:100%!important}'
+    +'#doc-content-setup,#doc-content-inspect,#doc-content-instructions{display:none!important}'
+    +'#doc-content-traveller{display:block!important}'
+    +'.jt-op-block{page-break-inside:avoid;margin-bottom:14px;border:1px solid #ccc!important}'
+    +'.jt-op-hdr{background:#f5f5f5!important}'
+    +'.jt-op-num{background:#333!important;color:#fff!important}'
+    +'.jt-macop{background:#ddeeff!important;color:#004!important}'
+    +'.jt-subco{background:#eee!important;color:#555!important}'
+    +'.jt-ra-done{background:#ddffdd!important;border-color:#080!important;color:#050!important}'
+    +'.jt-input,.jt-ta{border:1px solid #ccc!important;background:#fafafa!important;color:#000!important}'
+    +'.jt-shift-table th{background:#f0f0f0!important}.jt-shift-table td{background:#fafafa!important}'
+    +'.jt-std-item,.jt-mf{background:#fafafa!important;border:1px solid #ddd!important}'
+    +'.jt-meta-grid,.jt-std-grid,.jt-comp-row{gap:4px!important}'
+    +'}';
+  document.head.appendChild(s);
+})();
 
 // ══════════════════════════════════════════════════════════════
 //  NJR (NEXT JOB READY) SYSTEM
@@ -9024,6 +9283,7 @@ function kioskSaveCounters(){
   const scrap=parseInt(document.getElementById(scrapId)?.value)||0;
   lsSet('tc_counters_'+(machineFilter||'unknown'),{parts,scrap});
   kioskUpdateHorseRace();
+  if(typeof jtOnPartsUpdate==='function')jtOnPartsUpdate();
 }
 
 function kioskRestoreCounters(){
