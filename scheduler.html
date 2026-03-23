@@ -1130,6 +1130,20 @@ body.kiosk-mode .tc-wrap{display:flex!important;flex-direction:column;gap:10px;p
 
 /* ─── KIOSK NJR OVERLAY ─── */
 .kiosk-njr-overlay-inner{max-height:420px;overflow-y:auto;margin-bottom:14px}
+/* ─── KIOSK DRAWING THUMBNAIL & LIGHTBOX ─── */
+.kiosk-draw-thumb{width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:#1a1a1a;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kiosk-draw-thumb:hover{border-color:rgba(255,159,10,.5);box-shadow:0 0 0 2px rgba(255,159,10,.2)}
+.kiosk-draw-thumb svg{display:block;width:100%;height:100%}
+.kiosk-draw-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1500;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;-webkit-tap-highlight-color:transparent}
+.kiosk-draw-lb.open{display:flex}
+.kiosk-draw-lb-hd{width:100%;max-width:700px;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.kiosk-draw-lb-info{flex:1}
+.kiosk-draw-lb-title{font-size:16px;font-weight:800;color:#fff}
+.kiosk-draw-lb-sub{font-size:13px;color:rgba(255,255,255,.5);margin-top:3px}
+.kiosk-draw-lb-close{width:48px;height:48px;border-radius:12px;background:var(--accent);border:none;color:#fff;font-size:24px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;line-height:1}
+.kiosk-draw-lb-close:hover{filter:brightness(1.15)}
+.kiosk-draw-lb-inner{background:#fff;border-radius:12px;overflow:hidden;max-width:700px;width:100%}
+.kiosk-draw-lb-inner svg{display:block;width:100%;height:auto;max-height:calc(100vh - 160px)}
 
 /* ─── KIOSK SHIFT SUMMARY (bottom bar) ─── */
 body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
@@ -1944,6 +1958,18 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
     <div class="kiosk-njr-overlay-inner" id="kiosk-njr-overlay-body"></div>
     <button class="kp-cancel-btn" onclick="document.getElementById('kiosk-njr-overlay').style.display='none'">Close</button>
   </div>
+</div>
+
+<!-- ═══ KIOSK DRAWING LIGHTBOX ═══ -->
+<div id="kiosk-draw-lb" class="kiosk-draw-lb" onclick="if(event.target===this)closeKioskDrawingLightbox()">
+  <div class="kiosk-draw-lb-hd">
+    <div class="kiosk-draw-lb-info">
+      <div class="kiosk-draw-lb-title" id="kdlb-title">—</div>
+      <div class="kiosk-draw-lb-sub" id="kdlb-sub">—</div>
+    </div>
+    <button class="kiosk-draw-lb-close" onclick="closeKioskDrawingLightbox()">&times;</button>
+  </div>
+  <div class="kiosk-draw-lb-inner" id="kdlb-drawing"></div>
 </div>
 
 <!-- ═══ TC END-JOB MODAL ═══ -->
@@ -3252,7 +3278,7 @@ function closeInfoCard(){document.getElementById('tooltip').style.display='none'
 document.addEventListener('click',(e)=>{const tip=document.getElementById('tooltip');if(tip.style.display!=='none'&&!tip.contains(e.target)&&!e.target.closest('.job[data-job]'))closeInfoCard();});
 function openLightbox(jobId){if(clickTimer){clearTimeout(clickTimer);clickTimer=null;}const j=jobs.find(j=>j.id===jobId);if(!j)return;closeInfoCard();document.getElementById('lb-title').textContent=`${j.partId} — ${j.partDesc}`;document.getElementById('lb-drawing').innerHTML=genDrawingSVG(j.partId,j.partDesc,800,560);document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(e){if(e&&e.type==='click'&&e.target!==document.getElementById('lightbox'))return;document.getElementById('lightbox').classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('lightbox').classList.remove('open');closeKioskDrawingLightbox();}});
 
 // ══════════════════════════════════════════════════════════════
 //  HUMAN ALLOCATION ENGINE
@@ -9216,18 +9242,22 @@ function kioskClockOnBtn(){
         let statusCls='queued',statusTxt='Queued';
         if(isCurrentJob&&savedTc.status==='setup'){statusCls='in-setup';statusTxt='In Setup';}
         else if(isCurrentJob&&savedTc.status==='run'){statusCls='in-run';statusTxt='Running';}
-        return `<div class="kco-queue-item${isNext?' next-up':''}" onclick="kioskDoClockOn('${j.id}')">
-          <div class="kco-item-top">
-            <div style="width:26px;height:26px;border-radius:50%;background:${isNext?'rgba(52,199,89,.25)':'var(--s3)'};color:${isNext?'var(--green)':'var(--dim)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${i+1}</div>
-            <div class="kco-item-num">${j.id}</div>
-            <span class="kco-item-status ${statusCls}">${statusTxt}</span>
-            ${isNext?'<span class="kco-item-badge">NEXT UP</span>':''}
+        const thumbSVG=getDrawingThumbnail(j);
+        return `<div class="kco-queue-item${isNext?' next-up':''}" onclick="kioskDoClockOn('${j.id}')" style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div class="kco-item-top">
+              <div style="width:26px;height:26px;border-radius:50%;background:${isNext?'rgba(52,199,89,.25)':'var(--s3)'};color:${isNext?'var(--green)':'var(--dim)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${i+1}</div>
+              <div class="kco-item-num">${j.id}</div>
+              <span class="kco-item-status ${statusCls}">${statusTxt}</span>
+              ${isNext?'<span class="kco-item-badge">NEXT UP</span>':''}
+            </div>
+            <div class="kco-item-part">
+              <strong>${j.partDesc||'—'}</strong>
+              <span>×${j.qty||'—'}</span>
+              <span>Due ${dueDate}</span>
+            </div>
           </div>
-          <div class="kco-item-part">
-            <strong>${j.partDesc||'—'}</strong>
-            <span>×${j.qty||'—'}</span>
-            <span>Due ${dueDate}</span>
-          </div>
+          <div class="kiosk-draw-thumb" onclick="openKioskDrawingLightbox('${j.id}')" title="Tap to view drawing">${thumbSVG}</div>
         </div>`;
       }).join('');
     }
@@ -9269,6 +9299,29 @@ function closeKioskClockOnOverlay(){
   if(overlay)overlay.style.display='none';
 }
 
+// ── KIOSK DRAWING THUMBNAIL HELPERS ──────────────────────────
+// getDrawingThumbnail: swap this in production to return real DocumentLinks image/PDF preview
+function getDrawingThumbnail(job){
+  const pid=job.partId||job.id;
+  return genDrawingSVG(pid,job.partDesc||'',80,80);
+}
+function openKioskDrawingLightbox(jobId){
+  event.stopPropagation();
+  const j=jobs.find(jj=>jj.id===jobId);
+  if(!j)return;
+  const lb=document.getElementById('kiosk-draw-lb');
+  if(!lb)return;
+  document.getElementById('kdlb-title').textContent=(j.partId||j.id);
+  document.getElementById('kdlb-sub').textContent=j.partDesc||'';
+  const pid=j.partId||j.id;
+  document.getElementById('kdlb-drawing').innerHTML=genDrawingSVG(pid,j.partDesc||'',680,480);
+  lb.classList.add('open');
+}
+function closeKioskDrawingLightbox(){
+  const lb=document.getElementById('kiosk-draw-lb');
+  if(lb)lb.classList.remove('open');
+}
+
 function kioskNjrBtn(){
   // In production phase — scroll to inline NJR panel instead
   if(tcState.status==='run'||(tcState.status==='paused'&&tcState.setupEndTime)){
@@ -9301,8 +9354,10 @@ function kioskNjrBtn(){
     ${!queue.length?'<div style="color:var(--dim);font-size:13px;padding:12px 0">No jobs queued</div>':
     queue.map((j,i)=>{
       const dueDate=j.due?new Date(j.due).toLocaleDateString('en-AU',{day:'2-digit',month:'short'}):'—';
+      const thumbSVG=getDrawingThumbnail(j);
       return `<div style="background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px">
         <div style="width:22px;height:22px;border-radius:50%;background:${i===0?'rgba(52,199,89,.2)':'var(--s3)'};color:${i===0?'var(--green)':'var(--dim)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${i+1}</div>
+        <div class="kiosk-draw-thumb" onclick="openKioskDrawingLightbox('${j.id}')" title="Tap to view drawing">${thumbSVG}</div>
         <div style="flex:1"><div style="font-weight:700;font-family:monospace;font-size:13px">${j.id}</div><div style="font-size:11px;color:var(--dim)">${j.partDesc||'—'} · ×${j.qty||'—'} · Due ${dueDate}</div></div>
         <button style="padding:5px 10px;border-radius:var(--rs);font-size:11px;font-weight:700;border:1px solid rgba(191,90,242,.3);background:rgba(191,90,242,.1);color:#bf5af2;cursor:pointer;font-family:inherit" onclick="tcOpenDocsViewer();document.getElementById('kiosk-njr-overlay').style.display='none'">📄 Docs</button>
       </div>`;
