@@ -2764,7 +2764,10 @@ function genMonitorData(){
     }
     const isAtRisk=st==='running'&&actualMins>stdRun*1.1;
     const breakdown=breakdowns[m.id]&&breakdowns[m.id].active?breakdowns[m.id]:null;
-    return {machine:m,status:st,operator:emp,skill:empSkill,job:ipJob,stdSetup,stdRun,elapsed,pctDone,qtyDone,qtyTotal,actualMins:+actualMins.toFixed(1),benchmark:bench,atRisk:isAtRisk,breakdown};
+    const scrap=st==='running'?Math.floor(Math.random()*3):0;
+    const rapidPct=st==='running'?(Math.random()<0.85?100:Math.floor(50+Math.random()*50)):100;
+    const feedPct=st==='running'?Math.floor(80+Math.random()*30):100;
+    return {machine:m,status:st,operator:emp,skill:empSkill,job:ipJob,stdSetup,stdRun,elapsed,pctDone,qtyDone,qtyTotal,actualMins:+actualMins.toFixed(1),benchmark:bench,atRisk:isAtRisk,breakdown,scrap,rapidPct,feedPct};
   });
 }
 
@@ -3623,7 +3626,6 @@ function renderMonitorLegacy(){
     const m=d.machine, stCls=d.status;
     const stLabel=d.status.charAt(0).toUpperCase()+d.status.slice(1);
     const pie=genPieSVG(d);
-    const capStr=d.skill?fmtCapability(d.skill):'—';
     const pctColor=d.pctDone>80?'var(--green)':d.pctDone>40?'var(--yellow)':'var(--blue)';
     const maxBench=Math.max(...d.benchmark.map(b=>b.setupMins+b.cycleMins),1);
     const sparkBars=d.benchmark.map((b,i)=>{
@@ -3631,10 +3633,19 @@ function renderMonitorLegacy(){
       const col=i===d.benchmark.length-1?'var(--accent)':'var(--blue)';
       return `<div class="sparkline-bar" style="height:${h}px;background:${col}"><div class="sp-tip">${b.who}: S${b.setupMins}m R${b.cycleMins}m</div></div>`;
     }).join('');
+    // Predicted finish time
+    let estFinish='—';
+    if(d.status==='running'&&d.qtyTotal>d.qtyDone){
+      const minsLeft=(d.qtyTotal-d.qtyDone)*d.actualMins;
+      const fin=new Date(Date.now()+minsLeft*60000);
+      estFinish=fin.getHours().toString().padStart(2,'0')+':'+fin.getMinutes().toString().padStart(2,'0');
+    }
+    const rapidColor=d.rapidPct===100?'var(--green)':d.rapidPct>=50?'var(--yellow)':'var(--red)';
+    const feedColor=(d.feedPct>=90&&d.feedPct<=110)?'var(--green)':d.feedPct>=50?'var(--yellow)':'var(--red)';
     return `<div class="mcard ${stCls==='breakdown'?'breakdown':''}">
       ${d.atRisk?'<div class="mcard-risk" title="At Risk — cycle time exceeding standard">⚠️</div>':''}
-      <div class="mcard-header"><div class="mcard-name">${m.id}</div><div class="mcard-status ${stCls}">${stLabel==='Breakdown'?'BREAKDOWN':stLabel}</div></div>
-      ${d.operator?`<div class="mcard-operator">👷 ${d.operator.name} <span class="mcard-cap">${capStr}</span></div>`:'<div class="mcard-operator" style="color:var(--dim2)">No operator assigned</div>'}
+      <div class="mcard-header"><div class="mcard-name">${m.id}</div><button class="breakdown-btn ${stCls==='breakdown'?'breakdown-restore':''}" onclick="toggleBreakdown('${m.id}')" title="${stCls==='breakdown'?'Restore to service':'Set to breakdown maintenance'}" style="margin-left:4px;padding:2px 4px;font-size:12px;flex-shrink:0;border:none;background:transparent;cursor:pointer;opacity:.7">${stCls==='breakdown'?'✅':'🔧'}</button><div class="mcard-status ${stCls}" style="margin-left:auto">${stLabel==='Breakdown'?'BREAKDOWN':stLabel}</div></div>
+      ${d.operator?`<div class="mcard-operator">👷 ${d.operator.name}</div>`:'<div class="mcard-operator" style="color:var(--dim2)">No operator assigned</div>'}
       <div class="mcard-pie-wrap">
         <div class="mcard-pie">${pie}</div>
         <div class="mcard-info">
@@ -3645,18 +3656,16 @@ function renderMonitorLegacy(){
         </div>
       </div>
       ${d.status==='running'?`<div class="mcard-progress"><div class="mcard-progress-bar" style="width:${d.pctDone}%;background:${pctColor}"></div></div>
-      <div class="mcard-minspart"><span>${d.qtyDone}/${d.qtyTotal} pcs</span><span>Act: ${d.actualMins}m/pc | Std: ${d.stdRun.toFixed(1)}m/pc</span></div>`:''}
+      <div class="mcard-minspart"><span style="color:var(--green);font-weight:600">Good: ${d.qtyDone}/${d.qtyTotal}</span><span style="color:${d.scrap>0?'var(--red)':'var(--dim)'}">Scrap: ${d.scrap}</span></div>
+      <div class="mcard-minspart" style="margin-top:2px"><span>Act: ${d.actualMins}m/pc</span><span>Std: ${d.stdRun.toFixed(1)}m/pc</span></div>
+      <div style="margin-top:4px;font-size:10px;color:var(--accent);font-weight:600">&#9201; Est. Finish: ${estFinish}</div>
+      <div style="display:flex;gap:10px;margin-top:4px;font-size:9px;font-weight:600"><span style="color:${rapidColor}">&#9889; Rapid: ${d.rapidPct}%</span><span style="color:${feedColor}">&#9881; Feed: ${d.feedPct}%</span></div>`:''}
       ${d.status==='breakdown'?
         `<div class="breakdown-date">
           <div style="font-size:10px;color:var(--red);margin-bottom:4px">Expected Available:</div>
           <input type="date" value="${d.breakdown?d.breakdown.expectedAvailable:''}" onchange="setBreakdownDate('${m.id}',this.value)"/>
         </div>`:''}
       <div class="mcard-benchmark"><div class="mcard-benchmark-title">Last 6 runs (setup+cycle)</div><div class="sparkline-row">${sparkBars}</div></div>
-      <div style="margin-top:8px;border-top:1px solid var(--brd);padding-top:8px">
-        <button class="breakdown-btn ${d.status==='breakdown'?'breakdown-restore':''}" onclick="toggleBreakdown('${m.id}')" title="${d.status==='breakdown'?'Restore to service':'Set to breakdown maintenance'}">
-          ${d.status==='breakdown'?'✅':'🔧'}
-        </button>
-      </div>
     </div>`;
   }).join('');
 }
