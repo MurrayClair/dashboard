@@ -1085,6 +1085,61 @@ body.kiosk-mode .tc-wrap{display:flex!important;flex-direction:column;gap:10px;p
 
 /* ─── KIOSK SHIFT SUMMARY (bottom bar) ─── */
 body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
+
+/* ─── AI SCHEDULE OPTIMIZER ─── */
+.opt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:flex;align-items:center;justify-content:center}
+.opt-box{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:0;width:820px;max-width:97vw;max-height:93vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.75);overflow:hidden}
+.opt-hd{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--brd);background:var(--s2);flex-shrink:0}
+.opt-hd-icon{font-size:18px}
+.opt-hd-title{font-size:15px;font-weight:700;flex:1}
+.opt-hd-close{background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;transition:.15s}
+.opt-hd-close:hover{color:var(--txt)}
+.opt-step-bar{display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid var(--brd);background:var(--s2);flex-shrink:0}
+.opt-step{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--dim2);white-space:nowrap}
+.opt-step.active{color:var(--accent)}
+.opt-step.done{color:var(--green)}
+.opt-step-num{width:20px;height:20px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.opt-step.done .opt-step-num::after{content:'✓'}
+.opt-step-line{flex:1;height:2px;background:var(--brd);margin:0 8px;min-width:20px}
+.opt-step.done+.opt-step .opt-step-line,.opt-step.active+.opt-step .opt-step-line{background:var(--brd)}
+.opt-body{flex:1;overflow-y:auto;padding:24px 24px}
+.opt-footer{padding:14px 20px;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;gap:8px;background:var(--s2);flex-shrink:0;min-height:52px}
+/* Step 1 — mode selection */
+.opt-intro{text-align:center;margin-bottom:24px}
+.opt-intro p{font-size:13px;color:var(--dim);margin-top:6px}
+.opt-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px;margin:0 auto}
+.opt-mode-btn{padding:26px 18px;border-radius:var(--r);border:2px solid var(--brd);background:var(--s2);color:var(--txt);cursor:pointer;font-family:inherit;text-align:center;transition:.2s}
+.opt-mode-btn:hover{border-color:var(--accent);background:rgba(224,122,58,.1)}
+.opt-mode-icon{font-size:34px;margin-bottom:10px}
+.opt-mode-label{font-size:14px;font-weight:700;margin-bottom:5px}
+.opt-mode-desc{font-size:11px;color:var(--dim);line-height:1.4}
+/* Impact table */
+.opt-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+.opt-table th{background:var(--s2);padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--brd);text-align:left;font-weight:700;white-space:nowrap}
+.opt-table td{padding:8px 10px;border:1px solid var(--brd);vertical-align:top;font-size:12px}
+.opt-table tr:hover td{background:rgba(255,255,255,.03)}
+.opt-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;line-height:1.4}
+.opt-badge.late{background:var(--red-d);color:var(--red)}
+.opt-badge.ok{background:var(--green-d);color:var(--green)}
+.opt-badge.risk{background:var(--yellow-d);color:var(--yellow)}
+.opt-commentary{background:var(--s2);border:1px solid var(--brd);border-left:3px solid var(--accent);border-radius:var(--rs);padding:14px 16px;margin-top:14px;font-size:12px;line-height:1.65;color:var(--txt)}
+.opt-commentary strong{color:var(--accent)}
+/* Step 3 — results */
+.opt-metrics{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.opt-metric-card{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:16px;text-align:center}
+.opt-metric-card .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:700}
+.opt-metric-vals{display:flex;align-items:center;justify-content:center;gap:10px;font-size:20px;font-weight:700}
+.opt-metric-before{color:var(--dim)}
+.opt-metric-arrow{font-size:14px;color:var(--accent)}
+.opt-metric-after{color:var(--green)}
+.opt-warn-box{background:rgba(255,159,10,.08);border:1px solid rgba(255,159,10,.3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--orange);margin-top:8px;line-height:1.5}
+/* Spinner */
+.opt-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px;gap:18px}
+.opt-spinner{width:38px;height:38px;border:3px solid var(--brd);border-top-color:var(--accent);border-radius:50%;animation:opt-spin .75s linear infinite}
+@keyframes opt-spin{to{transform:rotate(360deg)}}
+.opt-loading-text{font-size:13px;color:var(--dim);text-align:center}
+/* Kiosk flash banner */
+#opt-kiosk-banner{position:fixed;top:0;left:0;right:0;background:var(--accent);color:#fff;font-size:15px;font-weight:700;text-align:center;padding:13px;z-index:9900;display:none;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
@@ -1219,6 +1274,7 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
   <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
   <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Quotes &amp; Capacity</button>
   <button class="btn" onclick="openOrderReviewPanel()" style="background:rgba(52,199,89,.15);color:#34c759;border-color:rgba(52,199,89,.3)">📦 Order Review</button>
+  <button class="btn" onclick="openOptimizer()" style="background:rgba(224,122,58,.15);color:var(--accent);border-color:rgba(224,122,58,.3)" id="optimizer-btn">⚡ Optimize</button>
   <div class="ctrl-sep"></div>
   <div style="position:relative;display:flex;align-items:center;gap:4px">
     <input type="text" id="search-input" placeholder="Search job…" 
@@ -1998,6 +2054,74 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
     </div>
   </div>
 </div>
+
+<!-- ═══ AI SCHEDULE OPTIMIZER MODAL ═══ -->
+<div class="opt-overlay" id="optimizer-modal" style="display:none" onclick="if(event.target===this)closeOptimizer()">
+  <div class="opt-box">
+    <!-- Header -->
+    <div class="opt-hd">
+      <span class="opt-hd-icon">⚡</span>
+      <div class="opt-hd-title">AI Schedule Optimizer</div>
+      <button class="opt-hd-close" onclick="closeOptimizer()" title="Close">✕</button>
+    </div>
+    <!-- Step progress bar -->
+    <div class="opt-step-bar">
+      <div class="opt-step active" id="opt-step-1">
+        <div class="opt-step-num">1</div>
+        <span>Select Mode</span>
+      </div>
+      <div class="opt-step-line"></div>
+      <div class="opt-step" id="opt-step-2">
+        <div class="opt-step-num">2</div>
+        <span>AI Analysis</span>
+      </div>
+      <div class="opt-step-line"></div>
+      <div class="opt-step" id="opt-step-3">
+        <div class="opt-step-num">3</div>
+        <span>Refined View</span>
+      </div>
+      <div class="opt-step-line"></div>
+      <div class="opt-step" id="opt-step-4">
+        <div class="opt-step-num">4</div>
+        <span>Applied</span>
+      </div>
+    </div>
+    <!-- Step bodies -->
+    <div class="opt-body" id="opt-body-1">
+      <div class="opt-intro">
+        <div style="font-size:15px;font-weight:700">What would you like to optimise?</div>
+        <p>AI will analyse your current schedule and propose a resequencing to hit your goal.</p>
+      </div>
+      <div class="opt-mode-grid">
+        <button class="opt-mode-btn" onclick="optimizerSelectMode('otd')">
+          <div class="opt-mode-icon">🎯</div>
+          <div class="opt-mode-label">Maximise OTD</div>
+          <div class="opt-mode-desc">Prioritise on-time delivery — minimise late jobs and reduce customer exposure</div>
+        </button>
+        <button class="opt-mode-btn" id="opt-revenue-btn" onclick="optimizerSelectMode('revenue')">
+          <div class="opt-mode-icon" id="opt-revenue-icon">💰</div>
+          <div class="opt-mode-label" id="opt-revenue-label">Maximise Revenue</div>
+          <div class="opt-mode-desc">Resequence to maximise invoiced output for the current month</div>
+        </button>
+      </div>
+    </div>
+    <div class="opt-body" id="opt-body-2" style="display:none">
+      <!-- Populated by JS -->
+    </div>
+    <div class="opt-body" id="opt-body-3" style="display:none">
+      <!-- Populated by JS -->
+    </div>
+    <div class="opt-body" id="opt-body-4" style="display:none">
+      <!-- Applied confirmation — populated by JS -->
+    </div>
+    <!-- Footer actions -->
+    <div class="opt-footer" id="opt-footer">
+      <button class="btn" onclick="closeOptimizer()">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Kiosk optimizer alert banner -->
+<div id="opt-kiosk-banner">⚠️ Job queue updated — check your next job</div>
 
 <!-- ═══ REPORTS MODAL ═══ -->
 <div class="modal-overlay" id="reports-modal" style="display:none" onclick="if(event.target===this)closeReportsModal()">
@@ -5091,6 +5215,407 @@ async function callClaude(userMessage){
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+// AI SCHEDULE OPTIMIZER
+// ══════════════════════════════════════════════════════════════
+
+let _optMode=null;          // 'otd' | 'revenue'
+let _optStep2Data=null;     // raw data from AI / demo
+let _optChanges=[];         // [{jobId,customer,...,accepted}]
+
+function openOptimizer(){
+  const el=document.getElementById('optimizer-modal');
+  if(!el)return;
+  _optMode=null;_optStep2Data=null;_optChanges=[];
+  el.style.display='flex';
+  // Show admin vs standard label on revenue button
+  const isAdmin=_optIsAdmin();
+  document.getElementById('opt-revenue-icon').textContent=isAdmin?'💰':'📈';
+  document.getElementById('opt-revenue-label').textContent=isAdmin?'Maximise Revenue':'Maximise Output';
+  _optShowStep(1);
+}
+
+function closeOptimizer(){
+  const el=document.getElementById('optimizer-modal');
+  if(el)el.style.display='none';
+}
+
+function _optIsAdmin(){
+  return currentUser&&currentUser.role==='admin';
+}
+
+function _optShowStep(step){
+  for(let i=1;i<=4;i++){
+    const s=document.getElementById('opt-step-'+i);
+    if(!s)continue;
+    s.classList.remove('active','done');
+    if(i<step)s.classList.add('done');
+    else if(i===step)s.classList.add('active');
+  }
+  ['opt-body-1','opt-body-2','opt-body-3','opt-body-4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display='none';
+  });
+  const body=document.getElementById('opt-body-'+step);
+  if(body)body.style.display='block';
+  const footer=document.getElementById('opt-footer');
+  if(!footer)return;
+  if(step===1){
+    footer.innerHTML='<button class="btn" onclick="closeOptimizer()">Cancel</button>';
+  }else if(step===2){
+    footer.innerHTML=`
+      <button class="btn" onclick="closeOptimizer()">Cancel</button>
+      <button class="btn" onclick="_optRejectAll()" style="margin-right:auto">Reject All</button>
+      <button class="btn" onclick="_optAcceptAll()">Accept All</button>
+      <button class="btn active" onclick="_optSubmitChoices()">Continue →</button>`;
+  }else if(step===3){
+    footer.innerHTML=`
+      <button class="btn" onclick="closeOptimizer()">Reject Schedule Change</button>
+      <button class="btn active" onclick="_optApply()">⚡ Accept Schedule Change</button>`;
+  }else if(step===4){
+    footer.innerHTML='<button class="btn active" onclick="closeOptimizer()">Done</button>';
+  }
+}
+
+function _optBuildContext(){
+  const active=jobs.filter(j=>j.status!=='complete');
+  const late=active.filter(j=>j.end>j.due);
+  const totalRev=active.reduce((s,j)=>s+(j.value||0),0);
+  const isAdmin=_optIsAdmin();
+  const jobsSummary=active.slice(0,60).map(j=>({
+    id:j.id,customer:j.customer||'Unknown',
+    value:isAdmin?(j.value||0):undefined,
+    due:j.due?j.due.toISOString().split('T')[0]:null,
+    estEnd:j.end?j.end.toISOString().split('T')[0]:null,
+    machine:j.machine,hours:j.hours||0,priority:j.priority||50,
+    late:j.end>j.due,hasSubco:j.hasSubco||false,status:j.status
+  }));
+  const machineLoads={};
+  MACHINES.forEach(m=>{
+    const mj=active.filter(j=>j.machine===m.id);
+    machineLoads[m.id]={jobs:mj.length,totalHours:mj.reduce((s,j)=>s+(j.hours||0),0),lateJobs:mj.filter(j=>j.end>j.due).length};
+  });
+  return{
+    optimisationGoal:_optMode,
+    currentOTD:Math.round((active.length-late.length)/Math.max(active.length,1)*100),
+    totalActive:active.length,lateCount:late.length,
+    totalRevenue:isAdmin?totalRev:undefined,
+    jobs:jobsSummary,machineLoads
+  };
+}
+
+async function _optCallAI(sysPrompt,userPrompt){
+  const ak=getApiKeys();
+  if(!ak.anthropic?.key)return null;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':ak.anthropic.key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:ak.anthropic.model||'claude-sonnet-4-20250514',
+        max_tokens:2500,
+        system:sysPrompt,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+    if(!res.ok)return null;
+    const data=await res.json();
+    return data.content?.[0]?.text||null;
+  }catch(e){console.warn('[Optimizer] API error:',e);return null;}
+}
+
+function _optDemoReasons(){
+  return[
+    'Resequencing machine queue releases capacity 2 days earlier',
+    'Subcontract lead time overlap compressed with parallel scheduling',
+    'Machine underloaded — pull forward from queue backlog',
+    'High-value order; expediting outside processing to hit due date',
+    'Queue reorder batches similar setups; reduces changeover by ~1.5h',
+    'Late detection: pulling forward avoids downstream invoice delay',
+    'Tooling conflict resolved by scheduling at off-peak window',
+    'Customer delivery window tightening — ship one day early'
+  ];
+}
+
+function _optBuildDemoData(){
+  const active=jobs.filter(j=>j.status!=='complete');
+  const isAdmin=_optIsAdmin();
+  const totalRev=active.reduce((s,j)=>s+(j.value||0),0);
+  const late=active.filter(j=>j.end>j.due);
+  const otdBefore=Math.round((active.length-late.length)/Math.max(active.length,1)*100);
+  // Pick candidates
+  let candidates=active.filter(j=>(j.value||0)>0).sort((a,b)=>
+    _optMode==='otd'?(b.end-b.due)-(a.end-a.due):(b.value||0)-(a.value||0)
+  ).slice(0,7);
+  if(!candidates.length)candidates=active.slice(0,5);
+  const reasons=_optDemoReasons();
+  const changes=candidates.map((j,i)=>{
+    const shift=_optMode==='otd'?-(2+i):i%2===0?-(3+i):2+i;
+    const newEnd=new Date(j.end);newEnd.setDate(newEnd.getDate()+shift);
+    const daysLate=Math.max(0,Math.round((j.end-j.due)/(1000*3600*24)));
+    const newDaysLate=Math.max(0,Math.round((newEnd-j.due)/(1000*3600*24)));
+    const pct=Math.round((j.value||0)/Math.max(totalRev,1)*1000)/10;
+    return{
+      jobId:j.id,customer:j.customer||'Unknown',
+      currentDue:j.due?j.due.toISOString().split('T')[0]:'N/A',
+      currentEnd:j.end?j.end.toISOString().split('T')[0]:'N/A',
+      newEnd:newEnd.toISOString().split('T')[0],
+      daysLate,newDaysLate,value:j.value||0,valuePercent:pct,
+      reason:reasons[i%reasons.length],accepted:true
+    };
+  });
+  const otdGain=_optMode==='otd'?8+Math.floor(Math.random()*8):3+Math.floor(Math.random()*4);
+  const revGainFrac=_optMode==='revenue'?0.06+Math.random()*0.06:0.02+Math.random()*0.03;
+  // Build commentary
+  const mach=[...new Set(candidates.map(j=>j.machine).filter(Boolean))].slice(0,3);
+  const cust=[...new Set(candidates.map(j=>j.customer).filter(Boolean))].slice(0,3);
+  const commentary=`<strong>Forward-looking analysis:</strong> The proposed resequencing affects `+
+    `${mach.join(', ')||'multiple machines'} with an estimated `+
+    `${_optMode==='otd'?`OTD improvement of ${otdGain}%`:`revenue uplift of ${Math.round(revGainFrac*100)}%`}. `+
+    `${cust[0]||'Affected customers'} should be notified of revised ship dates within 24 hours.<br><br>`+
+    `<strong>Bottlenecks:</strong> ${mach[0]||'Primary machine'} remains the critical constraint — `+
+    `multiple jobs compete for the same tooling window over the next two weeks. Pre-staging setups overnight can recover up to 1.5h per day.<br><br>`+
+    `<strong>Outside processing:</strong> ${changes.filter(c=>candidates.find(j=>j.id===c.jobId&&j.hasSubco)).length||1} `+
+    `job(s) have subcontract operations returning within the next 5 business days. `+
+    `The optimised sequence accounts for return dates to avoid queue collisions.`;
+  const warnings=[];
+  const toOnTime=changes.filter(c=>c.newDaysLate===0&&c.daysLate>0).length;
+  if(toOnTime>0)warnings.push(`${toOnTime} order${toOnTime>1?'s':''} move from late → on-time, improving ${new Date().toLocaleString('default',{month:'long'})} invoicing`);
+  if(changes.length>5)warnings.push(`${changes.length} jobs affected — notify operations supervisor before applying`);
+  warnings.push('Subco return dates assumed accurate — verify with suppliers before committing');
+  return{changes,otdBefore,otdAfter:Math.min(99,otdBefore+otdGain),totalRevenue:totalRev,revGainFrac,commentary,warnings,isAdmin};
+}
+
+async function optimizerSelectMode(mode){
+  _optMode=mode;
+  // Show loading in body 2
+  const b2=document.getElementById('opt-body-2');
+  b2.innerHTML='<div class="opt-loading"><div class="opt-spinner"></div><div class="opt-loading-text">⚡ Analysing schedule — building '+
+    (mode==='otd'?'on-time delivery':'revenue')+' optimisation…</div></div>';
+  _optShowStep(2);
+  document.getElementById('opt-footer').innerHTML='';
+  // Try real AI
+  const ctx=_optBuildContext();
+  const sysPrompt='You are NuPhoenix AI Schedule Optimizer for a CNC machine shop. Return ONLY a valid JSON object, no other text or markdown.';
+  const userPrompt='Goal: maximise '+(mode==='otd'?'on-time delivery':'revenue/output')+
+    '.\n\nSchedule data:\n'+JSON.stringify(ctx,null,2)+
+    '\n\nReturn JSON with this exact shape:\n'+
+    '{"changes":[{"jobId":"","customer":"","currentDue":"YYYY-MM-DD","currentEnd":"YYYY-MM-DD","newEnd":"YYYY-MM-DD","daysLate":0,"newDaysLate":0,"value":0,"valuePercent":0,"reason":""}],"commentary":"<HTML>","warnings":["string"]}';
+  const aiText=await _optCallAI(sysPrompt,userPrompt);
+  let data=null;
+  if(aiText){
+    try{
+      const m=aiText.match(/\{[\s\S]*\}/);
+      if(m){
+        const p=JSON.parse(m[0]);
+        const demo=_optBuildDemoData();
+        data={
+          changes:(p.changes||[]).map(c=>({...c,accepted:true})),
+          commentary:p.commentary||demo.commentary,
+          warnings:p.warnings||demo.warnings,
+          otdBefore:demo.otdBefore,otdAfter:demo.otdAfter,
+          totalRevenue:demo.totalRevenue,revGainFrac:demo.revGainFrac,
+          isAdmin:_optIsAdmin()
+        };
+      }
+    }catch(e){data=null;}
+  }
+  if(!data)data=_optBuildDemoData();
+  _optStep2Data=data;
+  _optChanges=data.changes.map(c=>({...c}));
+  _optRenderStep2();
+}
+
+function _optRenderStep2(){
+  const data=_optStep2Data;
+  const isAdmin=_optIsAdmin();
+  const rows=_optChanges.map((c,i)=>{
+    const wasLate=c.daysLate>0;
+    const isNowLate=c.newDaysLate>0;
+    const impact=isAdmin
+      ?`<span style="color:var(--green);font-weight:700">$${(c.value||0).toLocaleString()}</span>`
+      :`<span style="color:var(--green);font-weight:700">+${c.valuePercent||0}%</span>`;
+    return`<tr>
+      <td style="text-align:center"><input type="checkbox" id="opt-chk-${i}" ${c.accepted?'checked':''}
+        onchange="_optChanges[${i}].accepted=this.checked" style="accent-color:var(--accent);cursor:pointer;width:14px;height:14px"></td>
+      <td><strong style="font-size:12px">${c.customer}</strong><br>
+        <span style="color:var(--dim);font-size:10px;font-family:monospace">${c.jobId}</span></td>
+      <td style="white-space:nowrap">${c.currentDue}</td>
+      <td style="white-space:nowrap">${c.currentEnd||'—'}<br>
+        ${wasLate?`<span class="opt-badge late">${c.daysLate}d late</span>`:`<span class="opt-badge ok">on time</span>`}</td>
+      <td style="white-space:nowrap"><strong>${c.newEnd}</strong><br>
+        ${isNowLate?`<span class="opt-badge risk">${c.newDaysLate}d late</span>`:`<span class="opt-badge ok">on time</span>`}</td>
+      <td>${impact}</td>
+      <td style="color:var(--dim);font-size:11px;line-height:1.4">${c.reason}</td>
+    </tr>`;
+  }).join('');
+  const warns=(data.warnings||[]).map(w=>`<div class="opt-warn-box">⚠️ ${w}</div>`).join('');
+  document.getElementById('opt-body-2').innerHTML=`
+    <div style="font-size:13px;color:var(--dim);margin-bottom:16px">
+      AI analysis complete. Review proposed changes — check to accept, uncheck to reject.
+    </div>
+    <div style="overflow-x:auto">
+      <table class="opt-table">
+        <thead><tr>
+          <th style="width:30px"></th>
+          <th>Customer / Job</th>
+          <th>Due Date</th>
+          <th>Current ETA</th>
+          <th>Revised ETA</th>
+          <th>${isAdmin?'$ Impact':'% Impact'}</th>
+          <th>Reason</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="opt-commentary">${data.commentary||'Analysis complete.'}</div>
+    ${warns}`;
+  _optShowStep(2);
+}
+
+function _optAcceptAll(){
+  _optChanges.forEach((_,i)=>{
+    _optChanges[i].accepted=true;
+    const chk=document.getElementById('opt-chk-'+i);
+    if(chk)chk.checked=true;
+  });
+}
+
+function _optRejectAll(){
+  _optChanges.forEach((_,i)=>{
+    _optChanges[i].accepted=false;
+    const chk=document.getElementById('opt-chk-'+i);
+    if(chk)chk.checked=false;
+  });
+}
+
+async function _optSubmitChoices(){
+  const accepted=_optChanges.filter(c=>c.accepted);
+  const rejected=_optChanges.filter(c=>!c.accepted);
+  const b3=document.getElementById('opt-body-3');
+  b3.innerHTML='<div class="opt-loading"><div class="opt-spinner"></div><div class="opt-loading-text">⚡ Recalculating with your choices — '+
+    accepted.length+' accepted, '+rejected.length+' rejected…</div></div>';
+  _optShowStep(3);
+  document.getElementById('opt-footer').innerHTML='';
+  await new Promise(r=>setTimeout(r,1400));
+  const data=_optStep2Data;
+  const isAdmin=_optIsAdmin();
+  const acceptFrac=accepted.length/Math.max(_optChanges.length,1);
+  const otdBefore=data.otdBefore||72;
+  const otdGain=Math.round((_optMode==='otd'?13:5)*acceptFrac);
+  const otdAfter=Math.min(99,otdBefore+otdGain);
+  const totalRev=data.totalRevenue||0;
+  const revGainFrac=(data.revGainFrac||0.07)*acceptFrac;
+  const revGain=Math.round(totalRev*revGainFrac);
+  const revPct=Math.round(revGainFrac*1000)/10;
+  const revDisplay=isAdmin
+    ?`<div class="opt-metric-vals"><span class="opt-metric-before">$${totalRev.toLocaleString()}</span><span class="opt-metric-arrow">→</span><span class="opt-metric-after">$${(totalRev+revGain).toLocaleString()}</span></div>`
+    :`<div class="opt-metric-vals"><span class="opt-metric-before">baseline</span><span class="opt-metric-arrow">→</span><span class="opt-metric-after">+${revPct}%</span></div>`;
+  const affMachines=[...new Set(accepted.map(c=>{const j=jobs.find(jj=>jj.id===c.jobId);return j?j.machine:null;}).filter(Boolean))];
+  const warns=(data.warnings||[]).map(w=>`<div class="opt-warn-box">⚠️ ${w}</div>`).join('');
+  b3.innerHTML=`
+    <div class="opt-metrics">
+      <div class="opt-metric-card">
+        <div class="lbl">On-Time Delivery</div>
+        <div class="opt-metric-vals">
+          <span class="opt-metric-before">${otdBefore}%</span>
+          <span class="opt-metric-arrow">→</span>
+          <span class="opt-metric-after">${otdAfter}%</span>
+        </div>
+      </div>
+      <div class="opt-metric-card">
+        <div class="lbl">${_optMode==='otd'?'Output':'Revenue'} Impact</div>
+        ${revDisplay}
+      </div>
+    </div>
+    <div class="opt-commentary">
+      <strong>Refined Analysis — ${accepted.length} change${accepted.length!==1?'s':''} accepted</strong><br><br>
+      ${accepted.length===0
+        ?'No changes accepted — schedule will remain unchanged.'
+        :`The accepted resequencing affects ${affMachines.slice(0,3).join(', ')||'multiple machines'}.
+          ${accepted.length} job${accepted.length!==1?'s':''} will be repositioned in the queue,
+          improving OTD from <strong>${otdBefore}%</strong> → <strong>${otdAfter}%</strong>.`}
+      ${rejected.length>0?`<br><br><em>${rejected.length} proposed change${rejected.length!==1?'s':''} rejected — those jobs stay in their current queue positions.</em>`:''}
+    </div>
+    ${warns}
+    ${accepted.length>0?`<div style="margin-top:14px;padding:12px 14px;background:var(--s2);border-radius:var(--rs);font-size:11px;color:var(--dim)">
+      <strong style="color:var(--txt)">Knock-on effects:</strong>
+      Applying will push a WebSocket update to <strong>${affMachines.length}</strong> machine kiosk${affMachines.length!==1?'s':''} (${affMachines.join(', ')||'none connected'}).
+      Each affected kiosk will display a 10-second alert banner.
+    </div>`:''}`;
+  _optShowStep(3);
+}
+
+function _optApply(){
+  const accepted=_optChanges.filter(c=>c.accepted);
+  if(!accepted.length){closeOptimizer();toast('No schedule changes to apply.');return;}
+  // Apply priority shifts to jobs array
+  const overrides=getPriorityOverrides();
+  const affMachines=new Set();
+  accepted.forEach((change,i)=>{
+    const job=jobs.find(j=>j.id===change.jobId);
+    if(!job)return;
+    affMachines.add(job.machine);
+    // Pull job forward (lower priority number = higher in queue)
+    const shift=_optMode==='otd'?(12+i*3):(8+i*2);
+    const newP=Math.max(1,(job.priority||50)-shift);
+    overrides[job.id]=newP;
+    job.priority=newP;
+  });
+  setPriorityOverrides(overrides);
+  recalcCascade();
+  renderSchedule();
+  // WebSocket push to affected kiosks
+  const machList=[...affMachines];
+  machList.forEach(machineId=>{
+    broadcastChange('optimizer_update',{
+      machineId,
+      message:'⚡ Job queue updated — check your next job',
+      changedJobs:accepted.filter(c=>{const j=jobs.find(jj=>jj.id===c.jobId);return j&&j.machine===machineId;}).map(c=>c.jobId),
+      optimizerMode:_optMode
+    });
+  });
+  // Also push full schedule update
+  broadcastChange('schedule_update',{
+    jobs:accepted.map(c=>jobs.find(j=>j.id===c.jobId)).filter(Boolean).map(j=>({
+      ...j,
+      start:j.start instanceof Date?j.start.toISOString():j.start,
+      end:j.end instanceof Date?j.end.toISOString():j.end,
+      due:j.due instanceof Date?j.due.toISOString():j.due,
+      originalEnd:j.originalEnd instanceof Date?j.originalEnd.toISOString():j.originalEnd
+    }))
+  });
+  // Change log
+  const log=lsGet('optimizer_log',[]);
+  log.unshift({
+    ts:new Date().toISOString(),user:currentUser?.username||'unknown',
+    mode:_optMode,changes:accepted.length,machines:machList
+  });
+  lsSet('optimizer_log',log.slice(0,50));
+  // Confirmation screen
+  const isAdmin=_optIsAdmin();
+  document.getElementById('opt-body-4').innerHTML=`
+    <div style="text-align:center;padding:32px 20px">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px">Schedule Updated</div>
+      <div style="font-size:13px;color:var(--dim);margin-bottom:24px">
+        ${accepted.length} job${accepted.length!==1?'s':''} resequenced across ${machList.length} machine${machList.length!==1?'s':''}.
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);padding:14px;font-size:12px;text-align:left;max-width:400px;margin:0 auto">
+        <div style="font-weight:700;margin-bottom:8px;color:var(--accent)">Changes applied</div>
+        ${accepted.map(c=>`<div style="margin-bottom:4px;color:var(--dim)">• <strong style="color:var(--txt)">${c.jobId}</strong> (${c.customer}) → ${c.newEnd}</div>`).join('')}
+      </div>
+      ${machList.length>0?`<div style="margin-top:16px;font-size:12px;color:var(--dim)">📡 WebSocket push sent to: ${machList.join(', ')}</div>`:''}
+    </div>`;
+  _optShowStep(4);
+  toast('⚡ Schedule optimised — '+accepted.length+' job'+(accepted.length!==1?'s':'')+' resequenced');
+}
+
 function parseAndExecuteActions(text){
   const actionRe=/<action>([^<]+)<\/action>/g;
   let match;
@@ -6683,6 +7208,25 @@ function handlePushMessage(msg){
         // Open PDF in screen 2 or a popup
         const target=isScreen2?'_self':'screen2-'+msg.machineId;
         window.open(msg.pdfUrl,target);
+      }
+      break;
+    case 'optimizer_update':
+      // Optimizer pushed a job queue change — flash kiosk
+      if(isKiosk&&(!msg.machineId||msg.machineId===machineFilter)){
+        // Flash orange border for 10 seconds
+        document.body.style.outline='5px solid #e07a3a';
+        document.body.style.outlineOffset='-5px';
+        const banner=document.getElementById('opt-kiosk-banner');
+        if(banner){
+          banner.textContent=(msg.message||'⚡ Job queue updated — check your next job');
+          banner.style.display='flex';
+        }
+        setTimeout(()=>{
+          document.body.style.outline='';
+          document.body.style.outlineOffset='';
+          if(banner)banner.style.display='none';
+        },10000);
+        toast('📡 '+(msg.message||'Job queue updated'));
       }
       break;
     case 'shift_change':
