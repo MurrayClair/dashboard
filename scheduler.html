@@ -2042,6 +2042,7 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
       <button class="kc-tab" onclick="kcSwitchTab(1)">Limits &amp; Fits</button>
       <button class="kc-tab" onclick="kcSwitchTab(2)">Threads</button>
       <button class="kc-tab" onclick="kcSwitchTab(3)">Weight</button>
+      <button class="kc-tab" onclick="kcSwitchTab(4)">Trig</button>
     </div>
     <div class="kc-body" id="kc-body"></div>
   </div>
@@ -11405,7 +11406,7 @@ function openKioskCalc() {
   if (!ov) return;
   ov.style.display = 'flex';
   const saved = parseInt(localStorage.getItem('kc_last_tab') || '0');
-  kcCurrentTab = isNaN(saved) ? 0 : Math.min(saved, 3);
+  kcCurrentTab = isNaN(saved) ? 0 : Math.min(saved, 4);
   kcSwitchTab(kcCurrentTab, true);
   // ESC to close
   document.addEventListener('keydown', kcEscHandler);
@@ -11434,9 +11435,11 @@ function kcSwitchTab(idx, skipSave) {
   else if (idx === 1) body.innerHTML = kcBuildLF();
   else if (idx === 2) body.innerHTML = kcBuildThread();
   else if (idx === 3) body.innerHTML = kcBuildWeight();
+  else if (idx === 4) body.innerHTML = kcBuildTrig();
   // re-attach event listeners after innerHTML replacement
   if (idx === 0) kcSciInit();
   if (idx === 3) kcWtInit();
+  if (idx === 4) kcTrigInit();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -13008,6 +13011,453 @@ function kcWtCalc() {
   <div class="kc-result-row" style="padding:8px 0"><span class="kc-result-label" style="font-size:14px;font-weight:800;color:var(--txt)">Weight</span><span class="kc-result-val" style="font-size:22px;color:var(--accent)">${kg >= 1 ? kg.toFixed(3)+' kg' : (kg*1000).toFixed(1)+' g'}</span></div>
   <div class="kc-result-row"><span class="kc-result-label">Weight (lbs)</span><span class="kc-result-val">${lbs.toFixed(3)} lb</span></div>
 </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  TAB 5 — TRIGONOMETRY CALCULATOR
+// ─────────────────────────────────────────────────────────────
+
+function kcBuildTrig() {
+  return `
+<div style="display:flex;flex-direction:column;gap:10px">
+
+  <!-- SVG Triangle Diagram -->
+  <div style="background:var(--s3);border:1px solid var(--brd);border-radius:12px;padding:12px;text-align:center">
+    <svg id="kc-trig-svg" width="100%" viewBox="0 0 320 220" style="max-height:220px;display:block;margin:0 auto">
+      <!-- Background -->
+      <rect width="320" height="220" fill="transparent"/>
+      <!-- Triangle fill -->
+      <polygon id="ktri-poly" points="40,180 280,180 280,40" fill="rgba(224,122,58,0.08)" stroke="none"/>
+      <!-- Hypotenuse c -->
+      <line id="ktri-hyp" x1="40" y1="180" x2="280" y2="40" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+      <!-- Side a (bottom horizontal) -->
+      <line id="ktri-a" x1="40" y1="180" x2="280" y2="180" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+      <!-- Side b (right vertical) -->
+      <line id="ktri-b" x1="280" y1="40" x2="280" y2="180" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+      <!-- Right-angle square at bottom-right -->
+      <polyline id="ktri-sq" points="264,180 264,164 280,164" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+      <!-- Angle arc x (bottom-left) -->
+      <path id="ktri-arc-x" d="M 65,180 A 25,25 0 0,0 52.4,157.5" fill="none" stroke="rgba(224,122,58,0.7)" stroke-width="1.5"/>
+      <!-- Angle arc y (top-right) -->
+      <path id="ktri-arc-y" d="M 280,65 A 25,25 0 0,1 256.8,52.4" fill="none" stroke="rgba(90,200,250,0.7)" stroke-width="1.5"/>
+      <!-- Labels -->
+      <text id="ktri-lbl-a" x="155" y="198" text-anchor="middle" font-size="13" font-weight="700" fill="rgba(255,255,255,0.85)" font-family="monospace">a</text>
+      <text id="ktri-lbl-b" x="298" y="115" text-anchor="start" font-size="13" font-weight="700" fill="rgba(255,255,255,0.85)" font-family="monospace">b</text>
+      <text id="ktri-lbl-c" x="148" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="rgba(255,255,255,0.85)" font-family="monospace" transform="rotate(-36.87,148,98)">c</text>
+      <text id="ktri-lbl-x" x="72" y="174" font-size="12" font-weight="700" fill="#e07a3a" font-family="monospace">x°</text>
+      <text id="ktri-lbl-y" x="260" y="72" font-size="12" font-weight="700" fill="#5ac8fa" font-family="monospace">y°</text>
+      <!-- Value overlays -->
+      <text id="ktri-val-a" x="155" y="212" text-anchor="middle" font-size="10" fill="#e07a3a" font-family="monospace"></text>
+      <text id="ktri-val-b" x="300" y="130" text-anchor="start" font-size="10" fill="#e07a3a" font-family="monospace"></text>
+      <text id="ktri-val-c" x="130" y="82" text-anchor="middle" font-size="10" fill="#e07a3a" font-family="monospace" transform="rotate(-36.87,130,82)"></text>
+      <text id="ktri-val-x" x="78" y="162" font-size="10" fill="#e07a3a" font-family="monospace"></text>
+      <text id="ktri-val-y" x="244" y="85" font-size="10" fill="#5ac8fa" font-family="monospace"></text>
+    </svg>
+  </div>
+
+  <!-- Input fields -->
+  <div id="kc-trig-msg" style="display:none;background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:8px;padding:8px 12px;font-size:12px;color:#ff453a;font-weight:600"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div>
+      <label class="kc-label" style="color:rgba(255,255,255,0.6)">a (adjacent / base)</label>
+      <input class="kc-input" id="kc-trig-a" type="number" min="0" step="any" placeholder="—" oninput="kcTrigAuto()" style="border-color:var(--brd)">
+    </div>
+    <div>
+      <label class="kc-label" style="color:rgba(255,255,255,0.6)">b (opposite / height)</label>
+      <input class="kc-input" id="kc-trig-b" type="number" min="0" step="any" placeholder="—" oninput="kcTrigAuto()" style="border-color:var(--brd)">
+    </div>
+    <div>
+      <label class="kc-label" style="color:rgba(255,255,255,0.6)">c (hypotenuse)</label>
+      <input class="kc-input" id="kc-trig-c" type="number" min="0" step="any" placeholder="—" oninput="kcTrigAuto()" style="border-color:var(--brd)">
+    </div>
+    <div>
+      <label class="kc-label" style="color:#e07a3a">x° (bottom-left angle)</label>
+      <input class="kc-input" id="kc-trig-x" type="number" min="0" max="90" step="any" placeholder="—" oninput="kcTrigAuto()" style="border-color:rgba(224,122,58,0.4)">
+    </div>
+    <div style="grid-column:2">
+      <label class="kc-label" style="color:#5ac8fa">y° (top-right angle)</label>
+      <input class="kc-input" id="kc-trig-y" type="number" min="0" max="90" step="any" placeholder="—" oninput="kcTrigAuto()" style="border-color:rgba(90,200,250,0.4)">
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <button class="kc-calc-btn" onclick="kcTrigSolve()" style="margin:0">▶ Solve</button>
+    <button class="kc-calc-btn" onclick="kcTrigClear()" style="margin:0;background:var(--s2);color:var(--dim);border:1px solid var(--brd)">✕ Clear All</button>
+  </div>
+
+  <!-- Results -->
+  <div id="kc-trig-result" style="display:none">
+    <div class="kc-result-box" style="margin-bottom:8px">
+      <div class="kc-result-title">📐 Triangle Results</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
+        <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Area</div>
+          <div id="kc-trig-r-area" style="font-size:14px;font-weight:800;color:var(--accent)">—</div>
+        </div>
+        <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Perimeter</div>
+          <div id="kc-trig-r-perim" style="font-size:14px;font-weight:800;color:var(--accent)">—</div>
+        </div>
+        <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">90° check</div>
+          <div id="kc-trig-r-check" style="font-size:14px;font-weight:800;color:#30d158">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="kc-result-box">
+      <div class="kc-result-title">📊 Trig Ratios</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div style="background:var(--s3);border-radius:8px;padding:8px">
+          <div style="font-size:11px;font-weight:800;color:#e07a3a;margin-bottom:5px">Angle x</div>
+          <div id="kc-trig-r-x-ratios" style="font-size:11px;color:var(--txt);line-height:1.8;font-family:monospace"></div>
+        </div>
+        <div style="background:var(--s3);border-radius:8px;padding:8px">
+          <div style="font-size:11px;font-weight:800;color:#5ac8fa;margin-bottom:5px">Angle y</div>
+          <div id="kc-trig-r-y-ratios" style="font-size:11px;color:var(--txt);line-height:1.8;font-family:monospace"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>`;
+}
+
+function kcTrigInit() {
+  // nothing to init — all driven by oninput handlers
+}
+
+function kcTrigClear() {
+  ['a','b','c','x','y'].forEach(id => {
+    const el = document.getElementById('kc-trig-' + id);
+    if (el) { el.value = ''; el.style.background = ''; el.style.borderColor = ''; }
+  });
+  const res = document.getElementById('kc-trig-result');
+  if (res) res.style.display = 'none';
+  const msg = document.getElementById('kc-trig-msg');
+  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+  kcTrigResetSvg();
+}
+
+function kcTrigShowMsg(txt) {
+  const msg = document.getElementById('kc-trig-msg');
+  if (!msg) return;
+  msg.textContent = txt;
+  msg.style.display = 'block';
+}
+
+function kcTrigHideMsg() {
+  const msg = document.getElementById('kc-trig-msg');
+  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+}
+
+function kcTrigAuto() {
+  // Count filled inputs
+  const ids = ['a','b','c','x','y'];
+  const vals = {};
+  let filled = 0;
+  ids.forEach(id => {
+    const el = document.getElementById('kc-trig-' + id);
+    if (el && el.value.trim() !== '') {
+      const v = parseFloat(el.value);
+      if (!isNaN(v)) { vals[id] = v; filled++; }
+    }
+  });
+  if (filled === 2) kcTrigSolve();
+  else if (filled < 2) {
+    kcTrigHideMsg();
+    const res = document.getElementById('kc-trig-result');
+    if (res) res.style.display = 'none';
+    kcTrigResetSvg();
+  }
+}
+
+const _kc_d2r = Math.PI / 180;
+const _kc_r2d = 180 / Math.PI;
+
+function kcTrigFmt(n) {
+  if (n === undefined || n === null || isNaN(n)) return '—';
+  return parseFloat(n.toPrecision(7)).toString();
+}
+
+function kcTrigSolve() {
+  kcTrigHideMsg();
+  const ids = ['a','b','c','x','y'];
+  const raw = {};
+  ids.forEach(id => {
+    const el = document.getElementById('kc-trig-' + id);
+    raw[id] = (el && el.value.trim() !== '') ? parseFloat(el.value) : null;
+  });
+
+  // Identify user-entered fields
+  const entered = ids.filter(id => raw[id] !== null && !isNaN(raw[id]));
+
+  if (entered.length < 2) {
+    kcTrigShowMsg('Enter any 2 values to solve the triangle.');
+    return;
+  }
+  if (entered.length > 2) {
+    kcTrigShowMsg('Enter exactly 2 values (extra fields detected — clear unused fields first).');
+    return;
+  }
+
+  // Basic positive validation
+  for (const id of entered) {
+    if (raw[id] <= 0) {
+      kcTrigShowMsg('All values must be greater than zero.');
+      return;
+    }
+    if ((id === 'x' || id === 'y') && (raw[id] >= 90)) {
+      kcTrigShowMsg('Angles must be between 0° and 90° (exclusive).');
+      return;
+    }
+  }
+
+  let a = raw.a, b = raw.b, c = raw.c, x = raw.x, y = raw.y;
+
+  // ── Solve ──
+  try {
+    if (entered.includes('a') && entered.includes('b')) {
+      c = Math.sqrt(a*a + b*b);
+      x = Math.atan(b/a) * _kc_r2d;
+      y = Math.atan(a/b) * _kc_r2d;
+    } else if (entered.includes('a') && entered.includes('c')) {
+      if (c <= a) { kcTrigShowMsg('Hypotenuse c must be greater than side a.'); return; }
+      b = Math.sqrt(c*c - a*a);
+      x = Math.acos(a/c) * _kc_r2d;
+      y = Math.asin(a/c) * _kc_r2d;
+    } else if (entered.includes('b') && entered.includes('c')) {
+      if (c <= b) { kcTrigShowMsg('Hypotenuse c must be greater than side b.'); return; }
+      a = Math.sqrt(c*c - b*b);
+      x = Math.asin(b/c) * _kc_r2d;
+      y = Math.acos(b/c) * _kc_r2d;
+    } else if (entered.includes('a') && entered.includes('x')) {
+      b = a * Math.tan(x * _kc_d2r);
+      c = a / Math.cos(x * _kc_d2r);
+      y = 90 - x;
+    } else if (entered.includes('a') && entered.includes('y')) {
+      b = a / Math.tan(y * _kc_d2r);
+      c = a / Math.sin(y * _kc_d2r);
+      x = 90 - y;
+    } else if (entered.includes('b') && entered.includes('x')) {
+      a = b / Math.tan(x * _kc_d2r);
+      c = b / Math.sin(x * _kc_d2r);
+      y = 90 - x;
+    } else if (entered.includes('b') && entered.includes('y')) {
+      a = b * Math.tan(y * _kc_d2r);
+      c = b / Math.cos(y * _kc_d2r);
+      x = 90 - y;
+    } else if (entered.includes('c') && entered.includes('x')) {
+      a = c * Math.cos(x * _kc_d2r);
+      b = c * Math.sin(x * _kc_d2r);
+      y = 90 - x;
+    } else if (entered.includes('c') && entered.includes('y')) {
+      a = c * Math.sin(y * _kc_d2r);
+      b = c * Math.cos(y * _kc_d2r);
+      x = 90 - y;
+    } else if (entered.includes('x') && entered.includes('y')) {
+      if (Math.abs(x + y - 90) > 0.001) {
+        kcTrigShowMsg(`Angles x (${x}°) + y (${y}°) = ${x+y}° — must equal 90°.`);
+        return;
+      }
+      kcTrigShowMsg('Angles are valid (x + y = 90°), but at least one side is needed to calculate lengths.');
+      return;
+    } else {
+      kcTrigShowMsg('Cannot solve with this combination. Please enter 2 known values.');
+      return;
+    }
+  } catch(e) {
+    kcTrigShowMsg('Math error — check your inputs.');
+    return;
+  }
+
+  // Final validation
+  if (!isFinite(a) || !isFinite(b) || !isFinite(c) || a <= 0 || b <= 0 || c <= 0) {
+    kcTrigShowMsg('Invalid result — check your inputs.');
+    return;
+  }
+  if (c <= a || c <= b) {
+    kcTrigShowMsg('Hypotenuse must be the longest side.');
+    return;
+  }
+  if (Math.abs(x + y - 90) > 0.01) {
+    kcTrigShowMsg('Angle check failed (x + y ≠ 90°) — check your inputs.');
+    return;
+  }
+
+  // ── Fill calculated fields ──
+  ids.forEach(id => {
+    const el = document.getElementById('kc-trig-' + id);
+    if (!el) return;
+    const isInput = entered.includes(id);
+    if (!isInput) {
+      const val = id === 'a' ? a : id === 'b' ? b : id === 'c' ? c : id === 'x' ? x : y;
+      el.value = kcTrigFmt(val);
+      el.style.background = 'rgba(48,209,88,0.12)';
+      el.style.borderColor = 'rgba(48,209,88,0.5)';
+      el.style.color = '#30d158';
+    } else {
+      el.style.background = '';
+      el.style.borderColor = '';
+      el.style.color = '';
+    }
+  });
+
+  // ── Update SVG diagram ──
+  kcTrigUpdateSvg(a, b, c, x, y);
+
+  // ── Show results ──
+  const area = (a * b) / 2;
+  const perim = a + b + c;
+  const sinX = Math.sin(x * _kc_d2r), cosX = Math.cos(x * _kc_d2r), tanX = Math.tan(x * _kc_d2r);
+  const sinY = Math.sin(y * _kc_d2r), cosY = Math.cos(y * _kc_d2r), tanY = Math.tan(y * _kc_d2r);
+
+  const setT = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  setT('kc-trig-r-area', kcTrigFmt(area));
+  setT('kc-trig-r-perim', kcTrigFmt(perim));
+  setT('kc-trig-r-check', '✓ x+y=90°');
+
+  const xRatios = document.getElementById('kc-trig-r-x-ratios');
+  if (xRatios) xRatios.innerHTML =
+    `sin(x) = ${sinX.toFixed(6)}<br>cos(x) = ${cosX.toFixed(6)}<br>tan(x) = ${tanX.toFixed(6)}`;
+
+  const yRatios = document.getElementById('kc-trig-r-y-ratios');
+  if (yRatios) yRatios.innerHTML =
+    `sin(y) = ${sinY.toFixed(6)}<br>cos(y) = ${cosY.toFixed(6)}<br>tan(y) = ${tanY.toFixed(6)}`;
+
+  const res = document.getElementById('kc-trig-result');
+  if (res) res.style.display = 'block';
+}
+
+function kcTrigResetSvg() {
+  // Reset to default triangle shape
+  kcTrigUpdateSvg(null, null, null, null, null);
+}
+
+function kcTrigUpdateSvg(a, b, c, xDeg, yDeg) {
+  const svg = document.getElementById('kc-trig-svg');
+  if (!svg) return;
+
+  // Define the SVG coordinate corners
+  // Bottom-left (A), Bottom-right (C, 90°), Top-right (B)
+  // Proportional layout within viewBox 0 0 320 220
+  const margin = 38;
+  const svgW = 320, svgH = 220;
+  const maxW = svgW - margin * 2;
+  const maxH = svgH - margin * 2 - 10; // extra bottom for labels
+
+  let px_a, px_b; // pixel proportions
+  if (a && b && isFinite(a) && isFinite(b) && a > 0 && b > 0) {
+    const ratio = b / a;
+    // Scale so both fit in maxW / maxH
+    if (ratio > maxH / maxW) {
+      px_b = maxH;
+      px_a = maxH / ratio;
+    } else {
+      px_a = maxW;
+      px_b = maxW * ratio;
+    }
+  } else {
+    // Default proportional triangle (3-4-5 shape)
+    px_a = maxW * 0.75;
+    px_b = maxH * 0.7;
+  }
+
+  const ox = margin;
+  const oy = svgH - margin - 10;
+
+  // Corners: A = bottom-left, C = bottom-right, B = top-right
+  const Ax = ox, Ay = oy;
+  const Cx = ox + px_a, Cy = oy;
+  const Bx = Cx, By = oy - px_b;
+
+  // Update polygon fill
+  const poly = svg.querySelector('#ktri-poly');
+  if (poly) poly.setAttribute('points', `${Ax},${Ay} ${Cx},${Cy} ${Bx},${By}`);
+
+  // Sides
+  const setLine = (id, x1, y1, x2, y2) => {
+    const el = svg.querySelector('#' + id);
+    if (el) { el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); }
+  };
+  setLine('ktri-a', Ax, Ay, Cx, Cy);
+  setLine('ktri-b', Bx, By, Cx, Cy);
+  setLine('ktri-hyp', Ax, Ay, Bx, By);
+
+  // Right-angle square (bottom-right corner)
+  const sq = 12;
+  const sqEl = svg.querySelector('#ktri-sq');
+  if (sqEl) sqEl.setAttribute('points', `${Cx-sq},${Cy} ${Cx-sq},${Cy-sq} ${Cx},${Cy-sq}`);
+
+  // Angle arc at A (bottom-left) — x
+  const arcR = 22;
+  const arcXEl = svg.querySelector('#ktri-arc-x');
+  if (arcXEl) {
+    const angRad = Math.atan2(By - Ay, Bx - Ax); // angle of hypotenuse
+    const endX = Ax + arcR * Math.cos(angRad);
+    const endY = Ay + arcR * Math.sin(angRad);
+    arcXEl.setAttribute('d', `M ${Ax + arcR},${Ay} A ${arcR},${arcR} 0 0,0 ${endX.toFixed(1)},${endY.toFixed(1)}`);
+  }
+
+  // Angle arc at B (top-right) — y
+  const arcYEl = svg.querySelector('#ktri-arc-y');
+  if (arcYEl) {
+    // At B, angle is between hypotenuse (going to A) and side b (going down to C)
+    arcYEl.setAttribute('d', `M ${Bx},${By + arcR} A ${arcR},${arcR} 0 0,1 ${(Bx - arcR).toFixed(1)},${(By + arcR * 0.42).toFixed(1)}`);
+  }
+
+  // Label positions
+  const setTextPos = (id, x, y, anchor) => {
+    const el = svg.querySelector('#' + id);
+    if (!el) return;
+    el.setAttribute('x', x); el.setAttribute('y', y);
+    if (anchor) el.setAttribute('text-anchor', anchor);
+    el.removeAttribute('transform');
+  };
+
+  // Side a label (bottom, center)
+  setTextPos('ktri-lbl-a', (Ax + Cx) / 2, Ay + 16, 'middle');
+  setTextPos('ktri-val-a', (Ax + Cx) / 2, Ay + 27, 'middle');
+
+  // Side b label (right, middle)
+  setTextPos('ktri-lbl-b', Bx + 10, (By + Cy) / 2 + 4, 'start');
+  setTextPos('ktri-val-b', Bx + 10, (By + Cy) / 2 + 16, 'start');
+
+  // Hypotenuse c label (middle of hyp, offset left)
+  const cMidX = (Ax + Bx) / 2;
+  const cMidY = (Ay + By) / 2;
+  const hypAngle = Math.atan2(By - Ay, Bx - Ax) * _kc_r2d;
+  const cLblEl = svg.querySelector('#ktri-lbl-c');
+  if (cLblEl) {
+    cLblEl.setAttribute('x', cMidX - 10);
+    cLblEl.setAttribute('y', cMidY - 4);
+    cLblEl.setAttribute('text-anchor', 'middle');
+    cLblEl.setAttribute('transform', `rotate(${hypAngle.toFixed(1)},${(cMidX-10).toFixed(1)},${(cMidY-4).toFixed(1)})`);
+  }
+  const cValEl = svg.querySelector('#ktri-val-c');
+  if (cValEl) {
+    cValEl.setAttribute('x', cMidX - 10);
+    cValEl.setAttribute('y', cMidY - 14);
+    cValEl.setAttribute('text-anchor', 'middle');
+    cValEl.setAttribute('transform', `rotate(${hypAngle.toFixed(1)},${(cMidX-10).toFixed(1)},${(cMidY-14).toFixed(1)})`);
+  }
+
+  // Angle x label
+  setTextPos('ktri-lbl-x', Ax + arcR + 8, Ay - 6, 'start');
+  setTextPos('ktri-val-x', Ax + arcR + 8, Ay - 16, 'start');
+
+  // Angle y label
+  setTextPos('ktri-lbl-y', Bx - arcR - 6, By + arcR + 4, 'end');
+  setTextPos('ktri-val-y', Bx - arcR - 6, By + arcR + 15, 'end');
+
+  // Value text
+  const fmtV = (v, decimals) => (v && isFinite(v)) ? parseFloat(v.toPrecision(5)).toString() : '';
+  const setVal = (id, txt) => { const el = svg.querySelector('#' + id); if (el) el.textContent = txt; };
+  setVal('ktri-val-a', fmtV(a));
+  setVal('ktri-val-b', fmtV(b));
+  setVal('ktri-val-c', fmtV(c));
+  setVal('ktri-val-x', xDeg ? fmtV(xDeg) + '°' : '');
+  setVal('ktri-val-y', yDeg ? fmtV(yDeg) + '°' : '');
 }
 
 </script>
