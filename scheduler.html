@@ -23,7 +23,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .st-v{font-size:18px;font-weight:700;line-height:1}
 .st-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 /* Controls */
-.ctrls{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--brd);background:var(--s1);align-items:center;flex-wrap:wrap}
+.ctrls{display:flex;gap:3px;padding:8px 16px;border-bottom:1px solid var(--brd);background:var(--s1);align-items:center;flex-wrap:nowrap}
+.ctrls .btn{padding:4px 8px;font-size:10px}
 .btn{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
 .btn:hover{color:var(--txt);border-color:var(--brd2)}
 .btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -1381,39 +1382,33 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
   <span class="ctrl-label">View</span>
   <button class="btn active" onclick="setScale('day')">Day</button>
   <button class="btn" onclick="setScale('week')">Week</button>
-  <select id="month-select" onchange="setScale(this.value)" style="padding:5px 8px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit">
-    <option value="month1">1 Month</option>
-    <option value="month3">3 Months</option>
-    <option value="month6">6 Months</option>
-    <option value="month12">12 Months</option>
-    <option value="monthbeyond">Beyond (36 Months)</option>
+  <select id="month-select" onchange="setScale(this.value)" style="padding:3px 4px;border-radius:var(--rs);font-size:10px;font-weight:600;border:1px solid var(--brd);background:var(--s2);color:var(--dim);cursor:pointer;font-family:inherit;max-width:65px">
+    <option value="month1">1Mo</option>
+    <option value="month3">3Mo</option>
+    <option value="month6">6Mo</option>
+    <option value="month12">12Mo</option>
+    <option value="monthbeyond">36Mo</option>
   </select>
-  <div class="ctrl-sep"></div>
-  <span class="ctrl-label">Filter</span>
-  <button class="btn active" onclick="setFilter('all')">All</button>
-  <button class="btn" onclick="setFilter('late')">🔴 Late</button>
-  <button class="btn" onclick="setFilter('at-risk')">🟡 At Risk</button>
-  <button class="btn" onclick="setFilter('cmm')">🟣 CMM Queue</button>
   <div class="ctrl-sep"></div>
   <div style="display:inline-flex;align-items:center;gap:3px;background:var(--red-d);border:1px solid rgba(255,69,58,.3);border-radius:var(--rs);padding:2px 4px">
     <span style="font-size:9px;color:var(--red);font-weight:700">⏱</span>
     <select id="delay-reason" style="padding:2px 4px;border-radius:3px;font-size:10px;font-weight:600;border:none;background:transparent;color:var(--red);cursor:pointer;font-family:inherit;max-width:90px;outline:none"></select>
     <button class="btn" onclick="addJobDelay()" style="padding:2px 6px;font-size:9px;background:var(--red);color:#fff;border-color:var(--red);font-weight:700">＋</button>
   </div>
-  <button class="btn success" onclick="completeCurrentJob()" style="padding:5px 8px;font-size:10px">✓ Complete</button>
+  <button class="btn success" onclick="completeCurrentJob()">✓ Done</button>
   <div class="ctrl-sep"></div>
-  <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Allocate Staff</button>
-  <button class="btn warn" onclick="openScrapModal()">🔧 Scrap/Rework</button>
-  <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Quotes &amp; Capacity</button>
-  <button class="btn" onclick="openOrderReviewPanel()" style="background:rgba(52,199,89,.15);color:#34c759;border-color:rgba(52,199,89,.3)">📦 Order Review</button>
+  <button class="btn" onclick="toggleAllocPanel()" id="alloc-btn" style="background:var(--blue-d);color:var(--blue);border-color:rgba(90,200,250,.3)">👷 Staff</button>
+  <button class="btn warn" onclick="openScrapModal()">🔧 Scrap</button>
+  <button class="btn" onclick="openQuotesPanel()" style="background:rgba(191,90,242,.15);color:#bf5af2;border-color:rgba(191,90,242,.3)">📋 Q&C</button>
+  <button class="btn" onclick="openOrderReviewPanel()" style="background:rgba(52,199,89,.15);color:#34c759;border-color:rgba(52,199,89,.3)">📦 Orders</button>
   <button class="btn" onclick="openOptimizer()" style="background:rgba(224,122,58,.15);color:var(--accent);border-color:rgba(224,122,58,.3)" id="optimizer-btn">⚡ Optimize</button>
   <div class="ctrl-sep"></div>
   <div style="position:relative;display:flex;align-items:center;gap:4px">
-    <input type="text" id="search-input" placeholder="Search job…" 
-      style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:5px 8px;border-radius:var(--rs);font-size:11px;font-family:inherit;width:150px"
+    <input type="text" id="search-input" placeholder="Search job…"
+      style="background:var(--s2);border:1px solid var(--brd);color:var(--txt);padding:4px 8px;border-radius:var(--rs);font-size:10px;font-family:inherit;width:90px"
       oninput="onSearchInput()" onkeydown="if(event.key==='Escape'){clearSearch();}">
-    <button class="btn" onclick="doSearch()" style="padding:5px 8px">🔍</button>
-    <button class="btn" onclick="clearSearch()" style="padding:5px 6px;font-size:11px" title="Clear">✕</button>
+    <button class="btn" onclick="doSearch()">🔍</button>
+    <button class="btn" onclick="clearSearch()" title="Clear">✕</button>
   </div>
 </div>
 <!-- Search Results Panel -->
@@ -2932,12 +2927,12 @@ function renderStats(){
   const breakdowns=getBreakdowns();
   const breakdownCount=Object.keys(breakdowns).filter(mId=>breakdowns[mId].active).length;
   document.getElementById('stats-bar').innerHTML=`
-    <div class="st"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
-    <div class="st"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
-    <div class="st"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
-    <div class="st"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
-    <div class="st"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
-    <div class="st"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
+    <div class="st" onclick="openStatPanel('active')" style="cursor:pointer" title="Click to view active jobs"><div class="st-v">${active.length}</div><div class="st-l">Active Jobs</div></div>
+    <div class="st" onclick="openStatPanel('ontime')" style="cursor:pointer" title="Click to view on-time jobs"><div class="st-v" style="color:var(--green)">${onTime}</div><div class="st-l">On Time</div></div>
+    <div class="st" onclick="openStatPanel('atrisk')" style="cursor:pointer" title="Click to view at-risk jobs"><div class="st-v" style="color:var(--yellow)">${atRisk.length}</div><div class="st-l">At Risk</div></div>
+    <div class="st" onclick="openStatPanel('late')" style="cursor:pointer" title="Click to view late jobs"><div class="st-v" style="color:var(--red)">${late.length}</div><div class="st-l">Late</div></div>
+    <div class="st" onclick="openStatPanel('cmm')" style="cursor:pointer" title="Click to view CMM queue"><div class="st-v" style="color:var(--purple)">${cmmQ}</div><div class="st-l">CMM Queue</div></div>
+    <div class="st" onclick="openStatPanel('breakdown')" style="cursor:pointer" title="Click to view breakdowns"><div class="st-v" style="color:var(--red);background:rgba(255,69,58,.1)">${breakdownCount}</div><div class="st-l">BREAKDOWN</div></div>`;
 }
 
 function renderGantt(fm,fj){
@@ -3163,7 +3158,54 @@ function renderFilterPanel(){
   panel.classList.add('open');
 }
 
-function closeFilterPanel(){setFilter('all');}
+function closeFilterPanel(){
+  setFilter('all');
+  var panel=document.getElementById('filter-detail-panel');
+  if(panel)panel.classList.remove('open');
+}
+
+var _statPanelType=null;
+function openStatPanel(type){
+  var panel=document.getElementById('filter-detail-panel');
+  var titleEl=document.getElementById('fdp-title');
+  var body=document.getElementById('fdp-body');
+  if(!panel||!titleEl||!body)return;
+  if(_statPanelType===type&&panel.classList.contains('open')){_statPanelType=null;panel.classList.remove('open');return;}
+  _statPanelType=type;
+  var fj,emoji,label;
+  var active=jobs.filter(function(j){return j.status!=='complete';});
+  var late=active.filter(function(j){return j.end>j.due;});
+  var atRisk=active.filter(function(j){return !late.includes(j)&&(j.due-j.end)<24*3600000;});
+  if(type==='active'){fj=active;emoji='📋';label='Active Jobs';}
+  else if(type==='ontime'){var ls=new Set(late.map(function(j){return j.id;}));var rs=new Set(atRisk.map(function(j){return j.id;}));fj=active.filter(function(j){return !ls.has(j.id)&&!rs.has(j.id);});emoji='✅';label='On Time';}
+  else if(type==='late'){fj=late;emoji='🔴';label='Late Jobs';}
+  else if(type==='atrisk'){fj=atRisk;emoji='🟡';label='At Risk';}
+  else if(type==='cmm'){fj=jobs.filter(function(j){return j.machine&&j.machine.startsWith('CMM')&&j.status!=='complete';});emoji='🟣';label='CMM Queue';}
+  else if(type==='breakdown'){
+    var bk=getBreakdowns();var bkm=Object.keys(bk).filter(function(m){return bk[m].active;});
+    titleEl.textContent='🔧 Breakdowns ('+bkm.length+')';
+    body.innerHTML=bkm.length?bkm.map(function(m){return '<div style="padding:6px 0;border-bottom:1px solid var(--brd);font-size:12px"><strong>'+m+'</strong> — '+(bk[m].reason||'Maintenance')+'</div>';}).join(''):'<div style="padding:16px;color:var(--dim);text-align:center">No active breakdowns</div>';
+    panel.classList.add('open');return;
+  }
+  else{panel.classList.remove('open');return;}
+  titleEl.textContent=emoji+' '+label+' ('+fj.length+')';
+  if(!fj.length){body.innerHTML='<div style="padding:16px;color:var(--dim);text-align:center">None</div>';panel.classList.add('open');return;}
+  var rows=fj.map(function(j){
+    var isLate=j.end>j.due;
+    var col=isLate?'var(--red)':j.status==='in-progress'?'var(--orange)':'var(--dim)';
+    return '<tr style="cursor:pointer" onclick="scrollToJob(\''+j.id+'\')"><td style="font-family:monospace;font-weight:700;color:var(--accent)">'+j.id+'</td><td>'+(j.customer||'—')+'</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+j.partDesc+'</td><td style="font-family:monospace;font-size:10px">'+j.machine+'</td><td>'+fmtDate(j.due)+'</td><td style="color:'+col+';font-weight:700;font-size:10px;text-transform:uppercase">'+j.status+'</td></tr>';
+  }).join('');
+  body.innerHTML='<table class="fdp-tbl"><thead><tr><th>Job</th><th>Customer</th><th>Part</th><th>Machine</th><th>Due</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  panel.classList.add('open');
+}
+
+function scrollToJob(jobId){
+  var bar=document.querySelector('[data-job-id="'+jobId+'"]');
+  if(bar){bar.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});bar.style.outline='3px solid var(--accent)';setTimeout(function(){bar.style.outline='';},3000);}
+  var panel=document.getElementById('filter-detail-panel');
+  if(panel)panel.classList.remove('open');
+  _statPanelType=null;
+}
 
 function showDrawing(jobId){openLightbox(jobId);}
 
@@ -10085,6 +10127,23 @@ if(isScreen2){
   if(document.readyState!=='loading')applyScreen2Mode();
 }else{
   genJobs();
+  // Guarantee demo always shows late/at-risk jobs regardless of random simulation.
+  // We adjust j.due on specific non-complete jobs so end > due (late) or 0-24h margin (at-risk).
+  // Uses var to avoid any TDZ issues.
+  (function(){
+    var lateIds=['26860-0011-001','26893-0003-001','27004-0008-001'];
+    var atRiskIds=['26861-0011-001','26861-0030-001'];
+    jobs.forEach(function(j){
+      if(j.status==='complete') return;
+      if(lateIds.indexOf(j.id)>=0){
+        // Move due to 6h before scheduled end → job is LATE (end > due)
+        j.due=new Date(j.end.getTime()-6*3600000);
+      } else if(atRiskIds.indexOf(j.id)>=0){
+        // Move due to 12h after scheduled end → AT RISK (end < due, within 24h)
+        j.due=new Date(j.end.getTime()+12*3600000);
+      }
+    });
+  })();
   populateDelayReasons();
 
   // ══ KIOSK MODE — apply FIRST, before anything else ══
