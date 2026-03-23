@@ -114,6 +114,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .job.in-progress{border-left:3px solid var(--accent)}
 .job.selected{outline:2px solid var(--blue)!important;box-shadow:0 0 8px rgba(90,200,250,.5);z-index:10!important}
 .job.cmm{background:rgba(191,90,242,.2);color:var(--purple);border-color:rgba(191,90,242,.3)}
+/* ── Gantt drag-and-drop ── */
+.job.gdd-dragging{opacity:.32!important;border:2px dashed rgba(255,255,255,.45)!important;cursor:grabbing!important;z-index:1!important;pointer-events:none}
+.gdd-ghost{position:fixed;pointer-events:none;opacity:.88;z-index:9999;border-radius:5px;padding:0 6px;height:28px;display:flex;align-items:center;font-size:10px;font-weight:600;box-shadow:0 6px 28px rgba(0,0,0,.65);border:2px solid rgba(255,255,255,.35)!important;transition:none!important;white-space:nowrap;overflow:hidden;top:0;left:0}
+.g-row.gdd-valid{background:rgba(52,199,89,.1)!important;box-shadow:inset 0 0 0 2px rgba(52,199,89,.45)}
+.g-row.gdd-invalid{opacity:.4}
+.g-row.gdd-hover{background:rgba(52,199,89,.25)!important;box-shadow:inset 0 0 0 2px rgba(52,199,89,.9)!important}
+.g-label.gdd-valid{color:var(--green)!important;background:rgba(52,199,89,.08)!important}
+.g-label.gdd-invalid{opacity:.35}
+.g-label.gdd-hover{background:rgba(52,199,89,.15)!important;color:var(--green)!important}
+/* Gantt context menu */
+#gantt-ctx{position:fixed;z-index:9998;background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:4px 0;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.55);display:none;font-size:12px}
+#gantt-ctx .gctx-hd{padding:6px 14px 4px;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+#gantt-ctx .gctx-sep{height:1px;background:var(--brd);margin:4px 0}
+#gantt-ctx .gctx-item{padding:8px 14px;color:var(--txt);cursor:pointer;display:flex;align-items:center;gap:8px}
+#gantt-ctx .gctx-item:hover{background:var(--s3)}
+#gantt-ctx .gctx-item.gctx-disabled{color:var(--dim2);pointer-events:none}
+#gantt-ctx .gctx-cancel{color:var(--dim);cursor:pointer}
+#gantt-ctx .gctx-cancel:hover{background:var(--s3);color:var(--txt)}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:3;pointer-events:none}
 .today-label{position:absolute;top:-28px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;z-index:6}
 /* Late panel */
@@ -2253,6 +2271,7 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="gantt-ctx"></div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
@@ -2845,9 +2864,9 @@ function renderGantt(fm,fj){
     const isBreakdown=breakdowns[m.id]&&breakdowns[m.id].active;
     
     // Row background (full width) - red tint for breakdown machines
-    html+=`<div class="g-row ${isBreakdown?'breakdown':''}" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalW-labelW}px;height:${rowH}px"></div>`;
+    html+=`<div class="g-row ${isBreakdown?'breakdown':''}" data-machine="${m.id}" style="position:absolute;top:${y}px;left:${labelW}px;width:${totalW-labelW}px;height:${rowH}px"></div>`;
     // Sticky machine label
-    html+=`<div class="g-label ${selectedMachine===m.id?'active':''} ${isBreakdown?'breakdown':''}" style="position:absolute;top:${y}px;left:0" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${isBreakdown?'var(--red)':m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
+    html+=`<div class="g-label ${selectedMachine===m.id?'active':''} ${isBreakdown?'breakdown':''}" data-machine="${m.id}" style="position:absolute;top:${y}px;left:0" onclick="selectMachine('${m.id}')"><div class="gl-dot" style="background:${isBreakdown?'var(--red)':m.color}"></div><span class="gl-name">${m.id}</span><span class="gl-cnt">${cnt}</span></div>`;
     
     // Breakdown bar if machine is in breakdown
     if(isBreakdown&&breakdowns[m.id].expectedAvailable){
@@ -2865,7 +2884,7 @@ function renderGantt(fm,fj){
       const prioCls=p<=9?'prio-crit':p<=19?'prio-urg':p<=29?'prio-high':p<=39?'prio-elev':p>=60?'prio-dim':'';
       const prioBadgeCls=p<=9?'prio-1':p<=19?'prio-10':p<=29?'prio-20':p<=39?'prio-30':p>=60?'prio-60':'prio-40';
       const subcoBadge=j.hasSubco?`<span class="subco-badge">SUBCO</span>`:'';
-      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px;cursor:pointer" onclick="selectJob(event,'${j.id}')" title="${j.id} — ${(j.partDesc||'').replace(/'/g,'')}\n${j.customer||''} | Qty: ${j.qty} | Due: ${j.due?j.due.toLocaleDateString('en-AU'):''}">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
+      html+=`<div class="job ${cls}${j.status==='in-progress'?' in-progress':''} ${prioCls}" data-job="${j.id}" data-machine="${m.id}" style="position:absolute;top:${y+8}px;left:${x}px;width:${w}px;cursor:pointer" onclick="selectJob(event,'${j.id}')" oncontextmenu="ganttJobCtxMenu(event,'${j.id}')" title="${j.id} — ${(j.partDesc||'').replace(/'/g,'')}\n${j.customer||''} | Qty: ${j.qty} | Due: ${j.due?j.due.toLocaleDateString('en-AU'):''}">${j.partId.substring(0,13)}${j.delay>0?' +'+j.delay+'h':''}${isBreakdown?' ⚠️':''}<span class="${prioBadgeCls} prio-badge">${p}</span>${subcoBadge}</div>`;
     });
     // Quote overlay bars
     html+=renderQuoteBarsForMachine(m.id,y,startTime,hpx,labelW,fj);
@@ -2887,6 +2906,8 @@ function renderGantt(fm,fj){
   };
   // Trigger initial position
   area.onscroll();
+  // Init drag-and-drop (once only)
+  ganttInitDrag();
 }
 
 function renderLatePanel(){
@@ -2921,6 +2942,7 @@ function renderLatePanel(){
 let selectedJob=null;
 function selectMachine(id){selectedMachine=selectedMachine===id?null:id;renderSchedule();}
 function selectJob(event,jobId){
+  if(Date.now()-_gddEndMs<250){event.stopPropagation();return;} // suppress click after drag
   event.stopPropagation();
   // Deselect previous
   document.querySelectorAll('.job.selected').forEach(el=>el.classList.remove('selected'));
@@ -3933,6 +3955,231 @@ function floorDrop(e, machineId){
   renderFloorPool();
   // Need a short delay for DOM to settle before measuring tie lines
   requestAnimationFrame(()=>requestAnimationFrame(renderTieLines));
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GANTT DRAG-AND-DROP — JOB REASSIGNMENT
+// ══════════════════════════════════════════════════════════════
+let _gdd = null;       // active drag state object
+let _gddEndMs = 0;     // ms when last drag completed (suppresses click)
+let _gddInited = false; // guard: attach listeners only once
+
+function ganttInitDrag(){
+  if(_gddInited) return;
+  _gddInited = true;
+  const gantt = document.getElementById('gantt');
+  if(!gantt) return;
+
+  // Mousedown on a job bar — begin potential drag
+  gantt.addEventListener('mousedown', function(e){
+    if(e.button !== 0) return;
+    const jobEl = e.target.closest('.job');
+    if(!jobEl) return;
+    const jobId = jobEl.dataset.job;
+    const job = jobs.find(j=>j.id===jobId);
+    if(!job) return;
+    // Don't allow dragging in-progress or complete jobs
+    if(job.status==='in-progress'||job.status==='complete') return;
+    e.preventDefault(); // prevent text-selection drag
+    const rect = jobEl.getBoundingClientRect();
+    _gdd = {
+      jobId, fromMachine: job.machine,
+      origEl: jobEl,
+      startX: e.clientX, startY: e.clientY,
+      offX: e.clientX - rect.left,
+      offY: e.clientY - rect.top,
+      moved: false, ghost: null,
+      toMachine: null, rect
+    };
+  });
+
+  document.addEventListener('mousemove', _gddMove);
+  document.addEventListener('mouseup',   _gddUp);
+
+  // Click elsewhere hides context menu
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#gantt-ctx')) ganttHideCtx();
+  });
+}
+
+function _gddMove(e){
+  if(!_gdd) return;
+  const dx = e.clientX - _gdd.startX, dy = e.clientY - _gdd.startY;
+  if(!_gdd.moved && Math.hypot(dx,dy) < 6) return;
+
+  if(!_gdd.moved){
+    _gdd.moved = true;
+    // Build ghost bar as a copy of the original
+    const g = document.createElement('div');
+    g.className = 'gdd-ghost';
+    const cs = getComputedStyle(_gdd.origEl);
+    g.style.background = cs.backgroundColor;
+    g.style.color = cs.color;
+    g.style.width = _gdd.rect.width + 'px';
+    g.textContent = _gdd.origEl.textContent;
+    document.body.appendChild(g);
+    _gdd.ghost = g;
+    _gdd.origEl.classList.add('gdd-dragging');
+    _gddHighlight(_gdd.fromMachine);
+    // Brief hint tooltip
+    const hint = document.createElement('div');
+    hint.id = 'gdd-hint';
+    hint.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--brd);border-radius:6px;padding:6px 16px;font-size:11px;color:var(--dim);z-index:10000;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.4)';
+    hint.textContent = 'Drag to a compatible machine row';
+    document.body.appendChild(hint);
+    setTimeout(()=>{ hint.style.transition='opacity .35s'; hint.style.opacity='0'; setTimeout(()=>hint.remove(),380); }, 1600);
+  }
+
+  if(_gdd.ghost){
+    _gdd.ghost.style.left = (e.clientX - _gdd.offX) + 'px';
+    _gdd.ghost.style.top  = (e.clientY - _gdd.offY) + 'px';
+  }
+
+  // Identify which machine row is under the cursor
+  // (ghost has pointer-events:none so elementFromPoint looks through it)
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const row = el ? el.closest('.g-row[data-machine]') : null;
+  const toMachine = row ? row.dataset.machine : null;
+  _gdd.toMachine = toMachine;
+
+  document.querySelectorAll('.g-row.gdd-hover,.g-label.gdd-hover').forEach(r=>{
+    r.classList.remove('gdd-hover');
+  });
+
+  if(row && toMachine && toMachine !== _gdd.fromMachine){
+    const compat = _gddCompatible(_gdd.fromMachine);
+    const valid = compat.includes(toMachine);
+    row.classList.add('gdd-hover');
+    const lbl = document.querySelector(`.g-label[data-machine="${toMachine}"]`);
+    if(lbl) lbl.classList.add('gdd-hover');
+    if(_gdd.ghost){
+      _gdd.ghost.style.opacity = valid ? '0.9' : '0.4';
+      _gdd.ghost.style.cursor  = valid ? 'copy' : 'no-drop';
+      _gdd.ghost.style.boxShadow = valid
+        ? '0 6px 28px rgba(0,0,0,.65),0 0 0 2px rgba(52,199,89,.7)'
+        : '0 6px 28px rgba(0,0,0,.65),0 0 0 2px rgba(255,69,58,.7)';
+    }
+  } else {
+    if(_gdd.ghost){
+      _gdd.ghost.style.opacity = '0.88';
+      _gdd.ghost.style.cursor = 'grab';
+      _gdd.ghost.style.boxShadow = '0 6px 28px rgba(0,0,0,.65)';
+    }
+  }
+}
+
+function _gddUp(){
+  if(!_gdd) return;
+  const drag = _gdd;
+  _gdd = null;
+
+  if(drag.ghost) drag.ghost.remove();
+  const hint = document.getElementById('gdd-hint');
+  if(hint) hint.remove();
+  drag.origEl.classList.remove('gdd-dragging');
+  document.querySelectorAll('.g-row.gdd-valid,.g-row.gdd-invalid,.g-row.gdd-hover,.g-label.gdd-valid,.g-label.gdd-invalid,.g-label.gdd-hover').forEach(el=>{
+    el.classList.remove('gdd-valid','gdd-invalid','gdd-hover');
+  });
+
+  if(!drag.moved) return; // pure click — let onclick bubble
+  _gddEndMs = Date.now(); // suppress the click event that follows mouseup
+
+  const toMachine = drag.toMachine;
+  if(!toMachine || toMachine === drag.fromMachine) return;
+
+  const compat = _gddCompatible(drag.fromMachine);
+  if(!compat.includes(toMachine)){
+    toast(`\uD83D\uDEAB Cannot move to ${toMachine} — incompatible machine group`);
+    return;
+  }
+
+  const job = jobs.find(j=>j.id===drag.jobId);
+  if(!job) return;
+
+  const oldMachine = job.machine;
+  job.machine = toMachine;
+  recalcCascade();
+  renderSchedule();
+  toast(`\u2705 Moved ${drag.jobId} \u2192 ${toMachine}`);
+
+  // Broadcast via WebSocket if connected
+  if(ws && wsConnected){
+    try{ ws.send(JSON.stringify({type:'jobMove',jobId:drag.jobId,from:oldMachine,to:toMachine})); }catch(err){}
+  }
+}
+
+// Returns array of machine IDs compatible with the given machine (same type group, excluding self)
+function _gddCompatible(machineId){
+  const m = MACHINES.find(m=>m.id===machineId);
+  if(!m) return [];
+  const list = COMPAT[m.type] || MACHINES.filter(mm=>mm.type===m.type).map(mm=>mm.id);
+  return list.filter(id=>id!==machineId);
+}
+
+// Highlight valid/invalid drop zones on the Gantt
+function _gddHighlight(fromMachine){
+  const compat = _gddCompatible(fromMachine);
+  document.querySelectorAll('.g-row[data-machine]').forEach(row=>{
+    const mid = row.dataset.machine;
+    if(mid === fromMachine) return;
+    const cls = compat.includes(mid) ? 'gdd-valid' : 'gdd-invalid';
+    row.classList.add(cls);
+    const lbl = document.querySelector(`.g-label[data-machine="${mid}"]`);
+    if(lbl) lbl.classList.add(cls);
+  });
+}
+
+// Right-click context menu: Move to…
+function ganttJobCtxMenu(e, jobId){
+  e.preventDefault();
+  e.stopPropagation();
+  const job = jobs.find(j=>j.id===jobId);
+  if(!job) return;
+  if(job.status==='in-progress'||job.status==='complete') return;
+  const compat = _gddCompatible(job.machine);
+  const ctx = document.getElementById('gantt-ctx');
+  if(!ctx) return;
+  let html = `<div class="gctx-hd">Move ${job.id} to\u2026</div><div class="gctx-sep"></div>`;
+  if(compat.length===0){
+    html += `<div class="gctx-item gctx-disabled">\uD83D\uDEAB No compatible machines</div>`;
+  } else {
+    compat.forEach(mid=>{
+      const mm = MACHINES.find(m=>m.id===mid);
+      const qc = jobs.filter(j=>j.machine===mid&&j.status!=='complete').length;
+      html += `<div class="gctx-item" onclick="ganttMoveTo('${jobId}','${mid}');ganttHideCtx()"><span style="width:8px;height:8px;border-radius:50%;background:${mm?mm.color:'#888'};display:inline-block;flex-shrink:0"></span>${mid}<span style="margin-left:auto;color:var(--dim2);font-size:10px">${qc} jobs</span></div>`;
+    });
+  }
+  html += `<div class="gctx-sep"></div><div class="gctx-item gctx-cancel" onclick="ganttHideCtx()">\u2715 Cancel</div>`;
+  ctx.innerHTML = html;
+  ctx.style.left = e.clientX + 'px';
+  ctx.style.top  = e.clientY + 'px';
+  ctx.style.display = 'block';
+  // Clamp to viewport edges
+  requestAnimationFrame(()=>{
+    const r = ctx.getBoundingClientRect();
+    if(r.right  > window.innerWidth)  ctx.style.left = (e.clientX - r.width)  + 'px';
+    if(r.bottom > window.innerHeight) ctx.style.top  = (e.clientY - r.height) + 'px';
+  });
+}
+
+function ganttHideCtx(){
+  const ctx = document.getElementById('gantt-ctx');
+  if(ctx) ctx.style.display = 'none';
+}
+
+function ganttMoveTo(jobId, toMachine){
+  const job = jobs.find(j=>j.id===jobId);
+  if(!job) return;
+  const compat = _gddCompatible(job.machine);
+  if(!compat.includes(toMachine)){ toast(`\uD83D\uDEAB Cannot move to ${toMachine} — incompatible machine group`); return; }
+  const oldMachine = job.machine;
+  job.machine = toMachine;
+  recalcCascade();
+  renderSchedule();
+  toast(`\u2705 Moved ${jobId} \u2192 ${toMachine}`);
+  if(ws && wsConnected){
+    try{ ws.send(JSON.stringify({type:'jobMove',jobId,from:oldMachine,to:toMachine})); }catch(err){}
+  }
 }
 
 // ── Mobile fallback: click-to-assign ──
