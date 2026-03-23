@@ -2090,6 +2090,7 @@ body.kiosk-mode .tc-shift-bar{margin-top:auto;flex-shrink:0}
       <div class="or-input-row">
         <input type="text" id="or-so-input" placeholder="e.g. SO-26930" style="font-family:monospace" onkeydown="if(event.key==='Enter')orLoadOrder()">
         <button class="btn" style="background:var(--green-d);color:var(--green);border-color:rgba(52,199,89,.3);white-space:nowrap" onclick="orLoadOrder()">Load Order</button>
+        <button class="btn" style="background:var(--s2);color:var(--dim);border-color:var(--brd);white-space:nowrap" onclick="orClearData()">Clear Data</button>
       </div>
     </div>
     <!-- Results -->
@@ -10087,6 +10088,13 @@ function _orRiskComplexity(analysis,isDefence){
 
 let orCurrentOrder=null,orCurrentAnalysis=null;
 
+function orClearData(){
+  document.getElementById('or-so-input').value='';
+  const sec=document.getElementById('or-results-sec');
+  if(sec){sec.style.display='none';}
+  const content=document.getElementById('or-results-content');
+  if(content){content.innerHTML='';}
+}
 function orLoadOrder(){
   const raw=document.getElementById('or-so-input').value.trim();
   if(!raw){showToast('Enter a Sales Order number first.');return;}
