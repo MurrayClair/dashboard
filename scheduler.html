@@ -10372,6 +10372,7 @@ function showLoginOverlay() {
   setTimeout(() => { const el = document.getElementById('login-user'); if (el) el.focus(); }, 50);
 }
 
+if(typeof loginChatOpen==='undefined') var loginChatOpen=false;
 function hideLoginOverlay() {
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('login-chat-bubble').style.display = 'none';
