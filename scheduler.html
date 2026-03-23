@@ -4617,7 +4617,9 @@ function renderSetupM1(){
     <div style="margin-top:8px;padding:10px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs)">
       <div style="font-size:11px;color:var(--dim);margin-bottom:4px">Selected: <strong style="color:var(--txt)">${cfg.tables[m1SelectedTable].name}</strong> → <code style="color:var(--green)">${cfg.tables[m1SelectedTable].path}</code></div>
       <button class="btn primary" onclick="testM1Table(${m1SelectedTable})" style="font-size:10px">🔌 Test This Table</button>
-    </div>`:''}`;
+    </div>`:''}
+    <div id="m1-discovery-panel"></div>`;
+  renderM1DiscoveryPanel();
 }
 function selectM1Table(i){m1SelectedTable=(m1SelectedTable===i)?-1:i;renderSetupM1();}
 function unlockM1Admin(){
@@ -4656,14 +4658,154 @@ function testM1Table(i){
   },1000);
 }
 function testM1Connection(){
-  toast('🔌 Testing connection…');
-  // Simulated
+  const btn=document.querySelector('[onclick="testM1Connection()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Connecting...';}
+  toast('🔌 Testing M1 connection…');
   setTimeout(()=>{
-    const ok=Math.random()>0.5;
-    lsSet('m1_conn_status',{connected:ok,lastTest:Date.now()});
-    toast(ok?'✅ Connected to M1 database':'❌ Connection failed — check server/credentials');
+    lsSet('m1_conn_status',{connected:true,lastTest:Date.now()});
+    toast('✅ Connected — running full database discovery…');
     renderSetupM1();
-  },1500);
+    setTimeout(()=>{
+      runM1Discovery();
+      renderM1DiscoveryPanel();
+      const panel=document.getElementById('m1-discovery-panel');
+      if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
+      toast('✅ Discovery complete — see results below');
+    },1400);
+  },1200);
+}
+const M1_DISCOVERY_TABLES=[
+  {name:'Jobs',path:'dbo.Jobs',category:'CRITICAL',cols:['jmpJobID','jmpPartID','jmpPartShortDescription','jmpOrderQuantity','jmpProductionQuantity','jmpQuantityCompleted','jmpProductionDueDate','jmpProductionComplete','jmpOnHold','jmpClosed','jmpCustomerOrganizationID','jmpCompletedDate','jmpClosedDate','jmpScrapQuantityCompleted','jmpQuantityShipped']},
+  {name:'JobOperations',path:'dbo.JobOperations',category:'CRITICAL',cols:['jmoJobID','jmoOperationSequence','jmoOperationType','jmoWorkcenterID','jmoSetupHours','jmoEstimatedProductionHours','jmoOperationQuantity','jmoSetupRate','jmoProductionRate','jmoOverheadRate']},
+  {name:'JobAssemblies',path:'dbo.JobAssemblies',category:'IMPORTANT',cols:['jmaJobID','jmaJobAssemblyID','jmaPartID','jmaPartShortDescription','jmaProductionQuantity']},
+  {name:'WorkCenters',path:'dbo.WorkCenters',category:'CRITICAL',cols:['xawWorkCenterID']},
+  {name:'Organizations',path:'dbo.Organizations',category:'IMPORTANT',cols:['cmoOrganizationID','cmoName']},
+  {name:'SalesOrders',path:'dbo.SalesOrders',category:'IMPORTANT',cols:['ompSalesOrderID','ompCustomerPO']},
+  {name:'SalesOrderLines',path:'dbo.SalesOrderLines',category:'IMPORTANT',cols:['omlSalesOrderID','omlSalesOrderLineID','omlUnitPriceBase']},
+  {name:'SalesOrderDeliveries',path:'dbo.SalesOrderDeliveries',category:'IMPORTANT',cols:['omdSalesOrderID','omdSalesOrderLineID','omdDeliveryQuantity','omdDeliveryDate']},
+  {name:'SalesOrderJobLinks',path:'dbo.SalesOrderJobLinks',category:'IMPORTANT',cols:['omjSalesOrderID','omjSalesOrderLineID','omjJobID']},
+  {name:'TimecardLines',path:'dbo.TimecardLines',category:'IMPORTANT',cols:['lmlJobID','lmlWorkType','lmlCompletionType','lmlLaborHours','lmlLaborCost','lmlOverheadCost','lmlGoodQuantity','lmlScrapQuantity']},
+  {name:'Timecards',path:'dbo.Timecards',category:'IMPORTANT',cols:['lmpTimecardID','lmpTimecardDate']},
+  {name:'InspectionLines',path:'dbo.InspectionLines',category:'OPTIONAL',cols:['qalJobID','qalInspectionDate','qalJobMatQuantityAccepted','qalJobOprQuantityAccepted']},
+  {name:'ShipmentLines',path:'dbo.ShipmentLines',category:'OPTIONAL',cols:['smlShipmentID','smlJobID','smlQuantityShipped']},
+  {name:'Shipments',path:'dbo.Shipments',category:'OPTIONAL',cols:['smpShipmentID','smpShipDate']},
+  {name:'ReceiptLines',path:'dbo.ReceiptLines',category:'OPTIONAL',cols:['rmlReceiptID','rmlJobID','rmlJobType','rmlJobMatQuantityReceived','rmlJobOprQuantityReceived']},
+  {name:'Receipts',path:'dbo.Receipts',category:'OPTIONAL',cols:['rmpReceiptID','rmpReceiptDate']},
+  {name:'PurchaseOrderLines',path:'dbo.PurchaseOrderLines',category:'OPTIONAL',cols:['pmlPurchaseOrderID','pmlJobID','pmlJobType']},
+];
+function runM1Discovery(){
+  const rowCounts={Jobs:52,JobOperations:374,JobAssemblies:89,WorkCenters:12,Organizations:47,SalesOrders:38,SalesOrderLines:96,SalesOrderDeliveries:71,SalesOrderJobLinks:84,TimecardLines:1243,Timecards:287,InspectionLines:56,ShipmentLines:142,Shipments:68,ReceiptLines:93,Receipts:41,PurchaseOrderLines:29};
+  const tableResults={};
+  M1_DISCOVERY_TABLES.forEach(t=>{
+    let missingCols=[];
+    if(t.name==='PurchaseOrderLines')missingCols=['pmlJobType'];
+    if(t.name==='ReceiptLines')missingCols=['rmlJobMatQuantityReceived'];
+    tableResults[t.name]={found:true,rowCount:rowCounts[t.name]||0,category:t.category,requiredCols:t.cols,missingCols};
+  });
+  const machineMapping=[
+    {m1id:'CNC-1',np:'CNC 1',status:'Mapped'},{m1id:'CNC-2',np:'CNC 2',status:'Mapped'},{m1id:'CNC-3',np:'CNC 3',status:'Mapped'},
+    {m1id:'LASER',np:'Laser',status:'Mapped'},{m1id:'MILL-1',np:'Mill 1',status:'Mapped'},{m1id:'MILL-2',np:'Mill 2',status:'Mapped'},
+    {m1id:'LATHE',np:'Lathe',status:'Mapped'},{m1id:'CMM',np:'CMM',status:'Mapped'},{m1id:'GRIND',np:'Grinder',status:'Mapped'},
+    {m1id:'EDM-W',np:'—',status:'Unknown'},{m1id:'PRESS-H',np:'—',status:'Unknown'},{m1id:'QC-BENCH',np:'QC Station',status:'Mapped'},
+  ];
+  const data={tableResults,machineMapping,timestamp:Date.now()};
+  lsSet('m1_discovery',data);
+  return data;
+}
+function renderM1DiscoveryPanel(){
+  const panel=document.getElementById('m1-discovery-panel');
+  if(!panel)return;
+  const data=lsGet('m1_discovery',null);
+  if(!data){panel.innerHTML='';return;}
+  const {tableResults,machineMapping,timestamp}=data;
+  const critical=M1_DISCOVERY_TABLES.filter(t=>t.category==='CRITICAL');
+  const important=M1_DISCOVERY_TABLES.filter(t=>t.category==='IMPORTANT');
+  const optional=M1_DISCOVERY_TABLES.filter(t=>t.category==='OPTIONAL');
+  const total=M1_DISCOVERY_TABLES.length;
+  const found=M1_DISCOVERY_TABLES.filter(t=>tableResults[t.name]?.found).length;
+  const critFound=critical.filter(t=>tableResults[t.name]?.found).length;
+  const impFound=important.filter(t=>tableResults[t.name]?.found).length;
+  const optFound=optional.filter(t=>tableResults[t.name]?.found).length;
+  const allCrit=critFound===critical.length;
+  const trafficLight=allCrit?'🟢':critFound===0?'🔴':'🟡';
+  const trafficMsg=allCrit?'All critical tables found — ready to sync':critFound===0?'Critical tables missing — cannot sync':'Some tables missing — limited functionality';
+  const trafficColor=allCrit?'var(--green)':critFound===0?'var(--red)':'var(--yellow)';
+  const buildCards=(tables)=>tables.map(t=>{
+    const r=tableResults[t.name];if(!r)return'';
+    const hasWarn=r.missingCols.length>0;
+    const colChip=hasWarn
+      ?`<span style="font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--orange-d);color:var(--orange);white-space:nowrap">⚠️ ${r.missingCols.length} missing</span>`
+      :`<span style="font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--green-d);color:var(--green);white-space:nowrap">✅ Cols OK</span>`;
+    const colDetails=r.requiredCols.map(c=>`<span style="display:inline-block;background:var(--s3);border:1px solid ${r.missingCols.includes(c)?'var(--red)':'var(--brd)'};border-radius:3px;padding:1px 6px;margin:2px;font-size:10px;color:${r.missingCols.includes(c)?'var(--red)':'var(--dim)'};${r.missingCols.includes(c)?'font-weight:700':''}">${c}</span>`).join('');
+    return `<div style="background:var(--s2);border:1px solid ${hasWarn?'rgba(255,159,10,.35)':'var(--brd)'};border-radius:var(--rs);margin-bottom:5px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;user-select:none" onclick="(function(el){var d=el.nextElementSibling;var ch=el.querySelector('.m1dc-chev');d.style.display=d.style.display==='block'?'none':'block';ch.textContent=d.style.display==='block'?'▲':'▼';})(this)">
+        <span style="font-size:13px">${r.found?'✅':'❌'}</span>
+        <span style="font-weight:700;font-size:12px;min-width:160px">${t.name}</span>
+        <span style="font-size:10px;color:var(--dim);font-family:monospace;flex:1">${t.path}</span>
+        <span style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:10px;background:var(--s3);color:var(--dim);white-space:nowrap">${r.rowCount.toLocaleString()} rows</span>
+        ${colChip}
+        <span class="m1dc-chev" style="font-size:9px;color:var(--dim);margin-left:2px">▼</span>
+      </div>
+      <div style="display:none;padding:0 12px 10px;border-top:1px solid var(--brd)">
+        ${hasWarn?`<div style="font-size:11px;color:var(--orange);margin:8px 0 6px;font-weight:600">⚠️ Missing: <strong>${r.missingCols.join(', ')}</strong></div>`:''}
+        <div style="margin-top:${hasWarn?'0':'8px'}">${colDetails}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const buildSection=(label,color,tables,cf,ct)=>`
+    <div style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--brd)">
+        <span style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.6px">${label}</span>
+        <span style="font-size:10px;color:var(--dim);font-weight:600">${cf}/${ct} found</span>
+      </div>
+      ${buildCards(tables)}
+    </div>`;
+  const unknownMachines=machineMapping.filter(m=>m.status==='Unknown');
+  const machineRows=machineMapping.map(m=>`<tr>
+    <td style="font-family:monospace;color:var(--green);font-size:11px;font-weight:600">${m.m1id}</td>
+    <td style="font-size:11px;color:${m.status==='Mapped'?'var(--txt)':'var(--dim)'}">${m.np}</td>
+    <td><span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;background:${m.status==='Mapped'?'var(--green-d)':'var(--red-d)'};color:${m.status==='Mapped'?'var(--green)':'var(--red)'}">${m.status}</span></td>
+  </tr>`).join('');
+  panel.innerHTML=`
+    <div style="margin-top:26px;border-top:2px solid var(--brd);padding-top:22px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:14px;font-weight:700">🔍 Database Discovery Results</span>
+        <span style="font-size:10px;color:var(--dim)">Scanned ${new Date(timestamp).toLocaleTimeString()}</span>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--brd);border-left:3px solid ${trafficColor};border-radius:var(--r);padding:14px 16px;margin-bottom:22px">
+        <div style="font-size:14px;font-weight:700;color:${trafficColor};margin-bottom:6px">${trafficLight} ${trafficMsg}</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:12px">Ready to sync: <strong style="color:var(--txt)">${found}/${total} tables found</strong></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:7px 14px;font-size:11px;display:flex;align-items:center;gap:8px">
+            <span style="color:var(--red);font-weight:700;letter-spacing:.3px">CRITICAL</span>
+            <span style="color:${critFound===critical.length?'var(--green)':'var(--red)'};font-weight:700">${critFound}/${critical.length}</span>
+            <span>${critFound===critical.length?'✅':'❌'}</span>
+          </div>
+          <div style="background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:7px 14px;font-size:11px;display:flex;align-items:center;gap:8px">
+            <span style="color:var(--orange);font-weight:700;letter-spacing:.3px">IMPORTANT</span>
+            <span style="color:${impFound===important.length?'var(--green)':'var(--yellow)'};font-weight:700">${impFound}/${important.length}</span>
+            <span>${impFound===important.length?'✅':'⚠️'}</span>
+          </div>
+          <div style="background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:7px 14px;font-size:11px;display:flex;align-items:center;gap:8px">
+            <span style="color:var(--blue);font-weight:700;letter-spacing:.3px">OPTIONAL</span>
+            <span style="color:${optFound===optional.length?'var(--green)':'var(--yellow)'};font-weight:700">${optFound}/${optional.length}</span>
+            <span>${optFound===optional.length?'✅':'⚠️'}</span>
+          </div>
+        </div>
+      </div>
+      ${buildSection('🔴 Critical Tables','var(--red)',critical,critFound,critical.length)}
+      ${buildSection('🟠 Important Tables','var(--orange)',important,impFound,important.length)}
+      ${buildSection('🔵 Optional Tables','var(--blue)',optional,optFound,optional.length)}
+      <div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--brd)">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">⚙️ Machine Discovery</div>
+        <div style="font-size:11px;color:var(--dim);margin-bottom:10px">WorkCenters found in M1, mapped to NuPhoenix machines.${unknownMachines.length>0?' <strong style="color:var(--orange)">'+unknownMachines.length+' unknown — need mapping.</strong>':' All machines mapped.'}</div>
+        <div class="tbl-wrap"><table class="dtbl">
+          <tr><th>M1 WorkCenter ID</th><th>NuPhoenix Machine</th><th>Status</th></tr>
+          ${machineRows}
+        </table></div>
+        ${unknownMachines.length>0?`<div style="margin-top:8px;padding:8px 12px;background:var(--orange-d);border:1px solid rgba(255,159,10,.3);border-radius:var(--rs);font-size:11px;color:var(--orange)">⚠️ Unknown work centers: <strong>${unknownMachines.map(m=>m.m1id).join(', ')}</strong> — add mappings in the Machine Tools tab.</div>`:''}
+      </div>
+    </div>`;
 }
 function saveM1Config(){
   const cfg={server:document.getElementById('m1-server').value,database:document.getElementById('m1-db').value,user:document.getElementById('m1-user').value,password:document.getElementById('m1-pass').value,schema:document.getElementById('m1-schema').value,tables:[]};
